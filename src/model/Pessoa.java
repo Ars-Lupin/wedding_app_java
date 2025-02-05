@@ -15,15 +15,19 @@ public class Pessoa {
      * @param nome     Nome da pessoa (não pode ser vazio).
      * @param telefone Telefone da pessoa (não pode ser vazio).
      */
-    public Pessoa(String nome, String telefone) {
+    public Pessoa(String nome, String telefone, Endereco endereco) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome não pode ser vazio.");
         }
         if (telefone == null || telefone.trim().isEmpty()) {
             throw new IllegalArgumentException("Telefone não pode ser vazio.");
         }
+        if (endereco == null) {
+            throw new IllegalArgumentException("Endereço não pode ser vazio.");
+        }
         this.nome = nome;
         this.telefone = telefone;
+        this.endereco = endereco;
     }
 
     public String getNome() {
@@ -46,6 +50,17 @@ public class Pessoa {
             throw new IllegalArgumentException("Telefone não pode ser vazio.");
         }
         this.telefone = telefone;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        if (endereco == null) {
+            throw new IllegalArgumentException("Endereço não pode ser vazio.");
+        }
+        this.endereco = endereco;
     }
 
     /**
