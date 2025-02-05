@@ -1,37 +1,55 @@
 package model;
-import java.util.Date;
+
+import java.time.LocalDate;
 
 /**
- * Classe que representa uma pessoa física, herdando características
- * de Pessoa
+ * Classe que representa uma pessoa física, herdando características de Pessoa.
  */
-public class PessoaFisica extends Pessoa{
+public class PessoaFisica extends Pessoa {
 
-    private long cpf;
-    private Date dataNascimento;
+    private String cpf;
+    private LocalDate dataNascimento;
     private Financeiro financeiro;
 
-    public PessoaFisica(String nome, String telefone, Endereco endereco, long cpf, 
-                        Date dataNascimento, Financeiro financeiro) {
+    /**
+     * Construtor da classe PessoaFisica.
+     *
+     * @param nome           Nome da pessoa.
+     * @param telefone       Telefone da pessoa.
+     * @param endereco       Endereço da pessoa.
+     * @param cpf            CPF da pessoa (11 dígitos).
+     * @param dataNascimento Data de nascimento da pessoa.
+     * @param financeiro     Informações financeiras da pessoa.
+     */
+    public PessoaFisica(String nome, String telefone, Endereco endereco, String cpf, 
+                        LocalDate dataNascimento, Financeiro financeiro) {
         super(nome, telefone, endereco);
-        this.cpf = cpf; // Verificar se o CPF é válido depois ******
-        this.dataNascimento = dataNascimento; // Verificar se o data é válida depois ******
+        setCpf(cpf); // Usa o setter para validar
+        this.dataNascimento = dataNascimento;
         this.financeiro = financeiro;
     }
 
-    public long getCpf() {
+    public String getCpf() {
         return cpf;
     }
 
-    public void setCpf(long cpf) {
+    /**
+     * Define um novo CPF, garantindo que tenha 11 dígitos numéricos.
+     *
+     * @param cpf CPF da pessoa física.
+     */
+    public void setCpf(String cpf) {
+        if (cpf == null || !cpf.matches("\\d{11}")) {
+            throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
+        }
         this.cpf = cpf;
     }
 
-    public Date getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(Date dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 
@@ -44,14 +62,18 @@ public class PessoaFisica extends Pessoa{
     }
 
     /**
-     * Retorna uma representação textual do objeto. (Para testes de sanidade, por exemplo)
-     * 
-     * @return String formatada com os dados da pessoa.
+     * Retorna uma representação textual do objeto.
+     *
+     * @return String formatada com os dados da pessoa física.
      */
     @Override
     public String toString() {
-        return "Pessoa Fisica{" +
-               "CPF='" + cpf + '\'' +
+        return "PessoaFisica{" +
+               "nome='" + getNome() + '\'' +
+               ", telefone='" + getTelefone() + '\'' +
+               ", cpf='" + cpf + '\'' +
+               ", dataNascimento=" + dataNascimento +
+               ", financeiro=" + financeiro +
                '}';
     }
 }
