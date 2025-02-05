@@ -1,77 +1,94 @@
 package model;
 
-/**
- * Classe que representa um objeto financeiro genérico 
- * no sistema.
- * Possui informações como dinheiro guardado na poupança,
- * salário liquido e gastos mensais
- */
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
+/**
+ * Classe que representa um objeto financeiro genérico no sistema.
+ * Possui informações como dinheiro guardado na poupança,
+ * salário líquido e gastos mensais.
+ */
 public class Financeiro {
 
-    private double dinheiroPoupanca;
-    private double salarioLiquido;
-    private double gastosMensais;
+    private BigDecimal dinheiroPoupanca;
+    private BigDecimal salarioLiquido;
+    private BigDecimal gastosMensais;
 
+    /**
+     * Construtor da classe Financeiro.
+     *
+     * @param dinheiroPoupanca Dinheiro guardado na poupança (não pode ser negativo).
+     * @param salarioLiquido   Salário líquido mensal (não pode ser negativo).
+     * @param gastosMensais    Gastos mensais da pessoa (não pode ser negativo).
+     */
     public Financeiro(double dinheiroPoupanca, double salarioLiquido, double gastosMensais) {
-        if (dinheiroPoupanca < 0) {
-            throw new IllegalArgumentException("Dinheiro na poupança não pode ser negativo.");
-        }
-        if (salarioLiquido < 0) {
-            throw new IllegalArgumentException("Salário líquido não pode ser negativo.");
-        }
-        if (gastosMensais < 0) {
-            throw new IllegalArgumentException("Gastos mensais não podem ser negativos.");
-        }
-        this.dinheiroPoupanca = dinheiroPoupanca;
-        this.salarioLiquido = salarioLiquido;
-        this.gastosMensais = gastosMensais;
+        this.dinheiroPoupanca = validarValor(dinheiroPoupanca, "Dinheiro na poupança");
+        this.salarioLiquido = validarValor(salarioLiquido, "Salário líquido");
+        this.gastosMensais = validarValor(gastosMensais, "Gastos mensais");
     }
 
-    public double getDinheiroPoupanca() {
+    private BigDecimal validarValor(double valor, String campo) {
+        if (valor < 0) {
+            throw new IllegalArgumentException(campo + " não pode ser negativo.");
+        }
+        return BigDecimal.valueOf(valor).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getDinheiroPoupanca() {
         return dinheiroPoupanca;
     }
 
     public void setDinheiroPoupanca(double dinheiroPoupanca) {
-        if (dinheiroPoupanca < 0) {
-            throw new IllegalArgumentException("Dinheiro na poupança não pode ser negativo.");
-        }
-        this.dinheiroPoupanca = dinheiroPoupanca;
+        this.dinheiroPoupanca = validarValor(dinheiroPoupanca, "Dinheiro na poupança");
     }
 
-    public double getSalarioLiquido() {
+    public BigDecimal getSalarioLiquido() {
         return salarioLiquido;
     }
 
     public void setSalarioLiquido(double salarioLiquido) {
-        if (salarioLiquido < 0) {
-            throw new IllegalArgumentException("Salário líquido não pode ser negativo.");
-        }
-        this.salarioLiquido = salarioLiquido;
+        this.salarioLiquido = validarValor(salarioLiquido, "Salário líquido");
     }
 
-    public double getGastosMensais() {
+    public BigDecimal getGastosMensais() {
         return gastosMensais;
     }
 
     public void setGastosMensais(double gastosMensais) {
-        if (gastosMensais < 0) {
-            throw new IllegalArgumentException("Gastos mensais não podem ser negativos.");
-        }
-        this.gastosMensais = gastosMensais;
+        this.gastosMensais = validarValor(gastosMensais, "Gastos mensais");
     }
 
     /**
-     * Retorna uma representação textual do objeto. (Para testes de sanidade, por exemplo)
+     * Calcula o saldo mensal (dinheiro que sobra ou falta após pagar despesas).
+     *
+     * @return Saldo mensal.
+     */
+    public BigDecimal calcularSaldoMensal() {
+        return salarioLiquido.subtract(gastosMensais);
+    }
+
+    /**
+     * Aplica rendimento mensal da poupança (0.5% ao mês).
+     * Apenas para testes, talvez haja mudanças futuras.
+     */
+    public void aplicarRendimento() {
+        BigDecimal rendimento = dinheiroPoupanca.multiply(BigDecimal.valueOf(0.005));
+        dinheiroPoupanca = dinheiroPoupanca.add(rendimento).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Retorna uma representação textual do objeto financeiro.
      * 
-     * @return String formatada com os dados financeiros de uma pessoa fisica.
+     * @return String formatada com os dados financeiros de uma pessoa.
      */
     @Override
     public String toString() {
-        return "Financeiro{" +
-               "Dinheiro na poupanca='" + dinheiroPoupanca + '\'' +
-               ", Salario liquido='" + salarioLiquido + '\'' +
-               ", Gastos mensais='" + gastosMensais + '\'' +
-               '}';
+        return String.format("Financeiro{ Dinheiro Poupança=%s, Salário Líquido=%s, Gastos Mensais=%s, Saldo Mensal=%s }",
+                formatarValor(dinheiroPoupanca), formatarValor(salarioLiquido),
+                formatarValor(gastosMensais), formatarValor(calcularSaldoMensal()));
+    }
+
+    private String formatarValor(BigDecimal valor) {
+        return String.format("R$ %.2f", valor);
     }
 }
