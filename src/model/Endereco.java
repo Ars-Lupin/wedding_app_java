@@ -21,14 +21,12 @@ public class Endereco {
             throw new IllegalArgumentException("Nome da rua não pode ser vazio.");
         }
         if (numero == null || numero.trim().isEmpty()) {
-            throw new IllegalArgumentException("numero da casa não pode ser vazio."); }
-        if (complemento == null || complemento.trim().isEmpty()) {
-            throw new IllegalArgumentException("complemento não pode ser vazio.");
+            throw new IllegalArgumentException("Número da casa não pode ser vazio."); 
         }
 
         this.rua = rua;
         this.numero = numero;
-        this.complemento = complemento;
+        this.complemento = complemento; // Complemento é opcional
     }
 
     public String getRua() {
@@ -42,24 +40,24 @@ public class Endereco {
         this.rua = rua;
     }
 
-    public String getnumero() {
+    public String getNumero() {
         return numero;
     }
 
-    public void setnumero(String numero) {
+    public void setNumero(String numero) {
         if (numero == null || numero.trim().isEmpty()) {
-            throw new IllegalArgumentException("numero da casa não pode ser vazio.");
+            throw new IllegalArgumentException("Número da casa não pode ser vazio.");
         }
         this.numero = numero;
     }
 
-    public String getcomplemento() {
+    public String getComplemento() {
         return complemento;
     }
 
-    public void setcomplemento(String complemento) {
+    public void setComplemento(String complemento) {
         if (complemento == null || complemento.trim().isEmpty()) {
-            throw new IllegalArgumentException("complemento não pode ser vazio.");
+            throw new IllegalArgumentException("Complemento não pode ser vazio.");
         }
         this.complemento = complemento;
     }
