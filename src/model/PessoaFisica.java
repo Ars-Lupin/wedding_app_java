@@ -39,6 +39,7 @@ public class PessoaFisica extends Pessoa {
      * @param cpf CPF da pessoa física.
      */
     public void setCpf(String cpf) {
+        // Verifica se o CPF é nulo ou não tem 11 dígitos numéricos
         if (cpf == null || !cpf.matches("\\d{11}")) {
             throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
         }
