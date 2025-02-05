@@ -67,7 +67,7 @@ public class Endereco {
     /**
      * Retorna uma representação textual do objeto. (Para testes de sanidade, por exemplo)
      * 
-     * @return String formatada com os dados da pessoa.
+     * @return String formatada com os dados do endereço.
      */
     @Override
     public String toString() {
