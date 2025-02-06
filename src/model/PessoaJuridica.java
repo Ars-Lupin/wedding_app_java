@@ -14,27 +14,21 @@ public class PessoaJuridica extends Pessoa {
      * @param telefone  Telefone de contato.
      * @param endereco  Endereço da empresa.
      * @param cnpj      CNPJ da empresa (14 dígitos numéricos).
+     * @param idPessoa  ID da pessoa jurídica.
      */
-    public PessoaJuridica(String nome, String telefone, Endereco endereco, String cnpj) {
-        super(nome, telefone, endereco);
-        setCnpj(cnpj); // Usa o setter para validar
-    }
+    public PessoaJuridica(String nome, String telefone, Endereco endereco, String cnpj, String idPessoa) {
+        super(nome, telefone, endereco, idPessoa);
 
-    public String getCnpj() {
-        return cnpj;
-    }
-
-    /**
-     * Define um novo CNPJ, garantindo que tenha 14 dígitos numéricos.
-     *
-     * @param cnpj CNPJ da empresa.
-     */
-    public void setCnpj(String cnpj) {
         // Verifica se o CNPJ está vazio ou não tem 14 dígitos
         if (cnpj == null || !cnpj.matches("\\d{14}")) {
             throw new IllegalArgumentException("CNPJ inválido! Deve conter exatamente 14 dígitos numéricos.");
         }
+        
         this.cnpj = cnpj;
+    }
+
+    public String getCnpj() {
+        return cnpj;
     }
 
     /**
@@ -49,6 +43,7 @@ public class PessoaJuridica extends Pessoa {
                ", telefone='" + getTelefone() + '\'' +
                ", cnpj='" + cnpj + '\'' +
                ", endereco='" + getEndereco() + '\'' +
+                ", idPessoa='" + getIdPessoa() + '\'' +
                '}';
     }
 }

@@ -5,7 +5,7 @@ package model;
  */
 public class Lar {
 
-    private int idLar;
+    private String idLar;
     private Casal casal;
     private Endereco endereco;
 
@@ -16,8 +16,8 @@ public class Lar {
      * @param casal    Casal proprietário do lar.
      * @param endereco Endereço do lar.
      */
-    public Lar(int idLar, Casal casal, Endereco endereco) {
-        if (idLar <= 0) {
+    public Lar(String idLar, Casal casal, Endereco endereco) {
+        if (idLar == null || idLar.trim().isEmpty()) {
             throw new IllegalArgumentException("O ID do lar deve ser um número positivo.");
         }
         if (casal == null) {
@@ -32,7 +32,7 @@ public class Lar {
         this.endereco = endereco;
     }
 
-    public int getIdLar() {
+    public String getIdLar() {
         return idLar;
     }
 

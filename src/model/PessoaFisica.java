@@ -22,28 +22,20 @@ public class PessoaFisica extends Pessoa {
      * @param financeiro     Informações financeiras da pessoa.
      */
     public PessoaFisica(String nome, String telefone, Endereco endereco, String cpf, 
-                        LocalDate dataNascimento, Financeiro financeiro) {
-        super(nome, telefone, endereco);
-        setCpf(cpf); // Usa o setter para validar
+                        LocalDate dataNascimento, Financeiro financeiro, String idPessoa) {         
+        super(nome, telefone, endereco, idPessoa);
+
+        if (cpf == null || !cpf.matches("\\d{11}")) {
+            throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
+        }
+
         this.dataNascimento = dataNascimento;
         this.financeiro = financeiro;
+        this.cpf = cpf;
     }
 
     public String getCpf() {
         return cpf;
-    }
-
-    /**
-     * Define um novo CPF, garantindo que tenha 11 dígitos numéricos.
-     *
-     * @param cpf CPF da pessoa física.
-     */
-    public void setCpf(String cpf) {
-        // Verifica se o CPF é nulo ou não tem 11 dígitos numéricos
-        if (cpf == null || !cpf.matches("\\d{11}")) {
-            throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
-        }
-        this.cpf = cpf;
     }
 
     public LocalDate getDataNascimento() {
@@ -75,6 +67,8 @@ public class PessoaFisica extends Pessoa {
                ", cpf='" + cpf + '\'' +
                ", dataNascimento=" + dataNascimento +
                ", financeiro=" + financeiro +
+                ", endereco=" + getEndereco() +
+                ", idPessoa=" + getIdPessoa() +
                '}';
     }
 }

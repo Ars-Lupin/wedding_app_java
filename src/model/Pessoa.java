@@ -8,14 +8,17 @@ public class Pessoa {
     private String nome;
     private String telefone;
     private Endereco endereco;
+    private String idPessoa;
 
     /**
      * Construtor da classe Pessoa.
      * 
      * @param nome     Nome da pessoa (não pode ser vazio).
      * @param telefone Telefone da pessoa (não pode ser vazio).
+     * @param endereco Endereço da pessoa (não pode ser vazio).
+     * @param idPessoa Identificador único da pessoa.
      */
-    public Pessoa(String nome, String telefone, Endereco endereco) {
+    public Pessoa(String nome, String telefone, Endereco endereco, String idPessoa) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome não pode ser vazio.");
         }
@@ -25,9 +28,13 @@ public class Pessoa {
         if (endereco == null) {
             throw new IllegalArgumentException("Endereço não pode ser vazio.");
         }
+        if (idPessoa == null || !idPessoa.matches("\\d{32}")) {
+            throw new IllegalArgumentException("ID inválido! Deve conter exatamente 32 dígitos numéricos.");
+        }
         this.nome = nome;
         this.telefone = telefone;
         this.endereco = endereco;
+        this.idPessoa = idPessoa;
     }
 
     public String getNome() {
@@ -63,6 +70,10 @@ public class Pessoa {
         this.endereco = endereco;
     }
 
+    public String getIdPessoa() {
+        return idPessoa;
+    }
+
     /**
      * Retorna uma representação textual do objeto. (Para testes de sanidade, por exemplo)
      * 
@@ -73,6 +84,8 @@ public class Pessoa {
         return "Pessoa{" +
                "nome='" + nome + '\'' +
                ", telefone='" + telefone + '\'' +
+                ", endereco=" + endereco +
+                ", idPessoa='" + idPessoa + '\'' +
                '}';
     }
 }

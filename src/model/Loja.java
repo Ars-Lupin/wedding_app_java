@@ -13,9 +13,10 @@ public class Loja extends PessoaJuridica {
      * @param telefone  Telefone de contato da loja.
      * @param endereco  Endereço da loja.
      * @param cnpj      CNPJ da loja (14 dígitos numéricos).
+     * @param idLoja    Identificador da loja.
      */
-    public Loja(String nome, String telefone, Endereco endereco, String cnpj) {
-        super(nome, telefone, endereco, cnpj);
+    public Loja(String nome, String telefone, Endereco endereco, String cnpj, String idLoja) {
+        super(nome, telefone, endereco, cnpj, idLoja);
     }
 
     /**
@@ -30,6 +31,7 @@ public class Loja extends PessoaJuridica {
                ", telefone='" + getTelefone() + '\'' +
                ", cnpj='" + getCnpj() + '\'' +
                ", endereco='" + getEndereco() + '\'' +
+                ", idLoja='" + getIdPessoa() + '\'' +
                '}';
     }
 }
