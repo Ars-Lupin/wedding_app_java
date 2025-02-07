@@ -1,7 +1,7 @@
 package model;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.math.BigDecimal; // Utilizar para maior precisão
+import java.math.RoundingMode; // Melhor arredondamento de valores
 
 /**
  * Classe que representa um objeto financeiro genérico no sistema.
