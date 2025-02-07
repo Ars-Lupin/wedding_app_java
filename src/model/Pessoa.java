@@ -8,7 +8,7 @@ public class Pessoa {
     private String nome;
     private String telefone;
     private Endereco endereco;
-    private String idPessoa;
+    private final String idPessoa;
 
     /**
      * Construtor da classe Pessoa.

@@ -17,7 +17,7 @@ public class Lar {
      * @param endereco Endereço do lar.
      */
     public Lar(String idLar, Casal casal, Endereco endereco) {
-        if (idLar == null || idLar.trim().isEmpty()) {
+        if (idLar == null || idLar.trim().isEmpty() || !idLar.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do lar deve ser um número positivo.");
         }
         if (casal == null) {
