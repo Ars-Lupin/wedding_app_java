@@ -23,20 +23,23 @@ public class Tarefa {
     /**
      * Construtor da classe Tarefa.
      *
-     * @param idTarefa      Identificador único da tarefa (32 dígitos).
-     * @param idLar         Identificador do lar associado (pode ser null).
-     * @param idPrestador   Identificador do prestador de serviço.
-     * @param dataInicio    Data de início da tarefa.
-     * @param prazoEntrega  Número de dias para conclusão.
+     * @param idTarefa       Identificador único da tarefa (32 dígitos).
+     * @param idLar          Identificador do lar associado (pode ser null).
+     * @param idPrestador    Identificador do prestador de serviço.
+     * @param dataInicio     Data de início da tarefa.
+     * @param prazoEntrega   Número de dias para conclusão.
      * @param valorPrestador Valor cobrado pelo prestador.
-     * @param numParcelas   Número de parcelas do pagamento.
-     * @param compra        Compra de materiais associada à tarefa (pode ser null).
+     * @param numParcelas    Número de parcelas do pagamento.
+     * @param compra         Compra de materiais associada à tarefa (pode ser null).
      */
     public Tarefa(String idTarefa, String idLar, String idPrestador, LocalDate dataInicio,
                   int prazoEntrega, BigDecimal valorPrestador, int numParcelas, Compra compra) {
         
         if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID da tarefa deve ter exatamente 32 dígitos numéricos.");
+        }
+        if (idLar != null && !idLar.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID do lar deve ter exatamente 32 dígitos numéricos.");
         }
         if (idPrestador == null || !idPrestador.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do prestador deve ter exatamente 32 dígitos numéricos.");
