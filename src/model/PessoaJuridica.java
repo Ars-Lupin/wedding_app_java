@@ -5,7 +5,7 @@ package model;
  */
 public class PessoaJuridica extends Pessoa {
     
-    private String cnpj;
+    private final String cnpj;
 
     /**
      * Construtor da classe PessoaJuridica.
@@ -19,11 +19,10 @@ public class PessoaJuridica extends Pessoa {
     public PessoaJuridica(String nome, String telefone, Endereco endereco, String cnpj, String idPessoa) {
         super(nome, telefone, endereco, idPessoa);
 
-        // Verifica se o CNPJ está vazio ou não tem 14 dígitos
         if (cnpj == null || !cnpj.matches("\\d{14}")) {
             throw new IllegalArgumentException("CNPJ inválido! Deve conter exatamente 14 dígitos numéricos.");
         }
-        
+
         this.cnpj = cnpj;
     }
 
@@ -38,12 +37,7 @@ public class PessoaJuridica extends Pessoa {
      */
     @Override
     public String toString() {
-        return "PessoaJuridica{" +
-               "nome='" + getNome() + '\'' +
-               ", telefone='" + getTelefone() + '\'' +
-               ", cnpj='" + cnpj + '\'' +
-               ", endereco='" + getEndereco() + '\'' +
-                ", idPessoa='" + getIdPessoa() + '\'' +
-               '}';
+        return String.format("PessoaJuridica{ID='%s', Nome='%s', Telefone='%s', CNPJ='%s', Endereço=%s}",
+                getIdPessoa(), getNome(), getTelefone(), cnpj, getEndereco());
     }
 }
