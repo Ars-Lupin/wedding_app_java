@@ -16,7 +16,7 @@ public class PessoaJuridica extends Pessoa {
      * @param cnpj      CNPJ da empresa (14 dígitos numéricos).
      * @param idPessoa  ID da pessoa jurídica.
      */
-    public PessoaJuridica(String nome, String telefone, Endereco endereco, String cnpj, String idPessoa) {
+    public PessoaJuridica(String nome, String telefone, String endereco, String cnpj, String idPessoa) {
         super(nome, telefone, endereco, idPessoa);
 
         if (cnpj == null || !cnpj.matches("\\d{14}")) {

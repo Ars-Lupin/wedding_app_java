@@ -15,7 +15,7 @@ public class Loja extends PessoaJuridica {
      * @param cnpj      CNPJ da loja (14 dígitos numéricos).
      * @param idPessoa  Identificador da loja (mesmo que PessoaJuridica).
      */
-    public Loja(String nome, String telefone, Endereco endereco, String cnpj, String idPessoa) {
+    public Loja(String nome, String telefone, String endereco, String cnpj, String idPessoa) {
         super(nome, telefone, endereco, cnpj, idPessoa);
     }
 

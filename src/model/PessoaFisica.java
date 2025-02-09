@@ -22,7 +22,7 @@ public class PessoaFisica extends Pessoa {
      * @param financeiro     Informações financeiras da pessoa.
      * @param idPessoa       Identificador único da pessoa.
      */
-    public PessoaFisica(String nome, String telefone, Endereco endereco, String cpf, 
+    public PessoaFisica(String nome, String telefone, String endereco, String cpf, 
                         LocalDate dataNascimento, Financeiro financeiro, String idPessoa) {         
         super(nome, telefone, endereco, idPessoa);
 
