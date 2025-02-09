@@ -7,8 +7,8 @@ import java.math.BigDecimal;
  */
 public class Casal {
 
-    private PessoaFisica pessoa1;
-    private PessoaFisica pessoa2;
+    private final PessoaFisica pessoa1;
+    private final PessoaFisica pessoa2;
 
     /**
      * Construtor da classe Casal.
@@ -22,6 +22,9 @@ public class Casal {
         }
         if (pessoa1.getCpf().equals(pessoa2.getCpf())) {
             throw new IllegalArgumentException("As duas pessoas devem ter CPFs diferentes.");
+        }
+        if (pessoa1.getFinanceiro() == null || pessoa2.getFinanceiro() == null) {
+            throw new IllegalArgumentException("Ambas as pessoas devem ter informações financeiras válidas.");
         }
 
         // Garante que os nomes estão em ordem alfabética
@@ -59,7 +62,7 @@ public class Casal {
      */
     @Override
     public String toString() {
-        return String.format("Casal{Pessoa 1='%s', Pessoa 2='%s', Saldo Total='%s'}",
+        return String.format("Casal{\n  Pessoa 1='%s',\n  Pessoa 2='%s',\n  Saldo Total='%s'\n}",
                 pessoa1.getNome(), pessoa2.getNome(), formatarValor(getSaldoTotal()));
     }
 
