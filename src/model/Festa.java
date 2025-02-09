@@ -13,7 +13,7 @@ import java.util.List;
 public class Festa {
     
     private final String idFesta;
-    private final Casamento casamento;
+    private final String idCasamento;
     private Endereco endereco;
     private BigDecimal valorFesta;
     private LocalDate data;
@@ -21,23 +21,24 @@ public class Festa {
     private List<String> convidados;
 
     /**
-     * Construtor da classe Festa
-     * @param idFesta identificador único da festa
-     * @param casamento casamento que será celebrado
-     * @param endereco endereço da festa
-     * @param valorFesta valor total gasto na organização da festa
-     * @param data data da festa (dd/mm/aaaa)
-     * @param hora horário que a festa começa (hh:mm)
-     * @param convidados lista de nomes dos convidados
+     * Construtor da classe Festa.
+     * 
+     * @param idFesta     Identificador único da festa (32 dígitos numéricos).
+     * @param idCasamento Identificador do casamento ao qual a festa pertence.
+     * @param endereco    Endereço da festa.
+     * @param valorFesta  Valor total gasto na organização da festa.
+     * @param data        Data da festa (dd/mm/aaaa).
+     * @param hora        Horário que a festa começa (hh:mm).
+     * @param convidados  Lista de nomes dos convidados.
      */
-    public Festa(String idFesta, Casamento casamento, Endereco endereco, double valorFesta, 
+    public Festa(String idFesta, String idCasamento, Endereco endereco, double valorFesta, 
                 LocalDate data, String hora, List<String> convidados) {
         
         if (idFesta == null || !idFesta.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da festa deve ter exatamente 32 dígitos numéricos.");
+            throw new IllegalArgumentException("O ID da festa deve conter exatamente 32 dígitos numéricos.");
         }
-        if (casamento == null) {
-            throw new IllegalArgumentException("O casamento não pode ser nulo.");
+        if (idCasamento == null || !idCasamento.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID do casamento deve conter exatamente 32 dígitos numéricos.");
         }
         if (endereco == null) {
             throw new IllegalArgumentException("O endereço não pode ser nulo.");
@@ -53,12 +54,12 @@ public class Festa {
         }
 
         this.idFesta = idFesta;
-        this.casamento = casamento;
+        this.idCasamento = idCasamento;
         this.endereco = endereco;
         this.valorFesta = validarValor(valorFesta, "Valor da festa"); 
         this.data = data;
         this.hora = hora;
-        this.convidados = new ArrayList<>(convidados); // Evita modificações externas
+        this.convidados = new ArrayList<>(convidados); // Cria uma cópia da lista
     }
 
     private BigDecimal validarValor(double valor, String campo) {
@@ -72,8 +73,8 @@ public class Festa {
         return idFesta;
     }
 
-    public Casamento getCasamento() {
-        return casamento;
+    public String getIdCasamento() {
+        return idCasamento;
     }
 
     public Endereco getEndereco() {
@@ -137,14 +138,8 @@ public class Festa {
 
     @Override
     public String toString() {
-        return "Festa{" +
-               "ID=" + idFesta +
-               ", casamentoID=" + casamento.getIdCasamento() + // Exibe apenas o ID para evitar loops
-               ", convidados=" + convidados.size() + // Exibe número total de convidados
-               ", data=" + data +
-               ", endereco=" + endereco +
-               ", hora=" + hora +
-               ", valorFesta=" + valorFesta +
-               "}";
+        return String.format(
+                "Festa{ID='%s', CasamentoID='%s', Convidados=%d, Data='%s', Hora='%s', Endereço=%s, Valor=R$ %.2f}",
+                idFesta, idCasamento, convidados.size(), data, hora, endereco, valorFesta);
     }
 }
