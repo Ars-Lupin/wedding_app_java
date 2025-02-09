@@ -90,14 +90,7 @@ public class Compra {
          */
         @Override
         public String toString() {
-            return "Compra{" +
-                    "idCompra='" + idCompra + '\'' +
-                    ", idLoja='" + idLoja + '\'' +
-                    ", idTarefa='" + idTarefa + '\'' +
-                    ", nomeProduto='" + nomeProduto + '\'' +
-                    ", quantidade=" + quantidade +
-                    ", valorUnitario=" + valorUnitario +
-                    ", numParcelas=" + numParcelas +
-                    "}";
+            return String.format("Compra{ID='%s', ID Loja='%s', ID Tarefa='%s', Produto='%s', Quantidade=%d, Valor Unitário=%.2f, Parcelas=%d}",
+                                 idCompra, idLoja, idTarefa, nomeProduto, quantidade, valorUnitario, numParcelas);
         }
 }
