@@ -36,13 +36,13 @@ public class Tarefa {
                   int prazoEntrega, BigDecimal valorPrestador, int numParcelas, Compra compra) {
         
         if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da tarefa deve ter exatamente 32 dígitos numéricos.");
+            throw new IllegalArgumentException("O ID da tarefa deve conter exatamente 32 dígitos numéricos.");
         }
         if (idLar != null && !idLar.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do lar deve ter exatamente 32 dígitos numéricos.");
+            throw new IllegalArgumentException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
         }
         if (idPrestador == null || !idPrestador.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do prestador deve ter exatamente 32 dígitos numéricos.");
+            throw new IllegalArgumentException("O ID do prestador deve conter exatamente 32 dígitos numéricos.");
         }
         if (dataInicio == null) {
             throw new IllegalArgumentException("A data de início não pode ser nula.");
@@ -107,31 +107,36 @@ public class Tarefa {
         this.compra = compra;
     }
 
+    
     /**
      * Calcula o valor de cada parcela do prestador de serviço.
      */
     /*
     public BigDecimal calcularValorParcela() {
+        if (numParcelas == 0) {
+            return BigDecimal.ZERO;
+        }
         return valorPrestador.divide(BigDecimal.valueOf(numParcelas), 2, BigDecimal.ROUND_HALF_UP);
     }
-    */
+    /
 
     /**
      * Retorna uma representação textual da tarefa.
      */
     @Override
     public String toString() {
-        return "Tarefa{" +
-               "ID=" + idTarefa +
-               ", ID Lar=" + (idLar != null ? idLar : "Nenhum") +
-               ", ID Prestador=" + idPrestador +
-               ", Data Início=" + dataInicio.format(FORMATTER) +
-               ", Prazo=" + prazoEntrega + " dias" +
-               ", Data Entrega=" + getDataEntrega().format(FORMATTER) +
-               ", Valor Prestador=" + valorPrestador +
-               ", Parcelas=" + numParcelas +
-               ", Valor Parcela=" + "IMPLEMENTAR" +
-               ", Compra=" + (compra != null ? compra.toString() : "Nenhuma") +
-               "}";
+        return String.format(
+                "Tarefa{ID='%s', ID Lar='%s', ID Prestador='%s', Data Início='%s', Prazo='%d dias', " +
+                "Data Entrega='%s', Valor Prestador='R$ %.2f', Parcelas='%d', Valor Parcela='IMPLEMENTAR', Compra=%s}",
+                idTarefa,
+                (idLar != null ? idLar : "Nenhum"),
+                idPrestador,
+                dataInicio.format(FORMATTER),
+                prazoEntrega,
+                getDataEntrega().format(FORMATTER),
+                valorPrestador,
+                numParcelas,
+                (compra != null ? compra.toString() : "Nenhuma")
+        );
     }
 }
