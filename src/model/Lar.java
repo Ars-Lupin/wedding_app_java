@@ -5,30 +5,39 @@ package model;
  */
 public class Lar {
 
-    private String idLar;
-    private Casal casal;
+    private final String idLar;
+    private final String idPessoa1;
+    private final String idPessoa2;
     private Endereco endereco;
 
     /**
      * Construtor da classe Lar.
      * 
-     * @param idLar    Identificador único do lar.
-     * @param casal    Casal proprietário do lar.
-     * @param endereco Endereço do lar.
+     * @param idLar      Identificador único do lar (32 dígitos numéricos).
+     * @param idPessoa1  Identificador da primeira pessoa do casal.
+     * @param idPessoa2  Identificador da segunda pessoa do casal.
+     * @param endereco   Endereço do lar.
      */
-    public Lar(String idLar, Casal casal, Endereco endereco) {
-        if (idLar == null || idLar.trim().isEmpty() || !idLar.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do lar deve ser um número positivo.");
+    public Lar(String idLar, String idPessoa1, String idPessoa2, Endereco endereco) {
+        if (idLar == null || !idLar.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
         }
-        if (casal == null) {
-            throw new IllegalArgumentException("O casal não pode ser nulo.");
+        if (idPessoa1 == null || !idPessoa1.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID da primeira pessoa deve conter exatamente 32 dígitos numéricos.");
+        }
+        if (idPessoa2 == null || !idPessoa2.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID da segunda pessoa deve conter exatamente 32 dígitos numéricos.");
+        }
+        if (idPessoa1.equals(idPessoa2)) {
+            throw new IllegalArgumentException("As duas pessoas devem ter IDs diferentes.");
         }
         if (endereco == null) {
             throw new IllegalArgumentException("O endereço do lar não pode ser nulo.");
         }
 
         this.idLar = idLar;
-        this.casal = casal;
+        this.idPessoa1 = idPessoa1;
+        this.idPessoa2 = idPessoa2;
         this.endereco = endereco;
     }
 
@@ -36,8 +45,12 @@ public class Lar {
         return idLar;
     }
 
-    public Casal getCasal() {
-        return casal;
+    public String getIdPessoa1() {
+        return idPessoa1;
+    }
+
+    public String getIdPessoa2() {
+        return idPessoa2;
     }
 
     public Endereco getEndereco() {
@@ -58,10 +71,7 @@ public class Lar {
      */
     @Override
     public String toString() {
-        return "Lar{" +
-               "ID=" + idLar +
-               ", casal=" + casal +
-               ", endereco=" + endereco +
-               '}';
+        return String.format("Lar{ID='%s', Pessoa1='%s', Pessoa2='%s', Endereço=%s}",
+                idLar, idPessoa1, idPessoa2, endereco);
     }
 }
