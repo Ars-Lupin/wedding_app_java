@@ -7,8 +7,8 @@ import java.time.LocalDate;
  */
 public class PessoaFisica extends Pessoa {
 
-    private String cpf;
-    private LocalDate dataNascimento;
+    private final String cpf;
+    private final LocalDate dataNascimento;
     private Financeiro financeiro;
 
     /**
@@ -20,6 +20,7 @@ public class PessoaFisica extends Pessoa {
      * @param cpf            CPF da pessoa (11 dígitos).
      * @param dataNascimento Data de nascimento da pessoa.
      * @param financeiro     Informações financeiras da pessoa.
+     * @param idPessoa       Identificador único da pessoa.
      */
     public PessoaFisica(String nome, String telefone, Endereco endereco, String cpf, 
                         LocalDate dataNascimento, Financeiro financeiro, String idPessoa) {         
@@ -28,10 +29,16 @@ public class PessoaFisica extends Pessoa {
         if (cpf == null || !cpf.matches("\\d{11}")) {
             throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
         }
+        if (dataNascimento == null) {
+            throw new IllegalArgumentException("Data de nascimento não pode ser nula.");
+        }
+        if (financeiro == null) {
+            throw new IllegalArgumentException("Informações financeiras não podem ser nulas.");
+        }
 
+        this.cpf = cpf;
         this.dataNascimento = dataNascimento;
         this.financeiro = financeiro;
-        this.cpf = cpf;
     }
 
     public String getCpf() {
@@ -42,15 +49,14 @@ public class PessoaFisica extends Pessoa {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) {
-        this.dataNascimento = dataNascimento;
-    }
-
     public Financeiro getFinanceiro() {
         return financeiro;
     }
 
     public void setFinanceiro(Financeiro financeiro) {
+        if (financeiro == null) {
+            throw new IllegalArgumentException("Informações financeiras não podem ser nulas.");
+        }
         this.financeiro = financeiro;
     }
 
@@ -61,14 +67,7 @@ public class PessoaFisica extends Pessoa {
      */
     @Override
     public String toString() {
-        return "PessoaFisica{" +
-               "nome='" + getNome() + '\'' +
-               ", telefone='" + getTelefone() + '\'' +
-               ", cpf='" + cpf + '\'' +
-               ", dataNascimento=" + dataNascimento +
-               ", financeiro=" + financeiro +
-                ", endereco=" + getEndereco() +
-                ", idPessoa=" + getIdPessoa() +
-               '}';
+        return String.format("PessoaFisica{ID='%s', Nome='%s', Telefone='%s', CPF='%s', DataNascimento=%s, Endereco=%s, Financeiro=%s}",
+                getIdPessoa(), getNome(), getTelefone(), cpf, dataNascimento, getEndereco(), financeiro);
     }
 }
