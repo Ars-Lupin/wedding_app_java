@@ -5,23 +5,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
 
-/**
- * Classe que representa um repositório de compras.
- */
 public class CompraRepository {
 
-    private Map<String, Compra> compras;
+    private final Map<String, Compra> compras;
 
-    // Construtor: inicializa o mapa de compras
     public CompraRepository() {
         this.compras = new HashMap<>();
     }
 
     public void adicionar(Compra compra) {
+        if (compra == null) {
+            throw new IllegalArgumentException("A compra não pode ser nula.");
+        }
+        if (compras.containsKey(compra.getIdCompra())) {
+            throw new IllegalArgumentException("Já existe uma compra com este ID no repositório.");
+        }
         this.compras.put(compra.getIdCompra(), compra);
     }
 
     public void remover(Compra compra) {
+        if (compra == null) {
+            throw new IllegalArgumentException("A compra não pode ser nula.");
+        }
+        if (!compras.containsKey(compra.getIdCompra())) {
+            throw new IllegalArgumentException("A compra não existe no repositório.");
+        }
         this.compras.remove(compra.getIdCompra());
     }
 
@@ -30,6 +38,9 @@ public class CompraRepository {
     }
 
     public Compra buscarPorId(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
+        }
         return this.compras.get(id);
     }
 }
