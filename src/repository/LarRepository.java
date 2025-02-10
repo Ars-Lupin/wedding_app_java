@@ -5,23 +5,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
 
-/**
- * Classe que representa um repositório de lares.
- */
 public class LarRepository {
 
-    private Map<String, Lar> lares;
+    private final Map<String, Lar> lares;
 
-    // Construtor: inicializa o mapa de lares
     public LarRepository() {
         this.lares = new HashMap<>();
     }
 
     public void adicionar(Lar lar) {
+        if (lar == null) {
+            throw new IllegalArgumentException("O lar não pode ser nulo.");
+        }
+        if (lares.containsKey(lar.getIdLar())) {
+            throw new IllegalArgumentException("Já existe um lar com este ID no repositório.");
+        }
         this.lares.put(lar.getIdLar(), lar);
     }
 
     public void remover(Lar lar) {
+        if (lar == null) {
+            throw new IllegalArgumentException("O lar não pode ser nulo.");
+        }
+        if (!lares.containsKey(lar.getIdLar())) {
+            throw new IllegalArgumentException("O lar não existe no repositório.");
+        }
         this.lares.remove(lar.getIdLar());
     }
 
@@ -30,6 +38,9 @@ public class LarRepository {
     }
 
     public Lar buscarPorId(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
+        }
         return this.lares.get(id);
     }
 }
