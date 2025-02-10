@@ -26,7 +26,7 @@ public class Main {
 
         try {
             // Carregar dados de pessoas
-            List<String[]> pessoas = CSVReader.lerCSV("c:/Users/guilh/OneDrive/Documentos/POO/T1/01/pessoas.csv");
+            List<String[]> pessoas = CSVReader.lerCSV("");
             for (String[] campos : pessoas) {
                 String id = campos[0];
                 String tipo = campos[1];
