@@ -14,15 +14,14 @@ import java.util.Locale;
 public class Main {
 
     public static void main(String[] args) {
-        String caminhoArquivo = "Casos/01/pessoas.csv"; // Ajuste o caminho conforme necessário
+        String caminhoArquivo = "Casos/01/pessoas.csv";
         PessoaRepository pessoaRepo = new PessoaRepository();
 
         try {
             List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
             System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
-            // Formato de data esperado: dd/MM/yyyy
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Formato de data esperado: dd/MM/yyyy
             NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR")); // Define formato brasileiro
 
             for (String[] campos : linhas) {

@@ -26,7 +26,8 @@ public class PessoaFisica extends Pessoa {
                         LocalDate dataNascimento, Financeiro financeiro, String idPessoa) {         
         super(nome, telefone, endereco, idPessoa);
 
-        if (cpf == null || !cpf.matches("\\d{11}")) {
+        // CPF deve ser no formato 000.000.000-00
+        if (cpf == null || !cpf.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
             throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
         }
         if (dataNascimento == null) {

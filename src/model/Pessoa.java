@@ -19,8 +19,8 @@ public class Pessoa {
      * @param idPessoa Identificador único da pessoa (32 dígitos).
      */
     public Pessoa(String nome, String telefone, String endereco, String idPessoa) {
-        if (idPessoa == null || !idPessoa.matches("\\d{32}")) {
-            throw new IllegalArgumentException("ID inválido! Deve conter exatamente 32 dígitos numéricos.");
+        if (idPessoa == null || !idPessoa.matches("\\d{37}")) {
+            throw new IllegalArgumentException("ID inválido! Deve conter exatamente 37 dígitos numéricos.");
         }
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome não pode ser vazio.");
