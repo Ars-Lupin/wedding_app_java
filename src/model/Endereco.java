@@ -6,7 +6,7 @@ package model;
 public class Endereco {
     
     private String rua;
-    private String numero;
+    private int numero;
     private String complemento;
 
     /**
@@ -16,12 +16,9 @@ public class Endereco {
      * @param numero        Número da casa (não pode ser vazio).
      * @param complemento   complemento do endereço (não pode ser vazio).
      */
-    public Endereco (String rua, String numero, String complemento) {
+    public Endereco (String rua, int numero, String complemento) {
         if (rua == null || rua.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome da rua não pode ser vazio.");
-        }
-        if (numero == null || numero.trim().isEmpty()) {
-            throw new IllegalArgumentException("Número da casa não pode ser vazio."); 
         }
 
         this.rua = rua;
@@ -40,13 +37,13 @@ public class Endereco {
         this.rua = rua;
     }
 
-    public String getNumero() {
+    public int getNumero() {
         return numero;
     }
 
-    public void setNumero(String numero) {
-        if (numero == null || numero.trim().isEmpty()) {
-            throw new IllegalArgumentException("Número da casa não pode ser vazio.");
+    public void setNumero(int numero) {
+        if (numero <= 0) {
+            throw new IllegalArgumentException("Número da casa não pode ser menor ou igual a zero");
         }
         this.numero = numero;
     }

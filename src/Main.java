@@ -1,20 +1,27 @@
 import repository.PessoaRepository;
+import repository.LarRepository;
+
 import java.io.IOException;
+
 import java.text.ParseException;
 
 public class Main {
 
     public static void main(String[] args) {
-        String caminhoArquivo = "Casos/01/pessoas.csv";
+        String caminhoArquivoPessoas = "Casos/01/pessoas.csv";
         PessoaRepository pessoaRepo = new PessoaRepository();
 
+        String caminhoArquivoLares = "Casos/01/lares.csv";
+        LarRepository larRepo = new LarRepository();
+
         try {
-            // Chama o método do repositório para carregar os dados do CSV
-            pessoaRepo.carregarDadosDoCSV(caminhoArquivo);
+            // Chama o método do repositório para carregar os dados dos arquivos CSV
+            pessoaRepo.carregarDadosDoCSV(caminhoArquivoPessoas);
+            larRepo.carregarDados(caminhoArquivoLares);
 
             // Exibir as pessoas carregadas
-            System.out.println("\nPessoas carregadas no repositório:");
-            pessoaRepo.listar().forEach(System.out::println);
+            System.out.println("\nLares carregados no repositório:");
+            larRepo.listar().forEach(System.out::println);
 
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());

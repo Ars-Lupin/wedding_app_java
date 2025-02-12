@@ -22,10 +22,10 @@ public class Lar {
         if (idLar == null || !idLar.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
         }
-        if (idPessoa1 == null || !idPessoa1.matches("\\d{32}")) {
+        if (idPessoa1 == null || !idPessoa1.matches("\\d{37}")) {
             throw new IllegalArgumentException("O ID da primeira pessoa deve conter exatamente 32 dígitos numéricos.");
         }
-        if (idPessoa2 == null || !idPessoa2.matches("\\d{32}")) {
+        if (idPessoa2 == null || !idPessoa2.matches("\\d{37}")) {
             throw new IllegalArgumentException("O ID da segunda pessoa deve conter exatamente 32 dígitos numéricos.");
         }
         if (idPessoa1.equals(idPessoa2)) {

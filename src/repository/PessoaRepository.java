@@ -12,12 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.io.IOException;
+import java.util.Collection;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
+
+import java.io.IOException;
 
 /**
  * Classe que representa um repositório de pessoas.
@@ -66,9 +69,9 @@ public class PessoaRepository {
     }
 
     /**
-     * Retorna uma coleção contendo todas as pessoas cadastradas.
+     * Lista todas as pessoas no repositório.
      * 
-     * @return Coleção de pessoas no repositório.
+     * @return Coleção de pessoas.
      */
     public Collection<Pessoa> listar() {
         return this.pessoas.values();
@@ -89,7 +92,7 @@ public class PessoaRepository {
     }
 
     /**
-     * Carrega os dados do arquivo CSV e adiciona as pessoas ao repositório.
+     * Carrega os dados do arquivo pessoas.CSV e adiciona as pessoas ao repositório.
      *
      * @param caminhoArquivo Caminho do arquivo CSV.
      * @throws IOException Se houver erro na leitura do arquivo.
