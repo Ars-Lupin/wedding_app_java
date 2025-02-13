@@ -1,18 +1,37 @@
 package repository;
 
 import model.Compra;
+
+import util.CSVReader;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Collection;
 
+import java.io.IOException;
+
+/**
+ * Classe que representa um repositório de Compras
+ */
 public class CompraRepository {
 
     private final Map<String, Compra> compras;
 
+    /**
+     * Construtor: inicializa o mapa de Compras
+     */
     public CompraRepository() {
         this.compras = new HashMap<>();
     }
 
+    /**
+     * Adiciona uma Compra ao repositório
+     * @param compra
+     */
     public void adicionar(Compra compra) {
         if (compra == null) {
             throw new IllegalArgumentException("A compra não pode ser nula.");
