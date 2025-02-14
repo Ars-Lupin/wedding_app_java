@@ -1,8 +1,5 @@
 package model;
 
-import java.math.BigDecimal; // Utilizar para maior precisão
-import java.math.RoundingMode; // Melhor arredondamento de valores
-
 /**
  * Classe que representa um objeto financeiro genérico no sistema.
  * Possui informações como dinheiro guardado na poupança,
@@ -10,9 +7,9 @@ import java.math.RoundingMode; // Melhor arredondamento de valores
  */
 public class Financeiro {
 
-    private BigDecimal dinheiroPoupanca;
-    private BigDecimal salarioLiquido;
-    private BigDecimal gastosMensais;
+    private double dinheiroPoupanca;
+    private double salarioLiquido;
+    private double gastosMensais;
 
     /**
      * Construtor da classe Financeiro.
@@ -27,14 +24,14 @@ public class Financeiro {
         this.gastosMensais = validarValor(gastosMensais, "Gastos mensais");
     }
 
-    private BigDecimal validarValor(double valor, String campo) {
+    private double validarValor(double valor, String campo) {
         if (valor < 0) {
             throw new IllegalArgumentException(campo + " não pode ser negativo.");
         }
-        return BigDecimal.valueOf(valor).setScale(2, RoundingMode.HALF_UP);
+        return valor;
     }
 
-    public BigDecimal getDinheiroPoupanca() {
+    public double getDinheiroPoupanca() {
         return dinheiroPoupanca;
     }
 
@@ -42,7 +39,7 @@ public class Financeiro {
         this.dinheiroPoupanca = validarValor(dinheiroPoupanca, "Dinheiro na poupança");
     }
 
-    public BigDecimal getSalarioLiquido() {
+    public double getSalarioLiquido() {
         return salarioLiquido;
     }
 
@@ -50,7 +47,7 @@ public class Financeiro {
         this.salarioLiquido = validarValor(salarioLiquido, "Salário líquido");
     }
 
-    public BigDecimal getGastosMensais() {
+    public double getGastosMensais() {
         return gastosMensais;
     }
 
@@ -63,8 +60,8 @@ public class Financeiro {
      *
      * @return Saldo mensal.
      */
-    public BigDecimal calcularSaldoMensal() {
-        return salarioLiquido.subtract(gastosMensais);
+    public double calcularSaldoMensal() {
+        return salarioLiquido - gastosMensais;
     }
 
     /**
@@ -72,8 +69,8 @@ public class Financeiro {
      * Apenas para testes, talvez haja mudanças futuras.
      */
     public void aplicarRendimento() {
-        BigDecimal rendimento = dinheiroPoupanca.multiply(BigDecimal.valueOf(0.005));
-        dinheiroPoupanca = dinheiroPoupanca.add(rendimento).setScale(2, RoundingMode.HALF_UP);
+        double rendimento = dinheiroPoupanca * 0.005;
+        dinheiroPoupanca = dinheiroPoupanca + rendimento;
     }
 
     /**
@@ -88,7 +85,7 @@ public class Financeiro {
                 formatarValor(gastosMensais), formatarValor(calcularSaldoMensal()));
     }
 
-    private String formatarValor(BigDecimal valor) {
+    private String formatarValor(double valor) {
         return String.format("R$ %.2f", valor);
     }
 }
