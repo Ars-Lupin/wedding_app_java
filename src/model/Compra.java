@@ -30,8 +30,8 @@ public class Compra {
             if (idCompra == null || !idCompra.matches("\\d{32}")) {
                 throw new IllegalArgumentException("O ID da compra deve ter exatamente 32 dígitos numéricos.");
             }
-            if (idLoja == null || !idLoja.matches("\\d{32}")) {
-                throw new IllegalArgumentException("O ID da loja deve ter exatamente 32 dígitos numéricos.");
+            if (idLoja == null || !idLoja.matches("\\d{37}")) {
+                throw new IllegalArgumentException("O ID da loja deve ter exatamente 37 dígitos numéricos.");
             }
             if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
                 throw new IllegalArgumentException("O ID da tarefa deve ter exatamente 32 dígitos numéricos.");
@@ -45,7 +45,7 @@ public class Compra {
             if (valorUnitario <= 0) {
                 throw new IllegalArgumentException("O valor unitário dos itens comprados deve ser maior que zero.");
             }  
-            if (numParcelas <= 0) {
+            if (numParcelas < 0) {
                 throw new IllegalArgumentException("O número de parcelas deve ser maior que zero.");
             }
     
@@ -55,6 +55,7 @@ public class Compra {
             this.nomeProduto = nomeProduto;
             this.quantidade = quantidade;
             this.valorUnitario = valorUnitario;
+            this.numParcelas = numParcelas;
         }
 
         public String getIdCompra() {
