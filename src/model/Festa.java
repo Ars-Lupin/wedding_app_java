@@ -14,7 +14,7 @@ public class Festa {
     
     private final String idFesta;
     private final String idCasamento;
-    private Endereco endereco;
+    private String endereco;
     private BigDecimal valorFesta;
     private LocalDate data;
     private String hora;
@@ -31,7 +31,7 @@ public class Festa {
      * @param hora        Horário que a festa começa (hh:mm).
      * @param convidados  Lista de nomes dos convidados.
      */
-    public Festa(String idFesta, String idCasamento, Endereco endereco, double valorFesta, 
+    public Festa(String idFesta, String idCasamento, String endereco, double valorFesta, 
                 LocalDate data, String hora, List<String> convidados) {
         
         if (idFesta == null || !idFesta.matches("\\d{32}")) {
@@ -40,7 +40,7 @@ public class Festa {
         if (idCasamento == null || !idCasamento.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do casamento deve conter exatamente 32 dígitos numéricos.");
         }
-        if (endereco == null) {
+        if (endereco == null || endereco.trim().isEmpty()) {
             throw new IllegalArgumentException("O endereço não pode ser nulo.");
         }
         if (data == null) {
@@ -77,11 +77,11 @@ public class Festa {
         return idCasamento;
     }
 
-    public Endereco getEndereco() {
+    public String getEndereco() {
         return endereco;
     }
 
-    public void setEndereco(Endereco endereco) {
+    public void setEndereco(String endereco) {
         if (endereco == null) {
             throw new IllegalArgumentException("O endereço não pode ser nulo.");
         }
