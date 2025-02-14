@@ -111,14 +111,12 @@ public class Tarefa {
     /**
      * Calcula o valor de cada parcela do prestador de serviço.
      */
-    /*
-    public BigDecimal calcularValorParcela() {
+    public double calcularValorParcela() {
         if (numParcelas == 0) {
-            return BigDecimal.ZERO;
+            return 0;
         }
-        return valorPrestador.divide(BigDecimal.valueOf(numParcelas), 2, BigDecimal.ROUND_HALF_UP);
+        return valorPrestador / numParcelas;
     }
-    /
 
     /**
      * Retorna uma representação textual da tarefa.
