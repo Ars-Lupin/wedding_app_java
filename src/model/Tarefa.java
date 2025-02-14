@@ -1,6 +1,5 @@
 package model;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -14,7 +13,7 @@ public class Tarefa {
     private final String idPrestador;
     private final LocalDate dataInicio;
     private final int prazoEntrega;
-    private final BigDecimal valorPrestador;
+    private final double valorPrestador;
     private final int numParcelas;
     private Compra compra; // Pode ser null
 
@@ -33,7 +32,7 @@ public class Tarefa {
      * @param compra         Compra de materiais associada à tarefa (pode ser null).
      */
     public Tarefa(String idTarefa, String idLar, String idPrestador, LocalDate dataInicio,
-                  int prazoEntrega, BigDecimal valorPrestador, int numParcelas, Compra compra) {
+                  int prazoEntrega, double valorPrestador, int numParcelas, Compra compra) {
         
         if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID da tarefa deve conter exatamente 32 dígitos numéricos.");
@@ -41,8 +40,8 @@ public class Tarefa {
         if (idLar != null && !idLar.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
         }
-        if (idPrestador == null || !idPrestador.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do prestador deve conter exatamente 32 dígitos numéricos.");
+        if (idPrestador == null || !idPrestador.matches("\\d{37}")) {
+            throw new IllegalArgumentException("O ID do prestador deve conter exatamente 37 dígitos numéricos.");
         }
         if (dataInicio == null) {
             throw new IllegalArgumentException("A data de início não pode ser nula.");
@@ -50,7 +49,7 @@ public class Tarefa {
         if (prazoEntrega <= 0) {
             throw new IllegalArgumentException("O prazo de entrega deve ser um número positivo.");
         }
-        if (valorPrestador == null || valorPrestador.compareTo(BigDecimal.ZERO) < 0) {
+        if (valorPrestador < 0) {
             throw new IllegalArgumentException("O valor do prestador não pode ser negativo.");
         }
         if (numParcelas <= 0) {
@@ -87,11 +86,12 @@ public class Tarefa {
         return prazoEntrega;
     }
 
+    // Calcula a data de entrega da tarefa
     public LocalDate getDataEntrega() {
         return dataInicio.plusDays(prazoEntrega);
     }
 
-    public BigDecimal getValorPrestador() {
+    public double getValorPrestador() {
         return valorPrestador;
     }
 

@@ -4,13 +4,15 @@ import model.Tarefa;
 
 import util.CSVReader;
 
-import java.math.BigDecimal;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Collection;
 
@@ -91,11 +93,12 @@ public class TarefaRepository {
      * @param caminhoArquivo
      * @throws IOException Se houver um erro de leitura do arquivo
      */
-    public void carregarDados(String caminhoArquivo) throws IOException {
+    public void carregarDados(String caminhoArquivo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
         System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
 
         for (String[] campos : linhas) {
             if (campos.length < 6) { // Verifica se há campos suficientes
@@ -108,7 +111,7 @@ public class TarefaRepository {
             String idPrestador = campos[2].trim();
             LocalDate dataInicio = LocalDate.parse(campos[3].trim(), formatter);
             int prazoEntrega = Integer.parseInt(campos[4].trim());
-            BigDecimal valorPrestador = new BigDecimal(campos[5].trim());
+            double valorPrestador = numberFormat.parse(campos[5].trim()).doubleValue();
             int numParcelas = Integer.parseInt(campos[6].trim());
 
             // Cria e adiciona a nova tarefa ao repositório
