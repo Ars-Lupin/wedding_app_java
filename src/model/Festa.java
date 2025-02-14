@@ -1,8 +1,6 @@
 package model;
 
 import java.time.LocalDate;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +13,7 @@ public class Festa {
     private final String idFesta;
     private final String idCasamento;
     private String endereco;
-    private BigDecimal valorFesta;
+    private double valorFesta;
     private LocalDate data;
     private String hora;
     private List<String> convidados;
@@ -62,11 +60,12 @@ public class Festa {
         this.convidados = new ArrayList<>(convidados); // Cria uma cópia da lista
     }
 
-    private BigDecimal validarValor(double valor, String campo) {
+    private double validarValor(double valor, String campo) {
         if (valor < 0) {
             throw new IllegalArgumentException(campo + " não pode ser negativo.");
         }
-        return BigDecimal.valueOf(valor).setScale(2, RoundingMode.HALF_UP);
+
+        return valor;
     }
 
     public String getIdFesta() {
@@ -88,8 +87,8 @@ public class Festa {
         this.endereco = endereco;
     }
 
-    public BigDecimal getValorFesta() {
-        return valorFesta;
+    public double getValorFesta() {
+        return validarValor(valorFesta, "valor da festa");
     }
 
     public void setValorFesta(double valorFesta) {
