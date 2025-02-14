@@ -9,9 +9,13 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collection;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 import java.io.IOException;
 
@@ -89,12 +93,14 @@ public class FestaRepository {
      * 
      * @param caminhoArquivo
      * @throws IOException Se ocorrer um erro de leitura do arquivo
+     * @throws ParseException Se ocorrer um erro de conversão de valores numéricos
      */
-    public void carregarDados(String caminhoArquivo) throws IOException {
+    public void carregarDados(String caminhoArquivo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
         System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
 
         for (String[] campos : linhas) {
             
@@ -102,16 +108,16 @@ public class FestaRepository {
             String idFesta = campos[0].trim();
             String idCasamento = campos[1].trim();
             String local = campos[2].trim();
-            LocalDate data = LocalDate.parse(campos[3], formatter);
+            LocalDate data = LocalDate.parse(campos[3].trim(), formatter);
             String hora = campos[4].trim();
-            double valorFesta = Double.parseDouble(campos[5].trim());
+            double valorFesta = numberFormat.parse(campos[5].trim()).doubleValue();
             int numConvidados = Integer.parseInt(campos[6].trim());
             
             // Lista de convidados
             List<String> convidados = null;
             if (numConvidados > 0) { // Verifica se há convidados
                 convidados = new ArrayList<>();
-                for (int i = 7; i < 7 + numConvidados; i++) {
+                for (int i = 7; i < campos.length - 1; i++) {
                     // Adiciona o nome do convidado à lista
                     convidados.add(campos[i].trim());
                 }

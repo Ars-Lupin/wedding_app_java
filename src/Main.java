@@ -37,10 +37,10 @@ public class Main {
             casamentoRepo.carregarDados(caminhoArquivoCasamento);
             tarefaRepo.carregarDados(caminhoArquivoTarefa);
             compraRepo.carregarDados(caminhoArquivoCompra);
-            //festaRepo.carregarDados(caminhoArquivoFesta);
+            festaRepo.carregarDados(caminhoArquivoFesta);
 
-            System.out.println("\nCompras carregadas no repositório:");
-            compraRepo.listar().forEach(System.out::println);
+            System.out.println("\nFestas carregadas no repositório:");
+            festaRepo.listar().forEach(System.out::println);
 
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());
