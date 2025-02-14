@@ -4,9 +4,6 @@ import model.Compra;
 
 import util.CSVReader;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,9 @@ public class CompraRepository {
 
     /**
      * Adiciona uma Compra ao repositório
+     * 
      * @param compra
+     * @throws IllegalArgumentException Se a compra for nula ou já existir
      */
     public void adicionar(Compra compra) {
         if (compra == null) {
@@ -42,6 +41,12 @@ public class CompraRepository {
         this.compras.put(compra.getIdCompra(), compra);
     }
 
+    /**
+     * Remove uma Compra do repositório
+     * 
+     * @param compra
+     * @throws IllegalArgumentException Se a compra for nula ou não existir
+     */
     public void remover(Compra compra) {
         if (compra == null) {
             throw new IllegalArgumentException("A compra não pode ser nula.");
@@ -52,14 +57,55 @@ public class CompraRepository {
         this.compras.remove(compra.getIdCompra());
     }
 
+    /**
+     * Lista todas as Compras do repositório
+     * 
+     * @return Collection<Compra>
+     */
     public Collection<Compra> listar() {
         return this.compras.values();
     }
 
+    /**
+     * Busca e retorna uma compra pelo seu ID
+     * 
+     * @param caminhoArquivo
+     * @throws IOException Se houver erro na leitura do arquivo
+     */
     public Compra buscarPorId(String id) {
         if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
         }
         return this.compras.get(id);
+    }
+
+    /**
+     * Carrega os dados do arquivo compras.CSV e adiciona as compras ao repositório
+     * 
+     * @param caminhoArquivo
+     * @throws IOException Se houver erro na leitura do arquivo
+     */
+    public void carregarDados(String caminhoArquivo) throws IOException {
+        List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
+        System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
+
+        for (String[] campos : linhas) {
+            if (campos.length < 7) { // Verifica se a linha contém todos os campos necessários
+                System.err.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
+                continue;
+            }
+
+            String idCompra = campos[0].trim();
+            String idTarefa = campos[1].trim();
+            String idLoja = campos[2].trim();
+            String nomeProduto = campos[3].trim();
+            int qtdProduto = Integer.parseInt(campos[4].trim());
+            double valorUnitario = Double.parseDouble(campos[5].trim());
+            int numParcelas = Integer.parseInt(campos[6].trim());
+
+            // Cria uma nova compra e a adiciona ao repositório
+            Compra compra = new Compra(idCompra, idLoja, idTarefa, nomeProduto, qtdProduto, valorUnitario, numParcelas);
+            this.adicionar(compra);
+        }
     }
 }
