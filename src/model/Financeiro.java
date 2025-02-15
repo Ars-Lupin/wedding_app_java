@@ -56,24 +56,6 @@ public class Financeiro {
     }
 
     /**
-     * Calcula o saldo mensal (dinheiro que sobra ou falta após pagar despesas).
-     *
-     * @return Saldo mensal.
-     */
-    public double calcularSaldoMensal() {
-        return salarioLiquido - gastosMensais;
-    }
-
-    /**
-     * Aplica rendimento mensal da poupança (0.5% ao mês).
-     * Apenas para testes, talvez haja mudanças futuras.
-     */
-    public void aplicarRendimento() {
-        double rendimento = dinheiroPoupanca * 0.005;
-        dinheiroPoupanca = dinheiroPoupanca + rendimento;
-    }
-
-    /**
      * Retorna uma representação textual do objeto financeiro.
      * 
      * @return String formatada com os dados financeiros de uma pessoa.
@@ -82,7 +64,7 @@ public class Financeiro {
     public String toString() {
         return String.format("Financeiro{ Dinheiro Poupança=%s, Salário Líquido=%s, Gastos Mensais=%s, Saldo Mensal=%s }",
                 formatarValor(dinheiroPoupanca), formatarValor(salarioLiquido),
-                formatarValor(gastosMensais), formatarValor(calcularSaldoMensal()));
+                formatarValor(gastosMensais), formatarValor(salarioLiquido - gastosMensais));
     }
 
     private String formatarValor(double valor) {
