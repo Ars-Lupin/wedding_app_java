@@ -5,6 +5,16 @@ import repository.TarefaRepository;
 import repository.CompraRepository;
 import repository.FestaRepository;
 
+import service.FinanceiroService;
+
+import model.Casamento;
+
+import util.CSVWriter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+
 import java.io.IOException;
 
 import java.text.ParseException;
@@ -38,10 +48,6 @@ public class Main {
             tarefaRepo.carregarDados(caminhoArquivoTarefa);
             compraRepo.carregarDados(caminhoArquivoCompra);
             festaRepo.carregarDados(caminhoArquivoFesta);
-
-            System.out.println("\nFestas carregadas no repositório:");
-            festaRepo.listar().forEach(System.out::println);
-
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());
         } catch (ParseException e) {
@@ -49,5 +55,19 @@ public class Main {
         } catch (IllegalArgumentException e) {
             System.err.println("Erro ao processar dados: " + e.getMessage());
         }
+        
+        // Criando o caminho do arquivo final
+        String caminhoArquivo = "planejamento_financeiro.csv";
+
+        FinanceiroService f = new FinanceiroService(casamentoRepo, pessoaRepo);
+        List<String> idsCasamentos = casamentoRepo.getIDs();
+        for (String id : idsCasamentos) {
+            Casamento c = casamentoRepo.buscarPorId(id);
+
+            Map<String, Double> historicoMensal = new HashMap<>();
+            historicoMensal = f.calcularHistoricoFinanceiro(c);
+
+            CSVWriter.escreverCSV(caminhoArquivo, historicoMensal);
+        }   
     }
 }

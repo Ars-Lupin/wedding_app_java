@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collection;
 
@@ -20,12 +21,14 @@ import java.io.IOException;
 public class CasamentoRepository {
 
     private final Map<String, Casamento> casamentos;
+    private final List<String> IDs;
 
     /**
      * Construtor: inicializa o mapa de casamentos
      */
     public CasamentoRepository() {
         this.casamentos = new HashMap<>();
+        this.IDs = new ArrayList<>();
     }
 
     /**
@@ -112,6 +115,15 @@ public class CasamentoRepository {
             // Cria e adiciona o novo casamento ao repositório
             Casamento casamento = new Casamento(idCasamento, idPessoa1, idPessoa2, data, hora, local);
             this.adicionar(casamento);
+            this.IDs.add(idCasamento);
         }
     }
+
+    public Map<String, Casamento> getCasamentos() {
+        return casamentos;
+    }
+
+    public List<String> getIDs() {
+        return IDs;
+    }   
 }
