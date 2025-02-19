@@ -40,8 +40,8 @@ public class Tarefa {
         if (idLar != null && !idLar.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
         }
-        if (idPrestador == null || !idPrestador.matches("\\d{37}")) {
-            throw new IllegalArgumentException("O ID do prestador deve conter exatamente 37 dígitos numéricos.");
+        if (idPrestador == null || !idPrestador.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID do prestador deve conter exatamente 32 dígitos numéricos.");
         }
         if (dataInicio == null) {
             throw new IllegalArgumentException("A data de início não pode ser nula.");

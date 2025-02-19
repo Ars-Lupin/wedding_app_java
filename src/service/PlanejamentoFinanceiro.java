@@ -5,94 +5,77 @@ import model.Financeiro;
 import model.PessoaFisica;
 import repository.CasamentoRepository;
 import repository.PessoaRepository;
-import repository.TarefaRepository;
-import repository.CompraRepository;
-import repository.FestaRepository;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Serviço para cálculos financeiros relacionados a casais e seus planejamentos.
+ * Serviço responsável pelo cálculo financeiro dos casais.
  */
-public class FinanceiroService {
+public class PlanejamentoFinanceiro {
 
-    private static final int MESES_ANO = 12;
-    private static final double RENDIMENTO_POUPANCA = 0.005; // Rendimento mensal de 0.5%
-    
     private final CasamentoRepository casamentoRepository;
     private final PessoaRepository pessoaRepository;
-    private final TarefaRepository tarefaRepository;
-    private final CompraRepository compraRepository;
-    private final FestaRepository festaRepository;
+    private static final double RENDIMENTO_POUPANCA = 0.005; // 0.5% ao mês
+    private static final int MESES_ANO = 12;
 
     /**
-     * Construtor do serviço financeiro.
-     *
+     * Construtor do FinanceiroService.
+     * 
      * @param casamentoRepository Repositório de casamentos.
-     * @param pessoaRepository    Repositório de pessoas.
-     * @param tarefaRepository    Repositório de tarefas.
-     * @param compraRepository    Repositório de compras.
-     * @param festaRepository     Repositório de festas.
+     * @param pessoaRepository Repositório de pessoas.
      */
-    public FinanceiroService(
-            CasamentoRepository casamentoRepository,
-            PessoaRepository pessoaRepository,
-            TarefaRepository tarefaRepository,
-            CompraRepository compraRepository,
-            FestaRepository festaRepository) {
+    public PlanejamentoFinanceiro(CasamentoRepository casamentoRepository, PessoaRepository pessoaRepository) {
         this.casamentoRepository = casamentoRepository;
         this.pessoaRepository = pessoaRepository;
-        this.tarefaRepository = tarefaRepository;
-        this.compraRepository = compraRepository;
-        this.festaRepository = festaRepository;
     }
 
     /**
      * Calcula o histórico financeiro mensal de um casal ao longo de um ano.
-     *
+     * 
      * @param casamento O casamento cujo financeiro será calculado.
      * @return Mapa onde cada mês está associado ao saldo financeiro do casal.
      */
     public Map<String, Double> calcularHistoricoFinanceiro(Casamento casamento) {
         Map<String, Double> historicoMensal = new HashMap<>();
 
-        // Obtendo IDs das pessoas no casamento
+        // Obtém os IDs das pessoas do casamento
         String idPessoa1 = casamento.getIdPessoa1();
         String idPessoa2 = casamento.getIdPessoa2();
 
-        // Buscando os dados financeiros das pessoas no repositório
+        // Busca os dados financeiros das pessoas
         PessoaFisica pessoa1 = (PessoaFisica) pessoaRepository.buscarPorId(idPessoa1);
         PessoaFisica pessoa2 = (PessoaFisica) pessoaRepository.buscarPorId(idPessoa2);
 
         if (pessoa1 == null || pessoa2 == null) {
-            throw new IllegalArgumentException("Não foi possível encontrar os dados financeiros de uma das pessoas.");
+            throw new IllegalArgumentException("Não foi possível encontrar os dados de uma das pessoas do casamento.");
         }
 
         Financeiro financeiro1 = pessoa1.getFinanceiro();
         Financeiro financeiro2 = pessoa2.getFinanceiro();
 
-        // Inicializando valores financeiros do casal
+        // Calcula o saldo inicial do casal
         double saldo = financeiro1.getDinheiroPoupanca() + financeiro2.getDinheiroPoupanca();
         double salarioMensal = financeiro1.getSalarioLiquido() + financeiro2.getSalarioLiquido();
         double gastosMensais = financeiro1.getGastosMensais() + financeiro2.getGastosMensais();
 
-        // Loop para calcular o saldo mês a mês ao longo de um ano
+        // Loop para calcular o saldo mês a mês ao longo do ano
         for (int mes = 1; mes <= MESES_ANO; mes++) {
             saldo += salarioMensal - gastosMensais;
 
-            // Adiciona o 13º salário em dezembro
+            // Em dezembro, adicionamos o 13º salário
             if (mes == 12) {
                 saldo += salarioMensal;
             }
 
-            // Aplicação de rendimento da poupança se o saldo for positivo
+            // Aplicação de rendimento da poupança (apenas se o saldo for positivo)
             if (saldo > 0) {
                 saldo += saldo * RENDIMENTO_POUPANCA;
                 saldo = Math.round(saldo * 100.0) / 100.0; // Arredonda para 2 casas decimais
             }
 
-            // Adiciona ao histórico financeiro
+            // Salva o saldo do mês no histórico
             historicoMensal.put(formatarMes(mes), saldo);
         }
 
@@ -100,12 +83,12 @@ public class FinanceiroService {
     }
 
     /**
-     * Formata o nome do mês para "MM/yyyy" considerando o ano atual.
-     *
+     * Formata o nome do mês para o formato "MM/yyyy" considerando o ano atual.
+     * 
      * @param mes O número do mês.
-     * @return String representando o mês e o ano.
+     * @return String formatada representando o mês e o ano.
      */
     private String formatarMes(int mes) {
-        return String.format("%02d/%d", mes, java.time.LocalDate.now().getYear());
+        return String.format("%02d/%d", mes, LocalDate.now().getYear());
     }
 }

@@ -30,8 +30,8 @@ public class Compra {
             if (idCompra == null || !idCompra.matches("\\d{32}")) {
                 throw new IllegalArgumentException("O ID da compra deve ter exatamente 32 dígitos numéricos.");
             }
-            if (idLoja == null || !idLoja.matches("\\d{37}")) {
-                throw new IllegalArgumentException("O ID da loja deve ter exatamente 37 dígitos numéricos.");
+            if (idLoja == null || !idLoja.matches("\\d{32}")) {
+                throw new IllegalArgumentException("O ID da loja deve ter exatamente 32 dígitos numéricos.");
             }
             if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
                 throw new IllegalArgumentException("O ID da tarefa deve ter exatamente 32 dígitos numéricos.");
@@ -84,6 +84,10 @@ public class Compra {
 
         public int getNumParcelas() {
             return numParcelas;
+        }
+
+        public double valorTotal() {
+            return quantidade * valorUnitario;
         }
     
         /**

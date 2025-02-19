@@ -147,7 +147,7 @@ public class PessoaRepository {
                     // Pessoa Jurídica
                     PessoaJuridica pessoaJuridica = new PessoaJuridica(nome, telefone, endereco, cnpj, id);
                     this.adicionar(pessoaJuridica); // Adiciona a pessoa jurídica ao repositório
-                } else {
+                } else if (tipo.equals("L")) {
                     // Loja (Pessoa Jurídica)
                     Loja loja = new Loja(nome, telefone, endereco, cnpj, id);
                     this.adicionar(loja); // Adiciona a loja ao repositório
