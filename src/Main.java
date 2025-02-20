@@ -73,4 +73,6 @@ public class Main {
         EstatisticasPrestadoresService estatisticasPrestadores = new EstatisticasPrestadoresService(pessoaRepo, tarefaRepo, compraRepo);
         estatisticasPrestadores.gerarRelatorioPrestadores("2-estatisticas-prestadores.csv");
     }
+
+    // TESTE
 }
