@@ -13,23 +13,25 @@ import java.text.ParseException;
 public class Main {
 
     public static void main(String[] args) {
-        String caminhoArquivoPessoas = "Casos/02/pessoas.csv";
-        PessoaRepository pessoaRepo = new PessoaRepository();
+        String caminhoArquivoEntrada = args[0];
 
-        String caminhoArquivoLares = "Casos/02/lares.csv";
-        LarRepository larRepo = new LarRepository();
-
-        String caminhoArquivoCasamento = "Casos/02/casamentos.csv";
+        String caminhoArquivoCasamento = caminhoArquivoEntrada + "/casamentos.csv";
         CasamentoRepository casamentoRepo = new CasamentoRepository();
 
-        String caminhoArquivoTarefa = "Casos/02/tarefas.csv";
-        TarefaRepository tarefaRepo = new TarefaRepository();
-
-        String caminhoArquivoCompra = "Casos/02/compras.csv";
+        String caminhoArquivoCompra = caminhoArquivoEntrada + "/compras.csv";
         CompraRepository compraRepo = new CompraRepository();
 
-        String caminhoArquivoFesta = "Casos/02/festas.csv";
+        String caminhoArquivoFesta = caminhoArquivoEntrada + "/festas.csv";
         FestaRepository festaRepo = new FestaRepository();
+
+        String caminhoArquivoLares = caminhoArquivoEntrada + "/lares.csv";
+        LarRepository larRepo = new LarRepository();
+
+        String caminhoArquivoPessoas = caminhoArquivoEntrada + "/pessoas.csv";
+        PessoaRepository pessoaRepo = new PessoaRepository();
+
+        String caminhoArquivoTarefa = caminhoArquivoEntrada + "/tarefas.csv";
+        TarefaRepository tarefaRepo = new TarefaRepository();
 
         try {
             // Chama o método do repositório para carregar os dados dos arquivos CSV
