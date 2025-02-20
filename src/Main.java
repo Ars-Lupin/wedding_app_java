@@ -4,8 +4,8 @@ import repository.LarRepository;
 import repository.TarefaRepository;
 import repository.CompraRepository;
 import repository.FestaRepository;
-import service.EstatisticasCasais;
-import service.EstatisticasPrestadores;
+import service.EstatisticasCasaisService;
+import service.EstatisticasPrestadoresService;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -65,10 +65,10 @@ public class Main {
          */
 
         // Gerar estatísticas
-        EstatisticasCasais estatisticasCasais = new EstatisticasCasais(casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
+        EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
         estatisticasCasais.gerarEstatisticas("3-estatisticas-casais.csv");
 
-        EstatisticasPrestadores estatisticasPrestadores = new EstatisticasPrestadores(pessoaRepo, tarefaRepo, compraRepo);
+        EstatisticasPrestadoresService estatisticasPrestadores = new EstatisticasPrestadoresService(pessoaRepo, tarefaRepo, compraRepo);
         estatisticasPrestadores.gerarRelatorioPrestadores("2-estatisticas-prestadores.csv");
     }
 }
