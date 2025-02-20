@@ -25,7 +25,9 @@ public class EstatisticasPrestadoresService {
     /**
      * Construtor da classe EstatisticasPrestadores.
      */
-    public EstatisticasPrestadoresService(PessoaRepository pessoaRepository, TarefaRepository tarefaRepository, CompraRepository compraRepository) {
+    public EstatisticasPrestadoresService(PessoaRepository pessoaRepository, 
+                                            TarefaRepository tarefaRepository, 
+                                            CompraRepository compraRepository) {
         this.pessoaRepository = pessoaRepository;
         this.tarefaRepository = tarefaRepository;
         this.compraRepository = compraRepository;
@@ -54,16 +56,24 @@ public class EstatisticasPrestadoresService {
 
         // Determina os tipos de prestadores
         pessoaRepository.listar().forEach(pessoa -> {
+            String id = pessoa.getIdPessoa();
             if (pessoa instanceof PessoaFisica) {
-                tiposPrestadores.put(pessoa.getIdPessoa(), "PF");
+                tiposPrestadores.put(id, "PF");
             } else if (pessoa instanceof Loja) {
-                tiposPrestadores.put(pessoa.getIdPessoa(), "Loja");
+                tiposPrestadores.put(id, "Loja");
             } else if (pessoa instanceof PessoaJuridica) {
-                tiposPrestadores.put(pessoa.getIdPessoa(), "PJ");
+                tiposPrestadores.put(id, "PJ");
+            }
+
+            if (!(pessoa instanceof PessoaFisica)) {
+                // Garante que todos os prestadores estejam no mapa, mesmo que com R$ 0,00
+                // A função putIfAbsent altera o valor para zero se a chave não existir
+                valoresRecebidos.putIfAbsent(id, 0.0);
             }
         });
 
         // Converte o mapa para uma lista ordenada
+        // A função entrySet retorna um conjunto de pares chave-valor
         List<Map.Entry<String, Double>> listaOrdenada = new ArrayList<>(valoresRecebidos.entrySet());
 
         listaOrdenada.sort((e1, e2) -> {
@@ -95,9 +105,9 @@ public class EstatisticasPrestadoresService {
 
                 printer.printf("%s;%s;R$ %.2f%n", tipo, nome, totalRecebido);
             }
-            System.out.println("✅ Relatório `2-estatisticas-prestadores.csv` gerado com sucesso!");
+            System.out.println("Relatório `2-estatisticas-prestadores.csv` gerado com sucesso!");
         } catch (IOException e) {
-            System.err.println("❌ Erro ao gerar relatório de prestadores: " + e.getMessage());
+            System.err.println("Erro ao gerar relatório de prestadores: " + e.getMessage());
         }
     }
 }

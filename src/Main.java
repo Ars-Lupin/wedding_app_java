@@ -13,22 +13,22 @@ import java.text.ParseException;
 public class Main {
 
     public static void main(String[] args) {
-        String caminhoArquivoPessoas = "Casos/01/pessoas.csv";
+        String caminhoArquivoPessoas = "Casos/02/pessoas.csv";
         PessoaRepository pessoaRepo = new PessoaRepository();
 
-        String caminhoArquivoLares = "Casos/01/lares.csv";
+        String caminhoArquivoLares = "Casos/02/lares.csv";
         LarRepository larRepo = new LarRepository();
 
-        String caminhoArquivoCasamento = "Casos/01/casamentos.csv";
+        String caminhoArquivoCasamento = "Casos/02/casamentos.csv";
         CasamentoRepository casamentoRepo = new CasamentoRepository();
 
-        String caminhoArquivoTarefa = "Casos/01/tarefas.csv";
+        String caminhoArquivoTarefa = "Casos/02/tarefas.csv";
         TarefaRepository tarefaRepo = new TarefaRepository();
 
-        String caminhoArquivoCompra = "Casos/01/compras.csv";
+        String caminhoArquivoCompra = "Casos/02/compras.csv";
         CompraRepository compraRepo = new CompraRepository();
 
-        String caminhoArquivoFesta = "Casos/01/festas.csv";
+        String caminhoArquivoFesta = "Casos/02/festas.csv";
         FestaRepository festaRepo = new FestaRepository();
 
         try {
