@@ -14,11 +14,13 @@ import model.Casamento;
 import model.Compra;
 import model.Festa;
 import model.Financeiro;
+import model.Lar;
 import model.PessoaFisica;
 import model.Tarefa;
 import repository.CasamentoRepository;
 import repository.CompraRepository;
 import repository.FestaRepository;
+import repository.LarRepository;
 import repository.PessoaRepository;
 import repository.TarefaRepository;
 
@@ -35,58 +37,60 @@ public class PlanejamentoFinanceiro {
     private final TarefaRepository tarefaRepo;
     private final FestaRepository festaRepo;
     private final CompraRepository compraRepo;
+    private final LarRepository larRepo;
 
     public PlanejamentoFinanceiro(CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo,
-            TarefaRepository tarefaRepo, FestaRepository festaRepo, CompraRepository compraRepo) {
+            TarefaRepository tarefaRepo, FestaRepository festaRepo, CompraRepository compraRepo,
+            LarRepository larRepo) {
         this.casamentoRepo = casamentoRepo;
         this.pessoaRepo = pessoaRepo;
         this.tarefaRepo = tarefaRepo;
         this.festaRepo = festaRepo;
         this.compraRepo = compraRepo;
+        this.larRepo = larRepo;
 
     }
 
     private void escreverCSV(String filePath, PessoaFisica pessoa1, PessoaFisica pessoa2,
-                         Map<String, Double> saldoMensal, LocalDate dataInicio, LocalDate dataFim) {
-    boolean arquivoJaExiste = new File(filePath).exists(); // Verifica se o arquivo já existe
-    DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MM/yyyy");
+            Map<String, Double> saldoMensal, LocalDate dataInicio, LocalDate dataFim) {
+        boolean arquivoJaExiste = new File(filePath).exists(); // Verifica se o arquivo já existe
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MM/yyyy");
 
-    try (BufferedWriter writer = new BufferedWriter(
-            new OutputStreamWriter(new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
 
-        // Se o arquivo não existe, escrevemos o cabeçalho uma única vez
-        if (!arquivoJaExiste) {
-            writer.append("Nome 1;Nome 2;");
-            
-            // Adiciona todas as datas no cabeçalho, do primeiro mês até o último
+            // Se o arquivo não existe, escrevemos o cabeçalho uma única vez
+            if (!arquivoJaExiste) {
+                writer.append("Nome 1;Nome 2;");
+
+                // Adiciona todas as datas no cabeçalho, do primeiro mês até o último
+                LocalDate dataAtual = dataInicio;
+                while (!dataAtual.isAfter(dataFim)) {
+                    writer.append(dataAtual.format(formatador)).append(";");
+                    dataAtual = dataAtual.plusMonths(1);
+                }
+                writer.append("\n");
+            }
+
+            // Escrever valores do saldo mensal para o casal
+            writer.append(pessoa1.getNome()).append(";")
+                    .append(pessoa2.getNome()).append(";");
+
+            // Garante que os meses sem saldo também apareçam no arquivo
             LocalDate dataAtual = dataInicio;
             while (!dataAtual.isAfter(dataFim)) {
-                writer.append(dataAtual.format(formatador)).append(";");
+                String chaveMes = dataAtual.format(formatador);
+                double saldo = saldoMensal.getOrDefault(chaveMes, 0.0);
+                writer.append(String.format("R$ %.2f;", saldo));
                 dataAtual = dataAtual.plusMonths(1);
             }
             writer.append("\n");
+
+
+        } catch (IOException e) {
+            System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
-
-        // Escrever valores do saldo mensal para o casal
-        writer.append(pessoa1.getNome()).append(";")
-              .append(pessoa2.getNome()).append(";");
-
-        // Garante que os meses sem saldo também apareçam no arquivo
-        LocalDate dataAtual = dataInicio;
-        while (!dataAtual.isAfter(dataFim)) {
-            String chaveMes = dataAtual.format(formatador);
-            double saldo = saldoMensal.getOrDefault(chaveMes, 0.0);
-            writer.append(String.format("R$ %.2f;", saldo));
-            dataAtual = dataAtual.plusMonths(1);
-        }
-        writer.append("\n");
-
-        System.out.println("Planejamento financeiro salvo em: " + filePath);
-
-    } catch (IOException e) {
-        System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
     }
-}
 
     public void gerarPlanejamento(String filePath, String cpf1, String cpf2) {
         PessoaFisica pessoa1 = buscarPessoaPorCpf(cpf1);
@@ -106,9 +110,6 @@ public class PlanejamentoFinanceiro {
         Map<String, Double> saldoMensal = calcularSaldoMensal(casamento, pessoa1, pessoa2);
         LocalDate dataInicial = encontrarPrimeiroGasto(casamento);
         LocalDate dataFinal = calcularDataFinal(casamento, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
-
-        System.out.println("Data inicial: " + dataInicial.format(FORMATADOR_DATA));
-        System.out.println("Data final: " + dataFinal.format(FORMATADOR_DATA));
 
         if (saldoMensal.isEmpty()) {
             escreverMensagem(filePath, "Casal com CPFs " + cpf1 + " e " + cpf2 + " não possui gastos cadastrados.");
@@ -188,34 +189,54 @@ public class PlanejamentoFinanceiro {
 
     private LocalDate encontrarPrimeiroGasto(Casamento casamento) {
         List<LocalDate> datas = new ArrayList<>();
-    
+        String idPessoa1 = casamento.getIdPessoa1();
+        String idPessoa2 = casamento.getIdPessoa2();
+
         // Buscar tarefas associadas ao casal
         tarefaRepo.listar().stream()
-            .filter(t -> pertenceAoCasal(casamento, t.getIdLar()))
-            .map(Tarefa::getDataInicio)
-            .forEach(datas::add);
-    
+                .filter(tarefa -> {
+                    // Busca o lar da tarefa e verifica se pertence ao casal
+                    Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
+                    return lar != null
+                            && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
+                                    || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
+                })
+                .map(Tarefa::getDataInicio)
+                .forEach(datas::add);
+
         // Buscar festas associadas ao casal
         festaRepo.listar().stream()
-            .filter(f -> f.getIdCasamento().equals(casamento.getIdCasamento()))
-            .map(Festa::getData)
-            .forEach(datas::add);
-    
+                .filter(f -> f.getIdCasamento().equals(casamento.getIdCasamento()))
+                .map(Festa::getData)
+                .forEach(datas::add);
+
         // Buscar compras associadas a tarefas do casal
         compraRepo.listar().stream()
-            .filter(c -> {
-                Tarefa tarefa = tarefaRepo.buscarPorId(c.getIdTarefa());
-                return tarefa != null && pertenceAoCasal(casamento, tarefa.getIdLar());
-            })
-            .map(c -> tarefaRepo.buscarPorId(c.getIdTarefa()).getDataInicio())
-            .forEach(datas::add);
-    
+                .filter(compra -> {
+                    String idTarefa = compra.getIdTarefa();
+                    return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null &&
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1()
+                                    .equals(idPessoa1)
+                            &&
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2()
+                                    .equals(idPessoa2);
+                })
+                .map(c -> tarefaRepo.buscarPorId(c.getIdTarefa()).getDataInicio())
+                .forEach(datas::add);
+
         return datas.stream().min(LocalDate::compareTo).orElse(null); // Retorna a menor data encontrada
     }
-    
 
-    private boolean pertenceAoCasal(Casamento casamento, String idLar) {
-        return idLar != null && (idLar.equals(casamento.getIdPessoa1()) || idLar.equals(casamento.getIdPessoa2()));
+    private boolean pertenceAoCasal(String idPessoa1, String idPessoa2, String idLar) {
+        if (idLar == null)
+            return false;
+
+        Lar lar = larRepo.buscarPorId(idLar);
+        if (lar == null)
+            return false;
+
+        return (lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
+                || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1));
     }
 
     private boolean gastosExistemAte(LocalDate data) {
@@ -231,7 +252,8 @@ public class PlanejamentoFinanceiro {
         double total = 0;
 
         total += tarefaRepo.listar().stream()
-                .filter(tarefa -> pertenceAoCasal(casamento, tarefa.getIdLar()) && tarefa.getDataInicio().equals(data))
+                .filter(tarefa -> pertenceAoCasal(idPessoa1, idPessoa2, tarefa.getIdLar())
+                        && tarefa.getDataInicio().equals(data))
                 .mapToDouble(Tarefa::getValorPrestador).sum();
 
         total += festaRepo.listar().stream()
@@ -247,43 +269,62 @@ public class PlanejamentoFinanceiro {
     }
 
     private LocalDate calcularDataFinal(Casamento casamento, String idPessoa1, String idPessoa2) {
+        LocalDate dataFinal = LocalDate.MIN;
 
-            LocalDate dataFinal = LocalDate.MIN;
-        
-            // 🔹 Última data de qualquer tarefa associada ao casal
-            LocalDate ultimaDataTarefa = tarefaRepo.listar().stream()
-                    .filter(tarefa -> pertenceAoCasal( casamento, tarefa.getIdLar()))
-                    .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas())) // Considera o número de parcelas
-                    .max(Comparator.naturalOrder())
-                    .orElse(LocalDate.MIN);
-            
-            // 🔹 Última data de qualquer festa associada ao casal
-            LocalDate ultimaDataFesta = festaRepo.listar().stream()
-                    .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
-                    .map(Festa::getData)
-                    .max(Comparator.naturalOrder())
-                    .orElse(LocalDate.MIN);
-        
-            // 🔹 Última data de qualquer compra parcelada associada ao casal
-            LocalDate ultimaDataCompra = compraRepo.listar().stream()
-                    .filter(compra -> {
-                        Tarefa tarefa = tarefaRepo.buscarPorId(compra.getIdTarefa());
-                        return tarefa != null && pertenceAoCasal(casamento, tarefa.getIdLar());
-                    })
-                    .map(compra -> {
-                        Tarefa tarefa = tarefaRepo.buscarPorId(compra.getIdTarefa());
-                        return tarefa.getDataInicio().plusMonths(compra.getNumParcelas()); // Adiciona parcelas ao cálculo
-                    })
-                    .max(Comparator.naturalOrder())
-                    .orElse(LocalDate.MIN);
-        
-            // 🔹 Determina a maior data entre todas
-            dataFinal = ultimaDataTarefa.isAfter(dataFinal) ? ultimaDataTarefa : dataFinal;
-            dataFinal = ultimaDataFesta.isAfter(dataFinal) ? ultimaDataFesta : dataFinal;
-            dataFinal = ultimaDataCompra.isAfter(dataFinal) ? ultimaDataCompra : dataFinal;
-        
-            // 🔹 Se não houver despesas, retorna a data atual
-            return (dataFinal.equals(LocalDate.MIN)) ? LocalDate.now() : dataFinal;
+        LocalDate ultimaDataTarefa = tarefaRepo.listar().stream()
+                .filter(tarefa -> {
+                    // Busca o lar da tarefa e verifica se pertence ao casal
+                    Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
+                    return lar != null
+                            && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
+                                    || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
+                })
+                .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas() - 1)) // Considera as parcelas
+                .max(Comparator.naturalOrder())
+                .orElse(LocalDate.MIN);
+
+
+        // 🔹 Última data de qualquer festa associada ao casal
+        LocalDate ultimaDataFesta = festaRepo.listar().stream()
+                .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
+                .map(Festa::getData)
+                .max(Comparator.naturalOrder())
+                .orElse(LocalDate.MIN);
+
+
+        // 🔹 Última data de qualquer compra parcelada associada ao casal
+        LocalDate ultimaDataCompra = compraRepo.listar().stream()
+                .filter(compra -> {
+                    String idTarefa = compra.getIdTarefa();
+                    return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null &&
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1()
+                                    .equals(idPessoa1)
+                            &&
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2()
+                                    .equals(idPessoa2);
+                })
+                .map(compra -> {
+                    Tarefa tarefa = tarefaRepo.buscarPorId(compra.getIdTarefa());
+                    return tarefa.getDataInicio().plusMonths(compra.getNumParcelas() - 1); // Considera parcelas
+                })
+                .max(Comparator.naturalOrder())
+                .orElse(LocalDate.MIN);
+
+
+
+        // 🔹 Determina a maior data entre todas
+        if (!ultimaDataTarefa.equals(LocalDate.MIN)) {
+            dataFinal = ultimaDataTarefa;
         }
-        
+        if (!ultimaDataFesta.equals(LocalDate.MIN) && ultimaDataFesta.isAfter(dataFinal)) {
+            dataFinal = ultimaDataFesta;
+        }
+        if (!ultimaDataCompra.equals(LocalDate.MIN) && ultimaDataCompra.isAfter(dataFinal)) {
+            dataFinal = ultimaDataCompra;
+        }
+
+        // 🔹 Se não houver despesas, retorna a data inicial + 1 mês como fallback
+        return (dataFinal.equals(LocalDate.MIN)) ? LocalDate.now().plusMonths(1) : dataFinal;
+    }
+
 }

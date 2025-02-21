@@ -72,7 +72,7 @@ public class Main {
 
         // **Gerar Planejamento Financeiro com os CPFs lidos**
         PlanejamentoFinanceiro planejamento = new PlanejamentoFinanceiro(
-                casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo);
+                casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
 
         System.out.println("Gerando planejamento financeiro...");
         // **Ler CPFs do arquivo `entrada.txt`**
@@ -88,6 +88,8 @@ public class Main {
                     System.err.println("Formato inválido de linha em entrada.txt: " + linha);
                 }
             }
+            System.out.println("Planejamento financeiro salvo em: " + caminhoArquivoEntrada + "1-planejamento.csv");
+
         } catch (IOException e) {
             System.err.println("Erro ao ler entrada.txt: " + e.getMessage());
         }
