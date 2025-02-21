@@ -111,7 +111,8 @@ public class FestaRepository {
             LocalDate data = LocalDate.parse(campos[3].trim(), formatter);
             String hora = campos[4].trim();
             double valorFesta = numberFormat.parse(campos[5].trim()).doubleValue();
-            int numConvidados = Integer.parseInt(campos[6].trim());
+            int numParcelas = Integer.parseInt(campos[6].trim());
+            int numConvidados = Integer.parseInt(campos[7].trim());
             
             // Lista de convidados
             List<String> convidados = null;
@@ -126,7 +127,7 @@ public class FestaRepository {
             }
 
             // Cria a festa e a adiciona ao repositório
-            Festa festa = new Festa(idFesta, idCasamento, local, valorFesta, data, hora, convidados);
+            Festa festa = new Festa(idFesta, idCasamento, local, valorFesta, numParcelas, data, hora, convidados);
             this.adicionar(festa);
         }
     }

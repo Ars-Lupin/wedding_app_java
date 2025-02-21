@@ -45,7 +45,7 @@ public class Compra {
             if (valorUnitario <= 0) {
                 throw new IllegalArgumentException("O valor unitário dos itens comprados deve ser maior que zero.");
             }  
-            if (numParcelas < 0) {
+            if (numParcelas <= 0) {
                 throw new IllegalArgumentException("O número de parcelas deve ser maior que zero.");
             }
     
@@ -88,6 +88,10 @@ public class Compra {
 
         public double valorTotal() {
             return quantidade * valorUnitario;
+        }
+
+        public double getValorParcela() {
+            return valorTotal() / numParcelas;
         }
     
         /**

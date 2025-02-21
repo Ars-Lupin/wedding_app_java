@@ -106,15 +106,8 @@ public class Tarefa {
     public void setCompra(Compra compra) {
         this.compra = compra;
     }
-
     
-    /**
-     * Calcula o valor de cada parcela do prestador de serviço.
-     */
-    public double calcularValorParcela() {
-        if (numParcelas == 0) {
-            return 0;
-        }
+    public double getValorParcela() {
         return valorPrestador / numParcelas;
     }
 

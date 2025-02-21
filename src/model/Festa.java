@@ -14,6 +14,7 @@ public class Festa {
     private final String idCasamento;
     private String endereco;
     private double valorFesta;
+    private int numParcelas;
     private LocalDate data;
     private String hora;
     private List<String> convidados;
@@ -25,12 +26,13 @@ public class Festa {
      * @param idCasamento Identificador do casamento ao qual a festa pertence.
      * @param endereco    Endereço da festa.
      * @param valorFesta  Valor total gasto na organização da festa.
+     * @param numParcelas Número de parcelas em que o valor da festa foi dividido.
      * @param data        Data da festa (dd/mm/aaaa).
      * @param hora        Horário que a festa começa (hh:mm).
      * @param convidados  Lista de nomes dos convidados.
      */
     public Festa(String idFesta, String idCasamento, String endereco, double valorFesta, 
-                LocalDate data, String hora, List<String> convidados) {
+                int numParcelas, LocalDate data, String hora, List<String> convidados) {
         
         if (idFesta == null || !idFesta.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID da festa deve conter exatamente 32 dígitos numéricos.");
@@ -47,6 +49,9 @@ public class Festa {
         if (hora == null || !hora.matches("([01]\\d|2[0-3]):[0-5]\\d")) {
             throw new IllegalArgumentException("A hora da festa deve estar no formato HH:mm (00:00 a 23:59).");
         }
+        if (numParcelas <= 0) {
+            throw new IllegalArgumentException("O número de parcelas deve ser maior que zero.");
+        }
         if (convidados == null) {
             throw new IllegalArgumentException("A lista de convidados não pode ser nula.");
         }
@@ -54,7 +59,8 @@ public class Festa {
         this.idFesta = idFesta;
         this.idCasamento = idCasamento;
         this.endereco = endereco;
-        this.valorFesta = validarValor(valorFesta, "Valor da festa"); 
+        this.valorFesta = validarValor(valorFesta, "Valor da festa");
+        this.numParcelas = numParcelas;
         this.data = data;
         this.hora = hora;
         this.convidados = new ArrayList<>(convidados); // Cria uma cópia da lista
@@ -89,6 +95,10 @@ public class Festa {
 
     public double getValorFesta() {
         return validarValor(valorFesta, "valor da festa");
+    }
+
+    public double getValorParcela() {
+        return valorFesta / numParcelas;
     }
 
     public void setValorFesta(double valorFesta) {
@@ -138,7 +148,7 @@ public class Festa {
     @Override
     public String toString() {
         return String.format(
-                "Festa{ID='%s', CasamentoID='%s', Convidados=%d, Data='%s', Hora='%s', Endereço=%s, Valor=R$ %.2f}",
-                idFesta, idCasamento, convidados.size(), data, hora, endereco, valorFesta);
+                "Festa{ID='%s', CasamentoID='%s', Convidados=%d, Data='%s', Hora='%s', Endereço=%s, Valor=R$ %.2f, Parcelas=%d}",
+                idFesta, idCasamento, convidados.size(), data, hora, endereco, valorFesta, numParcelas);
     }
 }

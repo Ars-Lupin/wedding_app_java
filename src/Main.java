@@ -59,7 +59,6 @@ public class Main {
             System.err.println("Erro ao processar dados: " + e.getMessage());
         }
 
-
         // Gerar estatísticas de casais
         EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(
                 casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);

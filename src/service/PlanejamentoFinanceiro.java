@@ -246,6 +246,7 @@ public class PlanejamentoFinanceiro {
         total += tarefaRepo.listar().stream()
         .filter(tarefa -> {
             Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
+            System.out.println("Lar: " + lar.getIdLar());
             return lar != null
                     && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
                     || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)))
@@ -254,15 +255,21 @@ public class PlanejamentoFinanceiro {
         .mapToDouble(Tarefa::getValorPrestador)
         .sum();
 
+        // Teste de sanidade: printar total depois de somar os gastos com todas as tarefas
+        System.out.println("Total após tarefas: " + total);
 
         total += festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento())
                         && festa.getData().equals(data))
                 .mapToDouble(Festa::getValorFesta).sum();
 
+        System.out.println("Total após festas: " + total);
+
         total += compraRepo.listar().stream()
                 .filter(compra -> tarefaRepo.buscarPorId(compra.getIdTarefa()).getDataInicio().equals(data))
                 .mapToDouble(compra -> compra.getQuantidade() * compra.getValorUnitario()).sum();
+
+        System.out.println("Total após compras: " + total);
 
         return total;
     }
