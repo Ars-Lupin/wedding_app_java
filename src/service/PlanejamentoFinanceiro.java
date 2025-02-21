@@ -249,9 +249,16 @@ public class PlanejamentoFinanceiro {
         double total = 0;
 
         total += tarefaRepo.listar().stream()
-                .filter(tarefa -> pertenceAoCasal(idPessoa1, idPessoa2, tarefa.getIdLar())
-                        && tarefa.getDataInicio().equals(data))
-                .mapToDouble(Tarefa::getValorPrestador).sum();
+        .filter(tarefa -> {
+            Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
+            return lar != null
+                    && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
+                    || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)))
+                    && tarefa.getDataInicio().equals(data);
+        })
+        .mapToDouble(Tarefa::getValorPrestador)
+        .sum();
+
 
         total += festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento())
