@@ -142,45 +142,40 @@ public class PlanejamentoFinanceiro {
 
     private Map<String, Double> calcularSaldoMensal(Casamento casamento, PessoaFisica pessoa1, PessoaFisica pessoa2) {
         Map<String, Double> saldoMensal = new LinkedHashMap<>();
-
+    
         Financeiro financeiro1 = pessoa1.getFinanceiro();
         Financeiro financeiro2 = pessoa2.getFinanceiro();
-
+    
         double saldo = financeiro1.getDinheiroPoupanca() + financeiro2.getDinheiroPoupanca();
         double salarioMensal = financeiro1.getSalarioLiquido() + financeiro2.getSalarioLiquido();
-
+    
+        // 🟢 Definir data inicial e final baseada nos gastos do casal
         LocalDate primeiraData = encontrarPrimeiroGasto(casamento);
-        if (primeiraData == null)
+        String idPessoa1 = casamento.getIdPessoa1();
+        String idPessoa2 = casamento.getIdPessoa2();
+        LocalDate ultimaData = calcularDataFinal(casamento, idPessoa1, idPessoa2);
+
+    
+        if (primeiraData == null || ultimaData == null) {
             return Collections.emptyMap();
-
+        }    
         LocalDate dataAtual = primeiraData;
-        int mesesSemGastos = 0; // Contador de meses sem gastos para evitar loop infinito
-
-        while (saldo >= 0 || gastosExistemAte(dataAtual)) {
-            double gastosMensais = calcularGastosPorMes(casamento, dataAtual, pessoa1.getIdPessoa(),
-                    pessoa2.getIdPessoa());
+    
+        while (!dataAtual.isAfter(ultimaData)) {
+            double gastosMensais = calcularGastosPorMes(casamento, dataAtual, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
+    
             saldo += salarioMensal - gastosMensais;
-
-            if (gastosMensais == 0) {
-                mesesSemGastos++;
-            } else {
-                mesesSemGastos = 0; // Reinicia o contador se houver gastos no mês
-            }
-
-            // 🔹 Se já se passaram 12 meses sem gastos, paramos para evitar loop infinito
-            if (mesesSemGastos >= 12)
-                break;
-
-            // Simulação de rendimento da poupança
+    
+            // 🔹 Simulação de rendimento da poupança (0,5% ao mês)
             if (saldo > 0) {
                 saldo *= 1.005;
                 saldo = Math.round(saldo * 100.0) / 100.0;
             }
-
+    
             saldoMensal.put(dataAtual.format(FORMATADOR_DATA), saldo);
             dataAtual = dataAtual.plusMonths(1);
         }
-
+    
         return saldoMensal;
     }
 
