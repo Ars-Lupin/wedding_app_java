@@ -1,7 +1,6 @@
 package service;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -53,14 +52,13 @@ public class PlanejamentoFinanceiro {
 
     private void escreverCSV(String filePath, PessoaFisica pessoa1, PessoaFisica pessoa2,
             Map<String, Double> saldoMensal, LocalDate dataInicio, LocalDate dataFim) {
-        boolean arquivoJaExiste = new File(filePath).exists(); // Verifica se o arquivo já existe
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MM/yyyy");
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
 
             // Se o arquivo não existe, escrevemos o cabeçalho uma única vez
-            if (!arquivoJaExiste) {
+
                 writer.append("Nome 1;Nome 2;");
 
                 // Adiciona todas as datas no cabeçalho, do primeiro mês até o último
@@ -70,14 +68,13 @@ public class PlanejamentoFinanceiro {
                     dataAtual = dataAtual.plusMonths(1);
                 }
                 writer.append("\n");
-            }
 
             // Escrever valores do saldo mensal para o casal
             writer.append(pessoa1.getNome()).append(";")
                     .append(pessoa2.getNome()).append(";");
 
             // Garante que os meses sem saldo também apareçam no arquivo
-            LocalDate dataAtual = dataInicio;
+            dataAtual = dataInicio;
             while (!dataAtual.isAfter(dataFim)) {
                 String chaveMes = dataAtual.format(formatador);
                 double saldo = saldoMensal.getOrDefault(chaveMes, 0.0);
