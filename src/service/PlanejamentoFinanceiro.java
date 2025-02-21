@@ -47,36 +47,46 @@ public class PlanejamentoFinanceiro {
     }
 
     private void escreverCSV(String filePath, PessoaFisica pessoa1, PessoaFisica pessoa2,
-            Map<String, Double> saldoMensal) {
-        boolean arquivoJaExiste = new File(filePath).exists(); // Verifica se o arquivo já existe
+                         Map<String, Double> saldoMensal, LocalDate dataInicio, LocalDate dataFim) {
+    boolean arquivoJaExiste = new File(filePath).exists(); // Verifica se o arquivo já existe
+    DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MM/yyyy");
 
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
+    try (BufferedWriter writer = new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
 
-            // Se o arquivo ainda não existe, escrevemos o cabeçalho
-            if (!arquivoJaExiste) {
-                writer.append("Nome 1;Nome 2;");
-                for (String mesAno : saldoMensal.keySet()) {
-                    writer.append(mesAno).append(";");
-                }
-                writer.append("\n");
-            }
-
-            // Escrever valores do saldo mensal
-            writer.append(pessoa1.getNome()).append(";")
-                    .append(pessoa2.getNome()).append(";");
-
-            for (Double saldo : saldoMensal.values()) {
-                writer.append(String.format("R$ %.2f;", saldo));
+        // Se o arquivo não existe, escrevemos o cabeçalho uma única vez
+        if (!arquivoJaExiste) {
+            writer.append("Nome 1;Nome 2;");
+            
+            // Adiciona todas as datas no cabeçalho, do primeiro mês até o último
+            LocalDate dataAtual = dataInicio;
+            while (!dataAtual.isAfter(dataFim)) {
+                writer.append(dataAtual.format(formatador)).append(";");
+                dataAtual = dataAtual.plusMonths(1);
             }
             writer.append("\n");
-
-            System.out.println("Planejamento financeiro salvo em: " + filePath);
-
-        } catch (IOException e) {
-            System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
+
+        // Escrever valores do saldo mensal para o casal
+        writer.append(pessoa1.getNome()).append(";")
+              .append(pessoa2.getNome()).append(";");
+
+        // Garante que os meses sem saldo também apareçam no arquivo
+        LocalDate dataAtual = dataInicio;
+        while (!dataAtual.isAfter(dataFim)) {
+            String chaveMes = dataAtual.format(formatador);
+            double saldo = saldoMensal.getOrDefault(chaveMes, 0.0);
+            writer.append(String.format("R$ %.2f;", saldo));
+            dataAtual = dataAtual.plusMonths(1);
+        }
+        writer.append("\n");
+
+        System.out.println("Planejamento financeiro salvo em: " + filePath);
+
+    } catch (IOException e) {
+        System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
     }
+}
 
     public void gerarPlanejamento(String filePath, String cpf1, String cpf2) {
         PessoaFisica pessoa1 = buscarPessoaPorCpf(cpf1);
@@ -94,13 +104,18 @@ public class PlanejamentoFinanceiro {
         }
 
         Map<String, Double> saldoMensal = calcularSaldoMensal(casamento, pessoa1, pessoa2);
+        LocalDate dataInicial = encontrarPrimeiroGasto(casamento);
+        LocalDate dataFinal = calcularDataFinal(casamento, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
+
+        System.out.println("Data inicial: " + dataInicial.format(FORMATADOR_DATA));
+        System.out.println("Data final: " + dataFinal.format(FORMATADOR_DATA));
 
         if (saldoMensal.isEmpty()) {
             escreverMensagem(filePath, "Casal com CPFs " + cpf1 + " e " + cpf2 + " não possui gastos cadastrados.");
             return;
         }
 
-        escreverCSV(filePath, pessoa1, pessoa2, saldoMensal);
+        escreverCSV(filePath, pessoa1, pessoa2, saldoMensal, dataInicial, dataFinal);
     }
 
     private PessoaFisica buscarPessoaPorCpf(String cpf) {
@@ -230,4 +245,45 @@ public class PlanejamentoFinanceiro {
 
         return total;
     }
+
+    private LocalDate calcularDataFinal(Casamento casamento, String idPessoa1, String idPessoa2) {
+
+            LocalDate dataFinal = LocalDate.MIN;
+        
+            // 🔹 Última data de qualquer tarefa associada ao casal
+            LocalDate ultimaDataTarefa = tarefaRepo.listar().stream()
+                    .filter(tarefa -> pertenceAoCasal( casamento, tarefa.getIdLar()))
+                    .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas())) // Considera o número de parcelas
+                    .max(Comparator.naturalOrder())
+                    .orElse(LocalDate.MIN);
+            
+            // 🔹 Última data de qualquer festa associada ao casal
+            LocalDate ultimaDataFesta = festaRepo.listar().stream()
+                    .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
+                    .map(Festa::getData)
+                    .max(Comparator.naturalOrder())
+                    .orElse(LocalDate.MIN);
+        
+            // 🔹 Última data de qualquer compra parcelada associada ao casal
+            LocalDate ultimaDataCompra = compraRepo.listar().stream()
+                    .filter(compra -> {
+                        Tarefa tarefa = tarefaRepo.buscarPorId(compra.getIdTarefa());
+                        return tarefa != null && pertenceAoCasal(casamento, tarefa.getIdLar());
+                    })
+                    .map(compra -> {
+                        Tarefa tarefa = tarefaRepo.buscarPorId(compra.getIdTarefa());
+                        return tarefa.getDataInicio().plusMonths(compra.getNumParcelas()); // Adiciona parcelas ao cálculo
+                    })
+                    .max(Comparator.naturalOrder())
+                    .orElse(LocalDate.MIN);
+        
+            // 🔹 Determina a maior data entre todas
+            dataFinal = ultimaDataTarefa.isAfter(dataFinal) ? ultimaDataTarefa : dataFinal;
+            dataFinal = ultimaDataFesta.isAfter(dataFinal) ? ultimaDataFesta : dataFinal;
+            dataFinal = ultimaDataCompra.isAfter(dataFinal) ? ultimaDataCompra : dataFinal;
+        
+            // 🔹 Se não houver despesas, retorna a data atual
+            return (dataFinal.equals(LocalDate.MIN)) ? LocalDate.now() : dataFinal;
+        }
+        
 }
