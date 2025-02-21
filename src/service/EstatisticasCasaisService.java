@@ -1,19 +1,18 @@
 package service;
 
-import model.Casamento;
-import model.Lar;
-import model.PessoaFisica;
-import repository.CasamentoRepository;
-import repository.LarRepository;
-import repository.PessoaRepository;
-import repository.TarefaRepository;
-import repository.FestaRepository;
-import repository.CompraRepository;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import model.Casamento;
+import model.Lar;
+import model.PessoaFisica;
+import repository.CasamentoRepository;
+import repository.CompraRepository;
+import repository.FestaRepository;
+import repository.LarRepository;
+import repository.PessoaRepository;
+import repository.TarefaRepository;
 
 /**
  * Classe para gerar estatísticas financeiras dos casais cadastrados.
