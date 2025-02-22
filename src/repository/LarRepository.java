@@ -89,7 +89,6 @@ public class LarRepository {
      */
     public void carregarDados(String caminhoArquivo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
-        System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
         for (String[] campos : linhas) {
             if (campos.length < 6) { // Verifica se há campos suficientes

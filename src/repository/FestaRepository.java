@@ -97,7 +97,6 @@ public class FestaRepository {
      */
     public void carregarDados(String caminhoArquivo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
-        System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));

@@ -94,7 +94,6 @@ public class CasamentoRepository {
      */
     public void carregarDados(String caminhoArquivo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
-        System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 

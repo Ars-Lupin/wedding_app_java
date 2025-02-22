@@ -91,7 +91,6 @@ public class CompraRepository {
      */
     public void carregarDados(String caminhoArquivo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
-        System.out.println("Arquivo lido com sucesso! Total de linhas: " + linhas.size());
 
         NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
 
