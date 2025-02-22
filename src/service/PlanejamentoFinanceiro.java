@@ -28,7 +28,6 @@ import repository.TarefaRepository;
  */
 public class PlanejamentoFinanceiro {
 
-    private static final String SEPARADOR = ";";
     private static final DateTimeFormatter FORMATADOR_DATA = DateTimeFormatter.ofPattern("MM/yyyy");
 
     private final CasamentoRepository casamentoRepo;
@@ -104,7 +103,7 @@ public class PlanejamentoFinanceiro {
             return;
         }
 
-        Map<String, Double> saldoMensal = calcularSaldoMensal(casamento, pessoa1, pessoa2);
+        Map<String, Double> saldoMensal = calcularSaldoMensalCasal(casamento, pessoa1, pessoa2);
         LocalDate dataInicial = encontrarPrimeiroGasto(casamento);
         LocalDate dataFinal = calcularDataFinal(casamento, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
 
@@ -140,43 +139,169 @@ public class PlanejamentoFinanceiro {
         }
     }
 
-    private Map<String, Double> calcularSaldoMensal(Casamento casamento, PessoaFisica pessoa1, PessoaFisica pessoa2) {
+    private Map<String, Double> calcularSaldoMensalCasal(Casamento casamento, PessoaFisica pessoa1, PessoaFisica pessoa2) {
         Map<String, Double> saldoMensal = new LinkedHashMap<>();
     
-        Financeiro financeiro1 = pessoa1.getFinanceiro();
-        Financeiro financeiro2 = pessoa2.getFinanceiro();
-    
-        double saldo = financeiro1.getDinheiroPoupanca() + financeiro2.getDinheiroPoupanca();
-        double salarioMensal = financeiro1.getSalarioLiquido() + financeiro2.getSalarioLiquido();
-    
-        // 🟢 Definir data inicial e final baseada nos gastos do casal
+        // Informações financeiras do casal
+        double saldoMensalCasal = 0.0;
+
+        // Definir data inicial e final baseada nos gastos do casal
         LocalDate primeiraData = encontrarPrimeiroGasto(casamento);
         String idPessoa1 = casamento.getIdPessoa1();
         String idPessoa2 = casamento.getIdPessoa2();
         LocalDate ultimaData = calcularDataFinal(casamento, idPessoa1, idPessoa2);
 
-    
         if (primeiraData == null || ultimaData == null) {
             return Collections.emptyMap();
         }    
         LocalDate dataAtual = primeiraData;
-    
+
+        // Iterar sobre os meses entre a primeira e a última data de pagamento
         while (!dataAtual.isAfter(ultimaData)) {
-            double gastosMensais = calcularGastosPorMes(casamento, dataAtual, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
+
+            // Obter informações financeiras de cada pessoa do casal
+            Financeiro financeiro1 = pessoa1.getFinanceiro();
+            Financeiro financeiro2 = pessoa2.getFinanceiro();
+
+            // Aplicar rendimento no valor da poupança do mês anterior de cada pesssoa do casal
+            aplicarRendimentoPoupanca(financeiro1, financeiro2);
+
+            // Teste de sanidade: poupança após aplicar rendimento
+            System.out.println("Poupança após aplicar rendimento: " + financeiro1.getDinheiroPoupanca());
+            System.out.println("Poupança após aplicar rendimento: " + financeiro2.getDinheiroPoupanca());
+
+            // Calcular saldo mensal de cada pessoa do casal
+            double saldoPessoa1 = calcularSaldoMensalPessoa(financeiro1);
+            double saldoPessoa2 = calcularSaldoMensalPessoa(financeiro2);
+        
+            saldoMensalCasal = saldoPessoa1 + saldoPessoa2;
     
-            saldo += salarioMensal - gastosMensais;
-    
-            // 🔹 Simulação de rendimento da poupança (0,5% ao mês)
-            if (saldo > 0) {
-                saldo *= 1.005;
-                saldo = Math.round(saldo * 100.0) / 100.0;
-            }
-    
-            saldoMensal.put(dataAtual.format(FORMATADOR_DATA), saldo);
+            double gastosMensaisCasal = calcularGastosPorMes(casamento.getIdCasamento(), dataAtual, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
+            saldoMensalCasal -= gastosMensaisCasal; // Subtrai os gastos mensais do casal do saldo total
+
+            // Teste de sanidade: printar saldo mensal do casal
+            System.out.println("Saldo mensal do casal: " + saldoMensalCasal);
+
+            // Adicionar saldo mensal do casal ao mapa
+            saldoMensal.put(dataAtual.format(FORMATADOR_DATA), saldoMensalCasal);
             dataAtual = dataAtual.plusMonths(1);
+
+            // Excedente do saldo da pessoa vai para a poupança (poupança individual)
+            financeiro1.setDinheiroPoupanca(saldoPessoa1);
+            financeiro2.setDinheiroPoupanca(saldoPessoa2);
         }
-    
+
         return saldoMensal;
+    }
+
+    public double calcularSaldoMensalPessoa(Financeiro financeiroPessoa) {
+        // Saldo mensal = poupança (rendimento já aplicado) + salário líquido - gastos mensais
+        return financeiroPessoa.getDinheiroPoupanca() + financeiroPessoa.getSalarioLiquido() - financeiroPessoa.getGastosMensais();
+    }
+
+        /**
+     * Calcula os gastos do casal em um determinado mês.
+     *
+     * @param idCasal     ID do casal
+     * @param idCasamento ID do casamento (pode ser null)
+     * @param data        Data do mês desejado (formato yyyy-MM)
+     * @return Total de gastos no mês especificado
+     */
+    public double calcularGastosPorMes(String idCasamento, LocalDate data, String idPessoa1, String idPessoa2) {
+        double totalGastos = 0.0;
+
+        // Mes atual
+        System.out.println("Data: " + data);
+
+        // Filtrar tarefas associadas ao casal e ao casamento (se houver)
+        List<Tarefa> tarefas = new ArrayList<>(tarefaRepo.listar());
+        for (Tarefa tarefa : tarefas) {
+            // Verifica se a tarefa pertence ao lar do casal
+            Lar larAssociado = larRepo.buscarPorId(tarefa.getIdLar());
+            if (larAssociado != null 
+                    && (larAssociado.getIdPessoa1().equals(idPessoa1)
+                    && larAssociado.getIdPessoa2().equals(idPessoa2) 
+                    || larAssociado.getIdPessoa1().equals(idPessoa2)
+                    && larAssociado.getIdPessoa2().equals(idPessoa1))) {
+                if (estaParcelaSendoPaga(tarefa.getDataInicio(), tarefa.getNumParcelas(), data)) {
+                    totalGastos += tarefa.getValorParcela();
+                }
+            }
+        }
+
+        // Teste de sanidade: printar total depois de somar os gastos com todas as tarefas
+        //System.out.println("Total após tarefas: " + totalGastos);
+
+        // Filtrar compras associadas ao casal e ao casamento (se houver)
+        List<Compra> compras = new ArrayList<>(compraRepo.listar());
+        for (Compra compra : compras) {
+            Tarefa tarefaAssociada = tarefaRepo.buscarPorId(compra.getIdTarefa());
+            Lar larAssociado = larRepo.buscarPorId(tarefaAssociada.getIdLar());
+            if (larAssociado != null
+                    && (larAssociado.getIdPessoa1().equals(idPessoa1)
+                    && larAssociado.getIdPessoa2().equals(idPessoa2)
+                    || larAssociado.getIdPessoa1().equals(idPessoa2)
+                    && larAssociado.getIdPessoa2().equals(idPessoa1))) {
+                LocalDate dataPrimeiroPagamento = tarefaAssociada.getDataInicio();
+                if (estaParcelaSendoPaga(dataPrimeiroPagamento, compra.getNumParcelas(), data)) {
+                    totalGastos += compra.getValorParcela();
+                }
+            }
+        }
+
+        //System.out.println("Total após compras: " + totalGastos);
+
+        // Filtrar festas associadas ao casamento (se houver)
+        List<Festa> festas = new ArrayList<>(festaRepo.listar());
+        for (Festa festa : festas) {
+            Casamento casamentoAssociado = casamentoRepo.buscarPorId(festa.getIdCasamento());
+            if (idCasamento != null && casamentoAssociado.getIdCasamento().equals(idCasamento)) {
+                LocalDate dataPrimeiroPagamento = festa.getData();
+                if (estaParcelaSendoPaga(dataPrimeiroPagamento, festa.getNumParcelas(), data)) {
+                    totalGastos += festa.getValorParcela();
+                }
+            }
+        }
+
+        //System.out.println("Total após festas: " + totalGastos);
+
+        return totalGastos;
+    }
+
+    public void aplicarRendimentoPoupanca(Financeiro financeiroPessoa1, Financeiro financeiroPessoa2) {
+        // Obter valores da poupança do mês anterior
+        double poupanca1 = financeiroPessoa1.getDinheiroPoupanca();
+        double poupanca2 = financeiroPessoa2.getDinheiroPoupanca();
+
+        // Aplicar rendimento de 0.5% ao mês
+        poupanca1 *= 1.005;
+        poupanca2 *= 1.005;
+
+        // Atualizar valores na classe Financeiro
+        financeiroPessoa1.setDinheiroPoupanca(poupanca1);
+        financeiroPessoa2.setDinheiroPoupanca(poupanca2);
+    }    
+
+    /**
+     * Verifica se uma parcela está sendo paga no mês da data especificada.
+     *
+     * @param dataInicio    Data do primeiro pagamento
+     * @param numParcelas   Número total de parcelas
+     * @param dataConsulta  Data do mês em que queremos verificar o pagamento
+     * @return true se a parcela está sendo paga nesse mês, false caso contrário
+     */
+    private boolean estaParcelaSendoPaga(LocalDate dataInicio, int numParcelas, LocalDate dataConsulta) {
+        if (dataInicio == null || numParcelas <= 0) {
+            return false;
+        }
+
+        for (int i = 0; i < numParcelas; i++) {
+            LocalDate dataParcela = dataInicio.plusMonths(i);
+            if (dataParcela.getYear() == dataConsulta.getYear() && dataParcela.getMonthValue() == dataConsulta.getMonthValue()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private LocalDate encontrarPrimeiroGasto(Casamento casamento) {
@@ -218,7 +343,7 @@ public class PlanejamentoFinanceiro {
 
         return datas.stream().min(LocalDate::compareTo).orElse(null); // Retorna a menor data encontrada
     }
-
+    /*
     private boolean pertenceAoCasal(String idPessoa1, String idPessoa2, String idLar) {
         if (idLar == null)
             return false;
@@ -239,20 +364,23 @@ public class PlanejamentoFinanceiro {
                         .map(tarefaRepo::buscarPorId)
                         .anyMatch(t -> !t.getDataInicio().isAfter(data));
     }
+                        */
 
+    /*
     private double calcularGastosPorMes(Casamento casamento, LocalDate data, String idPessoa1, String idPessoa2) {
         double total = 0;
 
         total += tarefaRepo.listar().stream()
         .filter(tarefa -> {
             Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
-            System.out.println("Lar: " + lar.getIdLar());
+            // Printar a data de inicio e a data passada como argumento
+            System.out.println("Data de inicio: " + tarefa.getDataInicio() + " Data passada: " + data);
             return lar != null
                     && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
                     || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)))
-                    && tarefa.getDataInicio().equals(data);
+                    && tarefa.getDataInicio().getMonth().equals(data.getMonth());
         })
-        .mapToDouble(Tarefa::getValorPrestador)
+        .mapToDouble(Tarefa::getValorParcela)
         .sum();
 
         // Teste de sanidade: printar total depois de somar os gastos com todas as tarefas
@@ -260,19 +388,20 @@ public class PlanejamentoFinanceiro {
 
         total += festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento())
-                        && festa.getData().equals(data))
-                .mapToDouble(Festa::getValorFesta).sum();
+                        && festa.getData().getMonth().equals(data.getMonth()))
+                .mapToDouble(Festa::getValorParcela).sum();
 
         System.out.println("Total após festas: " + total);
 
         total += compraRepo.listar().stream()
-                .filter(compra -> tarefaRepo.buscarPorId(compra.getIdTarefa()).getDataInicio().equals(data))
-                .mapToDouble(compra -> compra.getQuantidade() * compra.getValorUnitario()).sum();
+                .filter(compra -> tarefaRepo.buscarPorId(compra.getIdTarefa()).getDataInicio().getMonth().equals(data.getMonth()))
+                .mapToDouble(Compra::getValorParcela).sum();
 
         System.out.println("Total após compras: " + total);
 
         return total;
     }
+        */
 
     private LocalDate calcularDataFinal(Casamento casamento, String idPessoa1, String idPessoa2) {
         LocalDate dataFinal = LocalDate.MIN;
@@ -290,7 +419,7 @@ public class PlanejamentoFinanceiro {
                 .orElse(LocalDate.MIN);
 
 
-        // 🔹 Última data de qualquer festa associada ao casal
+        // Última data de qualquer festa associada ao casal
         LocalDate ultimaDataFesta = festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
                 .map(Festa::getData)
@@ -298,7 +427,7 @@ public class PlanejamentoFinanceiro {
                 .orElse(LocalDate.MIN);
 
 
-        // 🔹 Última data de qualquer compra parcelada associada ao casal
+        // Última data de qualquer compra parcelada associada ao casal
         LocalDate ultimaDataCompra = compraRepo.listar().stream()
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();
@@ -318,7 +447,7 @@ public class PlanejamentoFinanceiro {
 
 
 
-        // 🔹 Determina a maior data entre todas
+        // Determina a maior data entre todas
         if (!ultimaDataTarefa.equals(LocalDate.MIN)) {
             dataFinal = ultimaDataTarefa;
         }
@@ -329,7 +458,7 @@ public class PlanejamentoFinanceiro {
             dataFinal = ultimaDataCompra;
         }
 
-        // 🔹 Se não houver despesas, retorna a data inicial + 1 mês como fallback
+        // Se não houver despesas, retorna a data inicial + 1 mês como fallback
         return (dataFinal.equals(LocalDate.MIN)) ? LocalDate.now().plusMonths(1) : dataFinal;
     }
 

@@ -97,6 +97,10 @@ public class Festa {
         return validarValor(valorFesta, "valor da festa");
     }
 
+    public int getNumParcelas() {
+        return numParcelas;
+    }
+
     public double getValorParcela() {
         return valorFesta / numParcelas;
     }
