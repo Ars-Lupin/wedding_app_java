@@ -101,6 +101,12 @@ public class CompraRepository {
             }
 
             String idCompra = campos[0].trim();
+
+            // Verifica se o ID já existe no repositório
+            if (this.compras.containsKey(idCompra)) {
+                throw new IllegalArgumentException("ID repetido " + idCompra + " na classe Compra.");
+            }
+
             String idTarefa = campos[1].trim();
             String idLoja = campos[2].trim();
             String nomeProduto = campos[3].trim();

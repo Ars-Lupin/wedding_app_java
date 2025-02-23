@@ -98,7 +98,7 @@ public class PessoaRepository {
      * @throws IOException Se houver erro na leitura do arquivo.
      * @throws ParseException Se houver erro na conversão de valores numéricos.
      */
-    public void carregarDadosDoCSV(String caminhoArquivo) throws IOException, ParseException {
+    public void carregarDadosDoCSV(String caminhoArquivo) throws IOException, ParseException, IllegalArgumentException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -109,6 +109,12 @@ public class PessoaRepository {
             // Informações abaixo são comuns a todos os tipos de pessoa
             // (Física, Jurídica e Loja)
             String id = campos[0].trim();
+
+            // Verifica se o ID já existe no repositório
+            if (this.pessoas.containsKey(id)) {
+                throw new IllegalArgumentException("ID repetido " + id + " na classe Pessoa.");
+            }
+
             String tipo = campos[1].trim();
             String nome = campos[2].trim();
             String telefone = campos[3].trim();

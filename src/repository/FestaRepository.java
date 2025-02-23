@@ -105,6 +105,12 @@ public class FestaRepository {
             
             // Informações básicas da festa
             String idFesta = campos[0].trim();
+
+            // Verifica se o ID já existe no repositório
+            if (this.festas.containsKey(idFesta)) {
+                throw new IllegalArgumentException("ID repetido " + idFesta + " na classe Festa.");
+            }
+
             String idCasamento = campos[1].trim();
             String local = campos[2].trim();
             LocalDate data = LocalDate.parse(campos[3].trim(), formatter);

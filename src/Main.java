@@ -14,6 +14,7 @@ import repository.TarefaRepository;
 import service.EstatisticasCasaisService;
 import service.EstatisticasPrestadoresService;
 import service.PlanejamentoFinanceiro;
+import exception.TratamentoExceptions;
 
 public class Main {
 
@@ -53,46 +54,44 @@ public class Main {
             compraRepo.carregarDados(caminhoArquivoCompra);
             festaRepo.carregarDados(caminhoArquivoFesta);
             casamentoRepo.carregarDados(caminhoArquivoCasamento, festaRepo);
-        } catch (IOException e) {
-            System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());
-        } catch (ParseException e) {
-            System.err.println("Erro ao converter valores numéricos: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.err.println("Erro ao processar dados: " + e.getMessage());
-        }
 
-        // Gerar estatísticas de casais
-        EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(
-                casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
-        estatisticasCasais.gerarEstatisticas("3-estatisticas-casais.csv");
+            // Gerar estatísticas de casais
+            EstatisticasCasaisService estatisticasCasais = 
+            new EstatisticasCasaisService(casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
+            estatisticasCasais.gerarEstatisticas("3-estatisticas-casais.csv");
 
-        // Gerar estatísticas de prestadores de serviço
-        EstatisticasPrestadoresService estatisticasPrestadores = new EstatisticasPrestadoresService(
-                pessoaRepo, tarefaRepo, compraRepo);
-        estatisticasPrestadores.gerarRelatorioPrestadores("2-estatisticas-prestadores.csv");
+            // Gerar estatísticas de prestadores de serviço
+            EstatisticasPrestadoresService estatisticasPrestadores = 
+            new EstatisticasPrestadoresService(pessoaRepo, tarefaRepo, compraRepo);
+            estatisticasPrestadores.gerarRelatorioPrestadores("2-estatisticas-prestadores.csv");
 
-        // **Gerar Planejamento Financeiro com os CPFs lidos**
-        PlanejamentoFinanceiro planejamento = new PlanejamentoFinanceiro(
-                casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
+            // **Gerar Planejamento Financeiro com os CPFs lidos**
+            PlanejamentoFinanceiro planejamento = 
+            new PlanejamentoFinanceiro(casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
 
-        // **Ler CPFs do arquivo `entrada.txt`**
-        try {
+            // **Ler CPFs do arquivo `entrada.txt`**
             List<String> linhas = Files.readAllLines(Paths.get(caminhoArquivoEntradaCPFs));
             try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("1-planejamento.csv"), StandardCharsets.UTF_8)){}
-            for (String linha : linhas) {
-                String[] cpfs = linha.split(",\\s*"); // Divide a linha nos CPFs separados por ", "
-                if (cpfs.length == 2) {
-                    String cpf1 = cpfs[0].trim();
-                    String cpf2 = cpfs[1].trim();
-                    planejamento.gerarPlanejamento("1-planejamento.csv", cpf1, cpf2);
-                } else {
-                    System.err.println("Formato inválido de linha em entrada.txt: " + linha);
+                for (String linha : linhas) {
+                    String[] cpfs = linha.split(",\\s*"); // Divide a linha nos CPFs separados por ", "
+                    if (cpfs.length == 2) {
+                        String cpf1 = cpfs[0].trim();
+                        String cpf2 = cpfs[1].trim();
+                        planejamento.gerarPlanejamento("1-planejamento.csv", cpf1, cpf2);
+                    } else {
+                        System.err.println("Formato inválido de linha em entrada.txt: " + linha);
+                    }
                 }
-            }
             System.out.println("Planejamento financeiro salvo em: " + caminhoArquivoEntrada + "1-planejamento.csv");
-
+            
         } catch (IOException e) {
-            System.err.println("Erro ao ler entrada.txt: " + e.getMessage());
+            TratamentoExceptions erroDeIO = new TratamentoExceptions(e);
+            erroDeIO.EscreveDadosInconsistentesException();
+        } catch (IllegalArgumentException e) {
+            TratamentoExceptions dadosInconsistentes = new TratamentoExceptions(e);
+            dadosInconsistentes.EscreveDadosInconsistentesException();
+        } catch (ParseException e) {
+            System.err.println("Erro ao converter valores numéricos: " + e.getMessage());
         }
     }
 }

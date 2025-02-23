@@ -102,6 +102,12 @@ public class CasamentoRepository {
 
             // Informações dos IDs que envolvem um casamento
             String idCasamento = campos[0].trim();
+
+            // Verifica se o ID já existe no repositório
+            if (this.casamentos.containsKey(idCasamento)) {
+                throw new IllegalArgumentException("ID repetido " + idCasamento + " na classe Casamento.");
+            }
+
             String idPessoa1 = campos[1].trim();
             String idPessoa2 = campos[2].trim();
             LocalDate data = LocalDate.parse(campos[3].trim(), formatter);

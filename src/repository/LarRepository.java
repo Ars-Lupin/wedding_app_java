@@ -98,6 +98,12 @@ public class LarRepository {
 
             // Informações dos IDs que envolvem um lar
             String idLar = campos[0].trim();
+
+            // Verifica se o ID já existe no repositório
+            if (this.lares.containsKey(idLar)) {
+                throw new IllegalArgumentException("ID repetido " + idLar + " na classe Lar.");
+            }
+
             String idPessoa1 = campos[1].trim();
             String idPessoa2 = campos[2].trim();
 

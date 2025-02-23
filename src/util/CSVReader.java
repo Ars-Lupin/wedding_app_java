@@ -25,7 +25,8 @@ public class CSVReader {
      */
     public static List<String[]> lerCSV(String filePath) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
-            throw new IllegalArgumentException("O caminho do arquivo não pode ser nulo ou vazio.");
+            System.out.println("O caminho do arquivo não pode ser nulo ou vazio.");
+            throw new IllegalArgumentException("Erro de I/O");
         }
 
         List<String[]> linhas = new ArrayList<>();

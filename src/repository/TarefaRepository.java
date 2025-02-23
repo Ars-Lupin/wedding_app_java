@@ -106,6 +106,12 @@ public class TarefaRepository {
             }
 
             String idTarefa = campos[0].trim();
+
+            // Verifica se o ID já existe no repositório
+            if (this.tarefas.containsKey(idTarefa)) {
+                throw new IllegalArgumentException("ID repetido " + idTarefa + " na classe Tarefa.");
+            }
+
             String idLar = campos[1].trim();
             String idPrestador = campos[2].trim();
             LocalDate dataInicio = LocalDate.parse(campos[3].trim(), formatter);
