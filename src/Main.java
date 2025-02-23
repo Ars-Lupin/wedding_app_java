@@ -49,10 +49,10 @@ public class Main {
             // Carregar dados dos CSVs
             pessoaRepo.carregarDadosDoCSV(caminhoArquivoPessoas);
             larRepo.carregarDados(caminhoArquivoLares);
-            casamentoRepo.carregarDados(caminhoArquivoCasamento);
             tarefaRepo.carregarDados(caminhoArquivoTarefa);
             compraRepo.carregarDados(caminhoArquivoCompra);
             festaRepo.carregarDados(caminhoArquivoFesta);
+            casamentoRepo.carregarDados(caminhoArquivoCasamento, festaRepo);
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());
         } catch (ParseException e) {

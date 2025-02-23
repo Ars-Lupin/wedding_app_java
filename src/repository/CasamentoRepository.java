@@ -1,18 +1,15 @@
 package repository;
 
 import model.Casamento;
-
+import model.Festa;
 import util.CSVReader;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collection;
-
 import java.io.IOException;
 
 /**
@@ -92,7 +89,7 @@ public class CasamentoRepository {
      * @param caminhoArquivo
      * @throws IOException Se houver um erro de leitura do arquivo
      */
-    public void carregarDados(String caminhoArquivo) throws IOException {
+    public void carregarDados(String caminhoArquivo, FestaRepository festaRepo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -112,7 +109,13 @@ public class CasamentoRepository {
             String local = campos[5].trim();
 
             // Cria e adiciona o novo casamento ao repositório
-            Casamento casamento = new Casamento(idCasamento, idPessoa1, idPessoa2, data, hora, local);
+            // Filtra a festa associada ao casamento
+            Festa festa = festaRepo.listar().stream()
+                    .filter(f -> f.getIdCasamento().equals(idCasamento))
+                    .findFirst()
+                    .orElse(null);
+                    
+            Casamento casamento = new Casamento(idCasamento, idPessoa1, idPessoa2, data, hora, local, festa);
             this.adicionar(casamento);
             this.IDs.add(idCasamento);
         }

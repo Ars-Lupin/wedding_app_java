@@ -117,7 +117,7 @@ public class FestaRepository {
             List<String> convidados = null;
             if (numConvidados > 0) { // Verifica se há convidados
                 convidados = new ArrayList<>();
-                for (int i = 7; i < campos.length - 1; i++) {
+                for (int i = 8; i < campos.length; i++) {
                     // Adiciona o nome do convidado à lista
                     convidados.add(campos[i].trim());
                 }

@@ -71,11 +71,11 @@ public class EstatisticasCasaisService {
             // Contar casamentos onde ambos foram convidados (excluindo o próprio casamento)
             int festasConvidados = 0;
             for (Casamento outroCasamento : casamentos) {
-                if (!outroCasamento.equals(casamento) && outroCasamento.getFesta() != null) {
-                    List<String> convidados = outroCasamento.getFesta().getConvidados();
-                    if (convidados.contains(nome1) && convidados.contains(nome2)) {
-                        festasConvidados++;
-                    }
+                if (outroCasamento.getFesta() == null) continue;
+                List<String> convidados = outroCasamento.getFesta().getConvidados();
+                if (convidados.contains(nome1) && convidados.contains(nome2)) {
+                    // Teste de sanidade: printa se o casal foi convidado para o mesmo casamento
+                    festasConvidados++;
                 }
             }
 
