@@ -1,32 +1,32 @@
 package util;
 
-import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-/**
- * Classe utilitária para escrever arquivos CSV.
- */
 public class CSVWriter {
 
     /**
-     * Escreve um relatório financeiro em formato CSV.
+     * Escreve um arquivo CSV a partir de uma lista de linhas.
      *
-     * @param filePath       Caminho do arquivo CSV.
-     * @param historicoMensal Dados financeiros a serem gravados.
+     * @param filePath Caminho do arquivo CSV.
+     * @param linhas   Lista de linhas a serem escritas (cada linha é uma lista de colunas).
+     * @param append   Se true, adiciona ao arquivo; se false, sobrescreve o arquivo.
      */
-    public static void escreverCSV(String filePath, Map<String, Double> historicoMensal) {
-        try (FileWriter writer = new FileWriter(filePath)) {
+    public static void escreverCSV(String filePath, List<List<String>> linhas, boolean append) {
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(filePath, append), StandardCharsets.UTF_8))) {
 
-            for (Map.Entry<String, Double> entry : historicoMensal.entrySet()) {
-                writer.append(entry.getKey()).append(",")
-                      .append(String.format("%.2f", entry.getValue()))
-                      .append("\n");
+            for (List<String> linha : linhas) {
+                String linhaCSV = String.join("", linha);
+                writer.append(linhaCSV).append("\n");
             }
 
-            System.out.println("Relatório financeiro salvo em: " + filePath);
         } catch (IOException e) {
-            System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
+            System.err.println("Erro ao escrever no arquivo CSV: " + e.getMessage());
         }
     }
 }

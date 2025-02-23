@@ -57,13 +57,15 @@ public class PlanejamentoFinanceiro {
                 new OutputStreamWriter(new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
 
             // Se o arquivo não existe, escrevemos o cabeçalho uma única vez
-
                 writer.append("Nome 1;Nome 2;");
 
                 // Adiciona todas as datas no cabeçalho, do primeiro mês até o último
                 LocalDate dataAtual = dataInicio;
                 while (!dataAtual.isAfter(dataFim)) {
-                    writer.append(dataAtual.format(formatador)).append(";");
+                    writer.append(dataAtual.format(formatador))
+                    // Se não for o último mês, adicionar um ponto e vírgula
+                    .append(dataAtual.isBefore(dataFim) ? ";" : "");
+
                     dataAtual = dataAtual.plusMonths(1);
                 }
                 writer.append("\n");
@@ -81,7 +83,6 @@ public class PlanejamentoFinanceiro {
                 dataAtual = dataAtual.plusMonths(1);
             }
             writer.append("\n");
-
 
         } catch (IOException e) {
             System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
@@ -147,6 +148,11 @@ public class PlanejamentoFinanceiro {
         String idPessoa2 = casamento.getIdPessoa2();
         LocalDate ultimaData = calcularDataFinal(casamento, idPessoa1, idPessoa2);
 
+        // Teste de sanidade: printar primeira e última data
+        System.out.println("Casal: " + pessoa1.getNome() + " e " + pessoa2.getNome());
+        System.out.println("Primeira data: " + primeiraData);
+        System.out.println("Última data: " + ultimaData);
+
         if (primeiraData == null || ultimaData == null) {
             return Collections.emptyMap();
         } 
@@ -164,11 +170,13 @@ public class PlanejamentoFinanceiro {
     
         while (!dataAtual.isAfter(ultimaData)) {
 
+            // Data atual
+            System.out.println("Data atual: " + dataAtual);
+
             // Gastos mensais do casal (compras, tarefas festas) + gastos fixos de cada mensal
             double gastosTotais = gastosMensaisCasalFixo + calcularGastosPorMes(casamento.getIdCasamento(), 
                                                             dataAtual, pessoa1.getIdPessoa(), 
-                                                            pessoa2.getIdPessoa());
-                                                    
+                                                            pessoa2.getIdPessoa());                     
 
             // Atualiza o saldo mensal do casal
             saldoMensalCasal += (saldoMensalCasal * (0.5/100)) + salarioTotalCasalFixo - gastosTotais;
@@ -305,28 +313,6 @@ public class PlanejamentoFinanceiro {
 
         return datas.stream().min(LocalDate::compareTo).orElse(null); // Retorna a menor data encontrada
     }
-    /*
-    private boolean pertenceAoCasal(String idPessoa1, String idPessoa2, String idLar) {
-        if (idLar == null)
-            return false;
-
-        Lar lar = larRepo.buscarPorId(idLar);
-        if (lar == null)
-            return false;
-
-        return (lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
-                || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1));
-    }
-
-    private boolean gastosExistemAte(LocalDate data) {
-        return tarefaRepo.listar().stream().anyMatch(t -> !t.getDataInicio().isAfter(data))
-                || festaRepo.listar().stream().anyMatch(f -> !f.getData().isAfter(data))
-                || compraRepo.listar().stream()
-                        .map(Compra::getIdTarefa)
-                        .map(tarefaRepo::buscarPorId)
-                        .anyMatch(t -> !t.getDataInicio().isAfter(data));
-    }
-                        */
 
     private LocalDate calcularDataFinal(Casamento casamento, String idPessoa1, String idPessoa2) {
         LocalDate dataFinal = LocalDate.MIN;
@@ -343,14 +329,12 @@ public class PlanejamentoFinanceiro {
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
 
-
         // Última data de qualquer festa associada ao casal
         LocalDate ultimaDataFesta = festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
                 .map(Festa::getData)
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
-
 
         // Última data de qualquer compra parcelada associada ao casal
         LocalDate ultimaDataCompra = compraRepo.listar().stream()
@@ -369,8 +353,6 @@ public class PlanejamentoFinanceiro {
                 })
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
-
-
 
         // Determina a maior data entre todas
         if (!ultimaDataTarefa.equals(LocalDate.MIN)) {
