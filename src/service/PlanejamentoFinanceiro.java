@@ -61,13 +61,18 @@ public class PlanejamentoFinanceiro {
 
                 // Adiciona todas as datas no cabeçalho, do primeiro mês até o último
                 LocalDate dataAtual = dataInicio;
-                while (!dataAtual.isAfter(dataFim)) {
-                    writer.append(dataAtual.format(formatador))
-                    // Se não for o último mês, adicionar um ponto e vírgula
-                    .append(dataAtual.isBefore(dataFim) ? ";" : "");
+                while (true) {  
+                    writer.append(dataAtual.format(formatador));
+                    if (dataAtual.getYear() == dataFim.getYear() && dataAtual.getMonthValue() == dataFim.getMonthValue()) {
+                        // Sai do loop apenas após uma iteração extra
+                        break;
+                    }
+
+                    writer.append(";");
 
                     dataAtual = dataAtual.plusMonths(1);
                 }
+
                 writer.append("\n");
 
             // Escrever valores do saldo mensal para o casal
@@ -76,10 +81,14 @@ public class PlanejamentoFinanceiro {
 
             // Garante que os meses sem saldo também apareçam no arquivo
             dataAtual = dataInicio;
-            while (!dataAtual.isAfter(dataFim)) {
+            while (true) {  
                 String chaveMes = dataAtual.format(formatador);
                 double saldo = saldoMensal.getOrDefault(chaveMes, 0.0);
                 writer.append(String.format("R$ %.2f;", saldo));
+                if (dataAtual.getYear() == dataFim.getYear() && dataAtual.getMonthValue() == dataFim.getMonthValue()) {
+                    // Sai do loop apenas após uma iteração extra
+                    break;
+                }
                 dataAtual = dataAtual.plusMonths(1);
             }
             writer.append("\n");
@@ -148,11 +157,6 @@ public class PlanejamentoFinanceiro {
         String idPessoa2 = casamento.getIdPessoa2();
         LocalDate ultimaData = calcularDataFinal(casamento, idPessoa1, idPessoa2);
 
-        // Teste de sanidade: printar primeira e última data
-        System.out.println("Casal: " + pessoa1.getNome() + " e " + pessoa2.getNome());
-        System.out.println("Primeira data: " + primeiraData);
-        System.out.println("Última data: " + ultimaData);
-
         if (primeiraData == null || ultimaData == null) {
             return Collections.emptyMap();
         } 
@@ -168,11 +172,7 @@ public class PlanejamentoFinanceiro {
         double salarioTotalCasalFixo = financeiro1.getSalarioLiquido() + financeiro2.getSalarioLiquido();
         double gastosMensaisCasalFixo = financeiro1.getGastosMensais() + financeiro2.getGastosMensais();
     
-        while (!dataAtual.isAfter(ultimaData)) {
-
-            // Data atual
-            System.out.println("Data atual: " + dataAtual);
-
+        while (true) {
             // Gastos mensais do casal (compras, tarefas festas) + gastos fixos de cada mensal
             double gastosTotais = gastosMensaisCasalFixo + calcularGastosPorMes(casamento.getIdCasamento(), 
                                                             dataAtual, pessoa1.getIdPessoa(), 
@@ -187,6 +187,12 @@ public class PlanejamentoFinanceiro {
             }
 
             saldoMensal.put(dataAtual.format(FORMATADOR_DATA), saldoMensalCasal);
+
+            if (dataAtual.getYear() == ultimaData.getYear() && dataAtual.getMonthValue() == ultimaData.getMonthValue()) {
+                // Sai do loop apenas após uma iteração extra
+                break;
+            }
+
             dataAtual = dataAtual.plusMonths(1);
         }
     

@@ -1,4 +1,6 @@
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -73,10 +75,10 @@ public class Main {
         PlanejamentoFinanceiro planejamento = new PlanejamentoFinanceiro(
                 casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
 
-        System.out.println("Gerando planejamento financeiro...");
         // **Ler CPFs do arquivo `entrada.txt`**
         try {
             List<String> linhas = Files.readAllLines(Paths.get(caminhoArquivoEntradaCPFs));
+            try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("1-planejamento.csv"), StandardCharsets.UTF_8)){}
             for (String linha : linhas) {
                 String[] cpfs = linha.split(",\\s*"); // Divide a linha nos CPFs separados por ", "
                 if (cpfs.length == 2) {
