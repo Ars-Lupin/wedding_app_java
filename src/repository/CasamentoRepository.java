@@ -144,6 +144,17 @@ public class CasamentoRepository {
         }
     }
 
+    public void recarregarFestas(FestaRepository festaRepo) {
+        for (Casamento casamento : casamentos.values()) {
+            // Tenta encontrar uma festa para este casamento
+            Festa festa = festaRepo.buscarPorId(casamento.getIdCasamento());
+            if (festa != null) {
+                casamento.setFesta(festa);
+            }
+        }
+    }
+    
+
     public Map<String, Casamento> getCasamentos() {
         return casamentos;
     }

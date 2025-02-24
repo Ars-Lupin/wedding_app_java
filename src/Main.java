@@ -50,10 +50,11 @@ public class Main {
             // Carregar dados dos CSVs
             pessoaRepo.carregarDadosDoCSV(caminhoArquivoPessoas);
             larRepo.carregarDados(caminhoArquivoLares, pessoaRepo);
-            tarefaRepo.carregarDados(caminhoArquivoTarefa);
-            compraRepo.carregarDados(caminhoArquivoCompra);
-            festaRepo.carregarDados(caminhoArquivoFesta);
+            tarefaRepo.carregarDados(caminhoArquivoTarefa, larRepo, pessoaRepo);
+            compraRepo.carregarDados(caminhoArquivoCompra, tarefaRepo, pessoaRepo);
             casamentoRepo.carregarDados(caminhoArquivoCasamento, pessoaRepo, festaRepo);
+            festaRepo.carregarDados(caminhoArquivoFesta, casamentoRepo);
+            casamentoRepo.recarregarFestas(festaRepo);
 
             // Gerar estatísticas de casais
             EstatisticasCasaisService estatisticasCasais = 
