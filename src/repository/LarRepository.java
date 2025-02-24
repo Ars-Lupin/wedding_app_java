@@ -1,16 +1,10 @@
 package repository;
 
-import model.Lar;
-import model.Endereco;
-
-import util.CSVReader;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Collection;
-
 import java.io.IOException;
+import java.util.*;
+import model.Endereco;
+import model.Lar;
+import util.CSVReader;
 
 /**
  * Classe que representa um repositório de lares.
@@ -21,15 +15,15 @@ public class LarRepository {
 
     /**
      * Construtor: inicializa o mapa de lares.
-    */
+     */
     public LarRepository() {
         this.lares = new HashMap<>();
     }
 
     /**
      * Adiciona um lar ao repositório.
-     * 
-     * @param lar
+     *
+     * @param lar Lar a ser adicionado.
      * @throws IllegalArgumentException Se o lar for nulo ou já existir no repositório.
      */
     public void adicionar(Lar lar) {
@@ -44,9 +38,8 @@ public class LarRepository {
 
     /**
      * Remove um lar do repositório.
-     * 
-     * @param lar
-     * @throws IllegalArgumentException Se o lar for nulo ou não existir no repositório.
+     *
+     * @param lar Lar a ser removido.
      */
     public void remover(Lar lar) {
         if (lar == null) {
@@ -60,7 +53,7 @@ public class LarRepository {
 
     /**
      * Lista todos os lares do repositório.
-     * 
+     *
      * @return Uma coleção com todos os lares do repositório.
      */
     public Collection<Lar> listar() {
@@ -69,10 +62,9 @@ public class LarRepository {
 
     /**
      * Busca um lar pelo ID.
-     * 
-     * @param id
+     *
+     * @param id ID do lar.
      * @return O lar com o ID especificado.
-     * @throws IllegalArgumentException Se o ID for nulo ou vazio.
      */
     public Lar buscarPorId(String id) {
         if (id == null || id.trim().isEmpty()) {
@@ -82,12 +74,13 @@ public class LarRepository {
     }
 
     /**
-     * Carrega os dados do arquivo lares.CSV e adiciona os lares ao repositório.
-     * 
-     * @param caminhoArquivo
+     * Carrega os dados do arquivo `lares.csv` e adiciona os lares ao repositório.
+     *
+     * @param caminhoArquivo Caminho do arquivo CSV.
+     * @param pessoaRepo    Repositório de pessoas para validação dos IDs.
      * @throws IOException Se houver um erro de leitura do arquivo.
      */
-    public void carregarDados(String caminhoArquivo) throws IOException {
+    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         for (String[] campos : linhas) {
@@ -107,7 +100,25 @@ public class LarRepository {
             String idPessoa1 = campos[1].trim();
             String idPessoa2 = campos[2].trim();
 
-            // Endereço de um lar
+            // 🔹 Validação: verificar se as pessoas existem no `PessoaRepository`
+            boolean pessoa1Existe = pessoaRepo.buscarPorId(idPessoa1) != null;
+            boolean pessoa2Existe = pessoaRepo.buscarPorId(idPessoa2) != null;
+
+            if (!pessoa1Existe && !pessoa2Existe) {
+                throw new IllegalArgumentException(
+                        "ID(s) de Pessoa " + idPessoa1 + " " + idPessoa2 +
+                                " não cadastrado(s) no Lar de ID " + idLar + ".");
+            }
+            if (!pessoa1Existe) {
+                throw new IllegalArgumentException(
+                        "ID de Pessoa " + idPessoa1 + " não cadastrado no Lar de ID " + idLar + ".");
+            }
+            if (!pessoa2Existe) {
+                throw new IllegalArgumentException(
+                        "ID de Pessoa " + idPessoa2 + " não cadastrado no Lar de ID " + idLar + ".");
+            }
+
+            // Endereço do lar
             String rua = campos[3].trim();
             int num = Integer.parseInt(campos[4].trim());
             String complemento = campos[5].trim();
@@ -115,7 +126,7 @@ public class LarRepository {
 
             // Cria e adiciona o novo lar ao repositório
             Lar lar = new Lar(idLar, idPessoa1, idPessoa2, endereco);
-            this.adicionar(lar);
+            this.adicionar(lar); // Aqui a validação de IDs de pessoa será feita
         }
     }
 }

@@ -1,16 +1,12 @@
 package repository;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import model.Casamento;
 import model.Festa;
 import util.CSVReader;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Collection;
-import java.io.IOException;
 
 /**
  * Classe que representa um repositório de casamentos
@@ -30,8 +26,8 @@ public class CasamentoRepository {
 
     /**
      * Adiciona um casamento ao repositório
-     * 
-     * @param casamento
+     *
+     * @param casamento Casamento a ser adicionado.
      * @throws IllegalArgumentException Se o casamento for nulo ou já existir no repositório
      */
     public void adicionar(Casamento casamento) {
@@ -46,9 +42,9 @@ public class CasamentoRepository {
 
     /**
      * Remove um casamento do repositório
-     * 
-     * @param casamento
-     * @throws IllegalArgumentException Se o lar for nulo ou não existir no repositório
+     *
+     * @param casamento Casamento a ser removido.
+     * @throws IllegalArgumentException Se o casamento for nulo ou não existir no repositório
      */
     public void remover(Casamento casamento) {
         if (casamento == null) {
@@ -62,7 +58,7 @@ public class CasamentoRepository {
 
     /**
      * Lista todos os casamentos do repositório
-     * 
+     *
      * @return Uma coleção com todos os casamentos do repositório
      */
     public Collection<Casamento> listar() {
@@ -71,8 +67,8 @@ public class CasamentoRepository {
 
     /**
      * Busca um casamento pelo ID
-     * 
-     * @param id
+     *
+     * @param id ID do casamento.
      * @return O casamento com o ID especificado
      * @throws IllegalArgumentException Se o ID for nulo ou vazio
      */
@@ -84,12 +80,15 @@ public class CasamentoRepository {
     }
 
     /**
-     * Carrega os dados do arquivo casamentos.CSV e adiciona os casamentos ao repositório
-     * 
-     * @param caminhoArquivo
-     * @throws IOException Se houver um erro de leitura do arquivo
+     * Carrega os dados do arquivo casamentos.CSV e adiciona os casamentos ao repositório,
+     * validando se as pessoas envolvidas existem no sistema.
+     *
+     * @param caminhoArquivo Caminho do arquivo CSV.
+     * @param pessoaRepo    Repositório de pessoas para validação dos IDs.
+     * @param festaRepo     Repositório de festas para buscar a festa associada ao casamento.
+     * @throws IOException Se houver um erro de leitura do arquivo.
      */
-    public void carregarDados(String caminhoArquivo, FestaRepository festaRepo) throws IOException {
+    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, FestaRepository festaRepo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -114,13 +113,31 @@ public class CasamentoRepository {
             String hora = campos[4].trim();
             String local = campos[5].trim();
 
-            // Cria e adiciona o novo casamento ao repositório
-            // Filtra a festa associada ao casamento
+            // 🔹 Validação: verificar se as pessoas existem no `PessoaRepository`
+            boolean pessoa1Existe = pessoaRepo.buscarPorId(idPessoa1) != null;
+            boolean pessoa2Existe = pessoaRepo.buscarPorId(idPessoa2) != null;
+
+            if (!pessoa1Existe && !pessoa2Existe) {
+                throw new IllegalArgumentException(
+                        "ID(s) de Pessoa " + idPessoa1 + " " + idPessoa2 +
+                                " não cadastrado(s) no Casamento de ID " + idCasamento + ".");
+            }
+            if (!pessoa1Existe) {
+                throw new IllegalArgumentException(
+                        "ID de Pessoa " + idPessoa1 + " não cadastrado no Casamento de ID " + idCasamento + ".");
+            }
+            if (!pessoa2Existe) {
+                throw new IllegalArgumentException(
+                        "ID de Pessoa " + idPessoa2 + " não cadastrado no Casamento de ID " + idCasamento + ".");
+            }
+
+            // 🔹 Busca a festa associada ao casamento (se houver)
             Festa festa = festaRepo.listar().stream()
                     .filter(f -> f.getIdCasamento().equals(idCasamento))
                     .findFirst()
                     .orElse(null);
-                    
+
+            // Cria e adiciona o novo casamento ao repositório
             Casamento casamento = new Casamento(idCasamento, idPessoa1, idPessoa2, data, hora, local, festa);
             this.adicionar(casamento);
             this.IDs.add(idCasamento);
@@ -133,5 +150,5 @@ public class CasamentoRepository {
 
     public List<String> getIDs() {
         return IDs;
-    }   
+    }
 }

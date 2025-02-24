@@ -1,46 +1,37 @@
 package repository;
 
-import model.Financeiro;
-import model.Pessoa;
-import model.PessoaFisica;
-import model.PessoaJuridica;
-import model.Loja;
-
-import util.CSVReader;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Collection;
-
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import java.io.IOException;
+import java.util.*;
+import model.*;
+import util.CSVReader;
 
 /**
  * Classe que representa um repositório de pessoas.
  */
 public class PessoaRepository {
 
-    private final Map<String, Pessoa> pessoas;
+    private final Map<String, Pessoa> pessoas; // Mapa de ID → Pessoa
+    private final Map<String, String> cpfs;    // Mapa de CPF → ID da Pessoa Física
+    private final Map<String, String> cnpjs;   // Mapa de CNPJ → ID da Pessoa Jurídica
 
     /**
-     * Construtor: inicializa o mapa de pessoas.
+     * Construtor: inicializa os mapas de pessoas.
      */
     public PessoaRepository() {
         this.pessoas = new HashMap<>();
+        this.cpfs = new HashMap<>();
+        this.cnpjs = new HashMap<>();
     }
 
     /**
-     * Adiciona uma pessoa ao repositório.
-     * 
+     * Adiciona uma pessoa ao repositório com verificações de CPF e CNPJ duplicados.
+     *
      * @param pessoa Pessoa a ser adicionada.
-     * @throws IllegalArgumentException Se a pessoa for nula ou já existir no repositório.
+     * @throws IllegalArgumentException Se a pessoa já existir no repositório ou se CPF/CNPJ for duplicado com ID diferente.
      */
     public void adicionar(Pessoa pessoa) {
         if (pessoa == null) {
@@ -49,14 +40,32 @@ public class PessoaRepository {
         if (pessoas.containsKey(pessoa.getIdPessoa())) {
             throw new IllegalArgumentException("Já existe uma pessoa com este ID no repositório.");
         }
+
+        // 🔹 Validação para Pessoa Física (CPF)
+        if (pessoa instanceof PessoaFisica) {
+            PessoaFisica pf = (PessoaFisica) pessoa;
+            if (cpfs.containsKey(pf.getCpf()) && !cpfs.get(pf.getCpf()).equals(pf.getIdPessoa())) {
+                throw new IllegalArgumentException("O CPF " + pf.getCpf() + " da Pessoa " + pf.getIdPessoa() + " é repetido.");
+            }
+            cpfs.put(pf.getCpf(), pf.getIdPessoa()); // Adiciona ao mapa de CPFs
+        }
+
+        // 🔹 Validação para Pessoa Jurídica e Loja (CNPJ)
+        if (pessoa instanceof PessoaJuridica) {
+            PessoaJuridica pj = (PessoaJuridica) pessoa;
+            if (cnpjs.containsKey(pj.getCnpj()) && !cnpjs.get(pj.getCnpj()).equals(pj.getIdPessoa())) {
+                throw new IllegalArgumentException("O CNPJ " + pj.getCnpj() + " da Pessoa " + pj.getIdPessoa() + " é repetido.");
+            }
+            cnpjs.put(pj.getCnpj(), pj.getIdPessoa()); // Adiciona ao mapa de CNPJs
+        }
+
         this.pessoas.put(pessoa.getIdPessoa(), pessoa);
     }
 
     /**
      * Remove uma pessoa do repositório.
-     * 
+     *
      * @param pessoa Pessoa a ser removida.
-     * @throws IllegalArgumentException Se a pessoa for nula ou não existir no repositório.
      */
     public void remover(Pessoa pessoa) {
         if (pessoa == null) {
@@ -65,12 +74,20 @@ public class PessoaRepository {
         if (!pessoas.containsKey(pessoa.getIdPessoa())) {
             throw new IllegalArgumentException("A pessoa não existe no repositório.");
         }
+
+        // Remove dos mapas auxiliares de CPF/CNPJ
+        if (pessoa instanceof PessoaFisica) {
+            cpfs.remove(((PessoaFisica) pessoa).getCpf());
+        } else if (pessoa instanceof PessoaJuridica) {
+            cnpjs.remove(((PessoaJuridica) pessoa).getCnpj());
+        }
+
         this.pessoas.remove(pessoa.getIdPessoa());
     }
 
     /**
      * Lista todas as pessoas no repositório.
-     * 
+     *
      * @return Coleção de pessoas.
      */
     public Collection<Pessoa> listar() {
@@ -79,10 +96,9 @@ public class PessoaRepository {
 
     /**
      * Busca uma pessoa pelo ID.
-     * 
+     *
      * @param id ID da pessoa.
      * @return A pessoa correspondente ao ID, ou null se não for encontrada.
-     * @throws IllegalArgumentException Se o ID for nulo ou inválido.
      */
     public Pessoa buscarPorId(String id) {
         if (id == null || id.trim().isEmpty()) {
@@ -92,25 +108,19 @@ public class PessoaRepository {
     }
 
     /**
-     * Carrega os dados do arquivo pessoas.CSV e adiciona as pessoas ao repositório.
+     * Carrega os dados do arquivo pessoas.csv e adiciona as pessoas ao repositório.
      *
      * @param caminhoArquivo Caminho do arquivo CSV.
      * @throws IOException Se houver erro na leitura do arquivo.
      * @throws ParseException Se houver erro na conversão de valores numéricos.
      */
-    public void carregarDadosDoCSV(String caminhoArquivo) throws IOException, ParseException, IllegalArgumentException {
+    public void carregarDadosDoCSV(String caminhoArquivo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
 
         for (String[] campos : linhas) {
-
-            // Informações abaixo são comuns a todos os tipos de pessoa
-            // (Física, Jurídica e Loja)
             String id = campos[0].trim();
-
-            // Verifica se o ID já existe no repositório
             if (this.pessoas.containsKey(id)) {
                 throw new IllegalArgumentException("ID repetido " + id + " na classe Pessoa.");
             }
@@ -120,17 +130,11 @@ public class PessoaRepository {
             String telefone = campos[3].trim();
             String endereco = campos[4].trim();
 
-            if (tipo.equals("F")) {
-                if (campos.length < 10) { // Verifica se há campos suficientes
-                    System.err.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
-                    continue;
-                }
+            if (tipo.equals("F")) { // Pessoa Física
+                if (campos.length < 10) continue;
 
-                // Informações específicas de Pessoa Física
                 String cpf = campos[5].trim();
                 LocalDate dataNasc = LocalDate.parse(campos[6].trim(), formatter);
-
-                // Converte valores financeiros usando NumberFormat
                 double dinheiroPoupanca = numberFormat.parse(campos[7].trim()).doubleValue();
                 double salarioLiquido = numberFormat.parse(campos[8].trim()).doubleValue();
                 double gastosMensais = numberFormat.parse(campos[9].trim()).doubleValue();
@@ -138,28 +142,29 @@ public class PessoaRepository {
 
                 PessoaFisica pessoaFisica = new PessoaFisica(nome, telefone, endereco, cpf, dataNasc, financeiro, id);
 
-                this.adicionar(pessoaFisica); // Adiciona a pessoa física ao repositório
-            } else if (tipo.equals("J") || tipo.equals("L")) { // Pessoa Jurídica ou Loja (Loja é uma pessoa jurídica)
-                if (campos.length < 6) { // Verifica se há campos suficientes
-                    System.err.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
-                    continue;
+                // 🔹 Verifica se o CPF já existe com outro ID
+                if (cpfs.containsKey(cpf) && !cpfs.get(cpf).equals(id)) {
+                    throw new IllegalArgumentException("O CPF " + cpf + " da Pessoa " + id + " é repetido.");
                 }
+                this.adicionar(pessoaFisica);
+            } else if (tipo.equals("J") || tipo.equals("L")) { // Pessoa Jurídica ou Loja
+                if (campos.length < 6) continue;
 
-                // Informações específicas de Pessoa Jurídica
                 String cnpj = campos[5].trim();
 
                 if (tipo.equals("J")) {
-                    // Pessoa Jurídica
                     PessoaJuridica pessoaJuridica = new PessoaJuridica(nome, telefone, endereco, cnpj, id);
-                    this.adicionar(pessoaJuridica); // Adiciona a pessoa jurídica ao repositório
+                    // 🔹 Verifica se o CNPJ já existe com outro ID
+                    if (cnpjs.containsKey(cnpj) && !cnpjs.get(cnpj).equals(id)) {
+                        throw new IllegalArgumentException("O CNPJ " + cnpj + " da Pessoa " + id + " é repetido.");
+                    }
+                    this.adicionar(pessoaJuridica);
                 } else if (tipo.equals("L")) {
-                    // Loja (Pessoa Jurídica)
                     Loja loja = new Loja(nome, telefone, endereco, cnpj, id);
-                    this.adicionar(loja); // Adiciona a loja ao repositório
+                    this.adicionar(loja);
                 }
             } else {
                 System.err.println("Tipo de pessoa inválido encontrado, ignorando: " + tipo);
-                continue;
             }
         }
     }

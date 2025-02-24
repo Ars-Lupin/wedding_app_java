@@ -1,3 +1,4 @@
+import exception.TratamentoExceptions;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +15,6 @@ import repository.TarefaRepository;
 import service.EstatisticasCasaisService;
 import service.EstatisticasPrestadoresService;
 import service.PlanejamentoFinanceiro;
-import exception.TratamentoExceptions;
 
 public class Main {
 
@@ -49,11 +49,11 @@ public class Main {
         try {
             // Carregar dados dos CSVs
             pessoaRepo.carregarDadosDoCSV(caminhoArquivoPessoas);
-            larRepo.carregarDados(caminhoArquivoLares);
+            larRepo.carregarDados(caminhoArquivoLares, pessoaRepo);
             tarefaRepo.carregarDados(caminhoArquivoTarefa);
             compraRepo.carregarDados(caminhoArquivoCompra);
             festaRepo.carregarDados(caminhoArquivoFesta);
-            casamentoRepo.carregarDados(caminhoArquivoCasamento, festaRepo);
+            casamentoRepo.carregarDados(caminhoArquivoCasamento, pessoaRepo, festaRepo);
 
             // Gerar estatísticas de casais
             EstatisticasCasaisService estatisticasCasais = 
