@@ -322,36 +322,35 @@ public class PlanejamentoFinanceiro {
 
     private LocalDate calcularDataFinal(Casamento casamento, String idPessoa1, String idPessoa2) {
         LocalDate dataFinal = LocalDate.MIN;
-
+    
+        // 🔹 Última data considerando parcelas das TAREFAS
         LocalDate ultimaDataTarefa = tarefaRepo.listar().stream()
                 .filter(tarefa -> {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
                     return lar != null
                             && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
-                                    || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
+                            || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
                 })
-                .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas() - 1)) // Considera as parcelas
+                .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas() - 1)) // Considera parcelas
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
-
-        // Última data de qualquer festa associada ao casal
+    
+        // 🔹 Última data considerando parcelas das FESTAS
         LocalDate ultimaDataFesta = festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
-                .map(Festa::getData)
+                .map(festa -> festa.getData().plusMonths(festa.getNumParcelas() - 1)) // Considera parcelas
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
-
-        // Última data de qualquer compra parcelada associada ao casal
+    
+        // 🔹 Última data considerando parcelas das COMPRAS
         LocalDate ultimaDataCompra = compraRepo.listar().stream()
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();
                     return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null &&
-                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1()
-                                    .equals(idPessoa1)
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1().equals(idPessoa1)
                             &&
-                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2()
-                                    .equals(idPessoa2);
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2().equals(idPessoa2);
                 })
                 .map(compra -> {
                     Tarefa tarefa = tarefaRepo.buscarPorId(compra.getIdTarefa());
@@ -359,8 +358,8 @@ public class PlanejamentoFinanceiro {
                 })
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
-
-        // Determina a maior data entre todas
+    
+        // 🔹 Determina a maior data entre todas as despesas do casal
         if (!ultimaDataTarefa.equals(LocalDate.MIN)) {
             dataFinal = ultimaDataTarefa;
         }
@@ -370,8 +369,9 @@ public class PlanejamentoFinanceiro {
         if (!ultimaDataCompra.equals(LocalDate.MIN) && ultimaDataCompra.isAfter(dataFinal)) {
             dataFinal = ultimaDataCompra;
         }
-
-        // Se não houver despesas, retorna a data inicial + 1 mês como fallback
+    
+        // 🔹 Se não houver despesas, retorna a data inicial + 1 mês como fallback
         return (dataFinal.equals(LocalDate.MIN)) ? LocalDate.now().plusMonths(1) : dataFinal;
     }
 }
+    
