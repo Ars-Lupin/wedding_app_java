@@ -46,48 +46,23 @@ public class EstatisticasCasaisService {
      */
     public void gerarEstatisticas(String filePath) {
         List<EstatisticaCasal> estatisticasLista = new ArrayList<>();
-        List<Casamento> casamentos = new ArrayList<>(casamentoRepo.listar());
-
-        for (Casamento casamento : casamentos) {
-            // Obtendo os membros do casal
-            PessoaFisica pessoa1 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getIdPessoa1());
-            PessoaFisica pessoa2 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getIdPessoa2());
-
-            if (pessoa1 == null || pessoa2 == null) continue;
-
-            // Ordenando os nomes para garantir consistência
-            String nome1 = pessoa1.getNome().compareToIgnoreCase(pessoa2.getNome()) < 0 ? pessoa1.getNome() : pessoa2.getNome();
-            String nome2 = pessoa1.getNome().compareToIgnoreCase(pessoa2.getNome()) < 0 ? pessoa2.getNome() : pessoa1.getNome();
-
-            // Obtendo os IDs do casal
-            String idPessoa1 = casamento.getIdPessoa1();
-            String idPessoa2 = casamento.getIdPessoa2();
-
-            // Calculando o total gasto do casal
-            double totalGasto = calcularGastosTarefas(idPessoa1, idPessoa2) 
-                              + calcularGastosFestas(idPessoa1, idPessoa2) 
-                              + calcularGastosCompras(idPessoa1, idPessoa2);
-
-            // Contar casamentos onde ambos foram convidados (excluindo o próprio casamento)
-            int festasConvidados = 0;
-            for (Casamento outroCasamento : casamentos) {
-                if (outroCasamento.getFesta() == null) continue;
-                List<String> convidados = outroCasamento.getFesta().getConvidados();
-                if (convidados.contains(nome1) && convidados.contains(nome2)) {
-                    // Teste de sanidade: printa se o casal foi convidado para o mesmo casamento
-                    festasConvidados++;
-                }
-            }
-
-            // Criando o objeto de estatística do casal
-            estatisticasLista.add(new EstatisticaCasal(nome1, nome2, totalGasto, festasConvidados));
+        Set<String> casaisProcessados = new HashSet<>(); // Evita duplicatas
+    
+        // 🔹 Busca casais em `LarRepository`
+        for (Lar lar : larRepo.listar()) {
+            adicionarEstatisticaCasal(lar.getIdPessoa1(), lar.getIdPessoa2(), estatisticasLista, casaisProcessados);
         }
-
-        // Ordenação corrigida: primeiro pelo **total gasto (decrescente)**, depois pelo nome1 (alfabético)
+    
+        // 🔹 Busca casais em `CasamentoRepository`, garantindo que não estejam duplicados
+        for (Casamento casamento : casamentoRepo.listar()) {
+            adicionarEstatisticaCasal(casamento.getIdPessoa1(), casamento.getIdPessoa2(), estatisticasLista, casaisProcessados);
+        }
+    
+        // 🔹 Ordenação: primeiro pelo total gasto (decrescente), depois pelo nome1 (alfabético)
         estatisticasLista.sort(Comparator.comparingDouble(EstatisticaCasal::getTotalGasto).reversed()
                 .thenComparing(EstatisticaCasal::getNome1));
-
-        // Escrevendo os dados no CSV
+    
+        // 🔹 Escrevendo os dados no CSV
         try (FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8)) {
             for (EstatisticaCasal estatistica : estatisticasLista) {
                 writer.append(estatistica.getNome1()).append(SEPARADOR)
@@ -101,6 +76,40 @@ public class EstatisticasCasaisService {
             System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
     }
+    
+    /**
+     * Adiciona um casal às estatísticas apenas se ele ainda não foi processado.
+     */
+    private void adicionarEstatisticaCasal(String idPessoa1, String idPessoa2, List<EstatisticaCasal> estatisticasLista, Set<String> casaisProcessados) {
+        String chaveCasal = idPessoa1 + "-" + idPessoa2; // 🔹 Evita duplicatas
+    
+        if (casaisProcessados.contains(chaveCasal)) {
+            return;
+        }
+        casaisProcessados.add(chaveCasal);
+    
+        PessoaFisica pessoa1 = (PessoaFisica) pessoaRepo.buscarPorId(idPessoa1);
+        PessoaFisica pessoa2 = (PessoaFisica) pessoaRepo.buscarPorId(idPessoa2);
+    
+        if (pessoa1 == null || pessoa2 == null) return;
+    
+        // Ordenação dos nomes para manter consistência
+        String nome1 = pessoa1.getNome().compareToIgnoreCase(pessoa2.getNome()) < 0 ? pessoa1.getNome() : pessoa2.getNome();
+        String nome2 = pessoa1.getNome().compareToIgnoreCase(pessoa2.getNome()) < 0 ? pessoa2.getNome() : pessoa1.getNome();
+    
+        // Calculando os gastos
+        double totalGasto = calcularGastosTarefas(idPessoa1, idPessoa2)
+                          + calcularGastosFestas(idPessoa1, idPessoa2)
+                          + calcularGastosCompras(idPessoa1, idPessoa2);
+    
+        // Verifica quantas festas o casal foi convidado
+        int festasConvidados = (int) festaRepo.listar().stream()
+                .filter(festa -> festa.getConvidados().contains(nome1) && festa.getConvidados().contains(nome2))
+                .count();
+    
+        estatisticasLista.add(new EstatisticaCasal(nome1, nome2, totalGasto, festasConvidados));
+    }
+    
 
     // 🔹 Função que soma os gastos com tarefas associadas ao casal, verificando os lares
     private double calcularGastosTarefas(String idPessoa1, String idPessoa2) {
