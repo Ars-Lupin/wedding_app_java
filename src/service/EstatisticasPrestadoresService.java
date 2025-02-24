@@ -1,17 +1,16 @@
 package service;
 
-import model.PessoaJuridica;
-import model.PessoaFisica;
-import model.Loja;
-import repository.PessoaRepository;
-import repository.TarefaRepository;
-import repository.CompraRepository;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import model.Loja;
+import model.PessoaFisica;
+import model.PessoaJuridica;
+import repository.CompraRepository;
+import repository.PessoaRepository;
+import repository.TarefaRepository;
 
 /**
  * Serviço responsável por gerar as estatísticas dos prestadores.
@@ -105,8 +104,7 @@ public class EstatisticasPrestadoresService {
 
                 printer.printf("%s;%s;R$ %.2f%n", tipo, nome, totalRecebido);
             }
-            System.out.println("Relatório `2-estatisticas-prestadores.csv` gerado com sucesso!");
-        } catch (IOException e) {
+        } catch (IOException e) { 
             System.err.println("Erro ao gerar relatório de prestadores: " + e.getMessage());
         }
     }

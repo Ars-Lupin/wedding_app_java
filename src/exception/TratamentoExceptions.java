@@ -59,6 +59,5 @@ public class TratamentoExceptions {
         } catch (IOException ex) {
             System.err.println("Erro ao escrever no arquivo saida.txt: " + ex.getMessage());
         }
-        return;
     }
 }

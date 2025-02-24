@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.List;
+import java.util.Scanner;
 import repository.CasamentoRepository;
 import repository.CompraRepository;
 import repository.FestaRepository;
@@ -19,6 +19,7 @@ import service.PlanejamentoFinanceiro;
 public class Main {
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
 
         if (args.length > 0) {
             System.out.println(args[0]);
@@ -36,7 +37,6 @@ public class Main {
         String caminhoArquivoLares = caminhoArquivoEntrada + "/lares.csv";
         String caminhoArquivoPessoas = caminhoArquivoEntrada + "/pessoas.csv";
         String caminhoArquivoTarefa = caminhoArquivoEntrada + "/tarefas.csv";
-        String caminhoArquivoEntradaCPFs = caminhoArquivoEntrada + "/entrada.txt"; // Arquivo com CPFs
 
         // Inicialização dos repositórios
         CasamentoRepository casamentoRepo = new CasamentoRepository();
@@ -57,34 +57,43 @@ public class Main {
             casamentoRepo.recarregarFestas(festaRepo);
 
             // Gerar estatísticas de casais
-            EstatisticasCasaisService estatisticasCasais = 
-            new EstatisticasCasaisService(casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
+            EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(casamentoRepo, pessoaRepo,
+                    tarefaRepo, festaRepo, compraRepo, larRepo);
             estatisticasCasais.gerarEstatisticas("3-estatisticas-casais.csv");
 
             // Gerar estatísticas de prestadores de serviço
-            EstatisticasPrestadoresService estatisticasPrestadores = 
-            new EstatisticasPrestadoresService(pessoaRepo, tarefaRepo, compraRepo);
+            EstatisticasPrestadoresService estatisticasPrestadores = new EstatisticasPrestadoresService(pessoaRepo,
+                    tarefaRepo, compraRepo);
             estatisticasPrestadores.gerarRelatorioPrestadores("2-estatisticas-prestadores.csv");
 
-            // **Gerar Planejamento Financeiro com os CPFs lidos**
-            PlanejamentoFinanceiro planejamento = 
-            new PlanejamentoFinanceiro(casamentoRepo, pessoaRepo, tarefaRepo, festaRepo, compraRepo, larRepo);
+            // **Gerar Planejamento Financeiro com CPFs inseridos pelo usuário**
+            PlanejamentoFinanceiro planejamento = new PlanejamentoFinanceiro(casamentoRepo, pessoaRepo, tarefaRepo,
+                    festaRepo, compraRepo, larRepo);
 
-            // **Ler CPFs do arquivo `entrada.txt`**
-            List<String> linhas = Files.readAllLines(Paths.get(caminhoArquivoEntradaCPFs));
-            try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("1-planejamento.csv"), StandardCharsets.UTF_8)){}
-                for (String linha : linhas) {
-                    String[] cpfs = linha.split(",\\s*"); // Divide a linha nos CPFs separados por ", "
-                    if (cpfs.length == 2) {
-                        String cpf1 = cpfs[0].trim();
-                        String cpf2 = cpfs[1].trim();
-                        planejamento.gerarPlanejamento("1-planejamento.csv", cpf1, cpf2);
-                    } else {
-                        System.err.println("Formato inválido de linha em entrada.txt: " + linha);
-                    }
+            // Criar ou limpar arquivo CSV
+            try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("1-planejamento.csv"),
+                    StandardCharsets.UTF_8)) {
+            }
+
+            while (true) {
+                String linha = scanner.nextLine().trim();
+                
+                if (linha.isEmpty()) {
+                    break;
                 }
-            System.out.println("Planejamento financeiro salvo em: " + caminhoArquivoEntrada + "1-planejamento.csv");
-            
+
+                String[] cpfs = linha.split(",\\s*"); // Divide a linha nos CPFs separados por ", "
+                
+                if (cpfs.length == 2) {
+                    String cpf1 = cpfs[0].trim();
+                    String cpf2 = cpfs[1].trim();
+                    planejamento.gerarPlanejamento("1-planejamento.csv", cpf1, cpf2);
+                } else {
+                    System.err.println("Formato inválido! Insira exatamente dois CPFs separados por vírgula.");
+                }
+            }
+
+
         } catch (IOException e) {
             TratamentoExceptions erroDeIO = new TratamentoExceptions(e);
             erroDeIO.EscreveDadosInconsistentesException();

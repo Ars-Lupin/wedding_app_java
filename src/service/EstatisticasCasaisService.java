@@ -71,7 +71,6 @@ public class EstatisticasCasaisService {
                       .append(String.valueOf(estatistica.getFestasConvidados()))
                       .append("\n");
             }
-            System.out.println("Estatísticas dos casais salvas em: " + filePath);
         } catch (IOException e) {
             System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
