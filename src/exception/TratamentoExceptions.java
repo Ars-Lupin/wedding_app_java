@@ -29,30 +29,44 @@ public class TratamentoExceptions {
         this.mensagemDadoInconsistente = mensagemDadoInconsistente;
         this.mensagemIO = null;
     }
-
-    public void EscreveDadosInconsistentesException() {
-
-        // Gera os arquivos de planejamento, estatisticas de casais e prestadores vazios
-        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get("1-planejamento.csv"), StandardCharsets.UTF_8)) {
-            writer.close();
+    public void EscreveDadosInconsistentesException(String diretorioBase) {
+        // Defina o caminho do diretório 'saida'
+        Path diretorioSaida = Paths.get(diretorioBase, "saida");
+        
+        // Cria o diretório 'saida' caso não exista
+        try {
+            if (!Files.exists(diretorioSaida)) {
+                Files.createDirectories(diretorioSaida);
+            }
         } catch (IOException ex) {
-            System.err.println("Erro ao escrever no arquivo 1-planejamento-financeiro.csv: " + ex.getMessage());
+            System.err.println("Erro ao criar diretório 'saida': " + ex.getMessage());
+            return;
         }
 
-        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get("2-estatisticas-prestadores.csv"), StandardCharsets.UTF_8)) {
+        // Gera os arquivos de planejamento, estatísticas de casais e prestadores vazios
+        try (BufferedWriter writer = Files.newBufferedWriter(diretorioSaida.resolve("1-planejamento.csv"), StandardCharsets.UTF_8)) {
+            // No content for now, just creating the empty file
+            writer.close();
+        } catch (IOException ex) {
+            System.err.println("Erro ao escrever no arquivo 1-planejamento.csv: " + ex.getMessage());
+        }
+
+        try (BufferedWriter writer = Files.newBufferedWriter(diretorioSaida.resolve("2-estatisticas-prestadores.csv"), StandardCharsets.UTF_8)) {
+            // No content for now, just creating the empty file
             writer.close();
         } catch (IOException ex) {
             System.err.println("Erro ao escrever no arquivo 2-estatisticas-prestadores.csv: " + ex.getMessage());
         }
 
-        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get("3-estatisticas-casais.csv"), StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(diretorioSaida.resolve("3-estatisticas-casais.csv"), StandardCharsets.UTF_8)) {
+            // No content for now, just creating the empty file
             writer.close();
         } catch (IOException ex) {
             System.err.println("Erro ao escrever no arquivo 3-estatisticas-casais.csv: " + ex.getMessage());
         }
 
         // Exceção é printada no arquivo saida.txt
-        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get("saida.txt"), StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(diretorioSaida.resolve("saida.txt"), StandardCharsets.UTF_8)) {
             writer.write(this.mensagemDadoInconsistente.getMessage());
             writer.append("\n");
             writer.close();
