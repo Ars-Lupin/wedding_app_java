@@ -66,7 +66,7 @@ public class Main {
             // Gerar estatísticas de casais
             EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(casamentoRepo, pessoaRepo,
                     tarefaRepo, festaRepo, compraRepo, larRepo);
-            estatisticasCasais.gerarEstatisticas(caminhoArquivoRelatorio1);
+            estatisticasCasais.gerarEstatisticas(caminhoArquivoRelatorio3);
 
             // Gerar estatísticas de prestadores de serviço
             EstatisticasPrestadoresService estatisticasPrestadores = new EstatisticasPrestadoresService(pessoaRepo,
@@ -78,7 +78,7 @@ public class Main {
                     festaRepo, compraRepo, larRepo);
 
             // Criar ou limpar arquivo CSV
-            try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(caminhoArquivoRelatorio3),
+            try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(caminhoArquivoRelatorio1),
                     StandardCharsets.UTF_8)) {
             }
 
@@ -94,7 +94,7 @@ public class Main {
                 if (cpfs.length == 2) {
                     String cpf1 = cpfs[0].trim();
                     String cpf2 = cpfs[1].trim();
-                    planejamento.gerarPlanejamento(caminhoArquivoRelatorio3, cpf1, cpf2);
+                    planejamento.gerarPlanejamento(caminhoArquivoRelatorio1, cpf1, cpf2);
                 } else {
                     System.err.println("Formato inválido! Insira exatamente dois CPFs separados por vírgula.");
                 }
