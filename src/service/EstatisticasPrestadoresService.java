@@ -106,7 +106,7 @@ public class EstatisticasPrestadoresService {
                 printer.printf("%s;%s;R$ %.2f%n", tipo, nome, totalRecebido);
             }
         } catch (IOException e) { 
-            System.err.println("Erro ao gerar relatório de prestadores: " + e.getMessage());
+            System.out.println("Erro ao gerar relatório de prestadores: " + e.getMessage());
         }
     }
 }

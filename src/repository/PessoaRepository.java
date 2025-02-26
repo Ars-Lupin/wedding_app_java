@@ -164,7 +164,7 @@ public class PessoaRepository {
                     this.adicionar(loja);
                 }
             } else {
-                System.err.println("Tipo de pessoa inválido encontrado, ignorando: " + tipo);
+                System.out.println("Tipo de pessoa inválido encontrado, ignorando: " + tipo);
             }
         }
     }

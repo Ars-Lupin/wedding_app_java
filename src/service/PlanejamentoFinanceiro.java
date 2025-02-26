@@ -94,7 +94,7 @@ public class PlanejamentoFinanceiro {
             writer.append("\n");
 
         } catch (IOException e) {
-            System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
+            System.out.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
     }
 
@@ -145,7 +145,7 @@ public class PlanejamentoFinanceiro {
             writer.write(mensagem + "\n");
             System.out.println(mensagem);
         } catch (IOException e) {
-            System.err.println("Erro ao escrever no arquivo CSV: " + e.getMessage());
+            System.out.println("Erro ao escrever no arquivo CSV: " + e.getMessage());
         }
     }
 

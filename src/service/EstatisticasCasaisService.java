@@ -72,7 +72,7 @@ public class EstatisticasCasaisService {
                       .append("\n");
             }
         } catch (IOException e) {
-            System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
+            System.out.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
     }
     

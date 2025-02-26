@@ -21,13 +21,14 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
+        /*
         if (args.length > 0) {
             System.out.println(args[0]);
         } else {
             System.out.println("Nenhum argumento foi passado.");
             return;
         }
-
+        */
         String caminhoArquivoEntrada = args[0];
 
         // Definição dos caminhos dos arquivos
@@ -96,10 +97,9 @@ public class Main {
                     String cpf2 = cpfs[1].trim();
                     planejamento.gerarPlanejamento(caminhoArquivoRelatorio1, cpf1, cpf2);
                 } else {
-                    System.err.println("Formato inválido! Insira exatamente dois CPFs separados por vírgula.");
+                    System.out.println("Formato inválido! Insira exatamente dois CPFs separados por vírgula.");
                 }
             }
-
 
         } catch (IOException e) {
             TratamentoExceptions erroDeIO = new TratamentoExceptions(e);
@@ -108,7 +108,9 @@ public class Main {
             TratamentoExceptions dadosInconsistentes = new TratamentoExceptions(e);
             dadosInconsistentes.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
         } catch (ParseException e) {
-            System.err.println("Erro ao converter valores numéricos: " + e.getMessage());
+            System.out.println("Erro ao converter valores numéricos: " + e.getMessage());
         }
+
+        scanner.close();
     }
 }

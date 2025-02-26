@@ -99,7 +99,7 @@ public class TarefaRepository {
 
         for (String[] campos : linhas) {
             if (campos.length < 7) { // Verifica se há campos suficientes
-                System.err.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
+                System.out.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
                 continue;
             }
 

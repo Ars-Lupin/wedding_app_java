@@ -97,7 +97,7 @@ public class CompraRepository {
 
         for (String[] campos : linhas) {
             if (campos.length < 7) { // Verifica se a linha contém todos os campos necessários
-                System.err.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
+                System.out.println("Linha inválida encontrada, ignorando: " + String.join(";", campos));
                 continue;
             }
 

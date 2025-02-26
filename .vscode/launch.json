@@ -9,7 +9,8 @@
             "name": "Main",
             "request": "launch",
             "mainClass": "Main",
-            "projectName": "WeddingApp_f68165c4"
+            "projectName": "WeddingApp_f68165c4",
+            "args": ["c:/Users/guilh/OneDrive/Documentos/POO/T1/WeddingApp/Casos/01"]
         },
         {
             "type": "jdk",
