@@ -25,8 +25,8 @@ public class EstatisticasPrestadoresService {
      * Construtor da classe EstatisticasPrestadores.
      */
     public EstatisticasPrestadoresService(PessoaRepository pessoaRepository, 
-                                            TarefaRepository tarefaRepository, 
-                                            CompraRepository compraRepository) {
+                                          TarefaRepository tarefaRepository, 
+                                          CompraRepository compraRepository) {
         this.pessoaRepository = pessoaRepository;
         this.tarefaRepository = tarefaRepository;
         this.compraRepository = compraRepository;
@@ -66,27 +66,28 @@ public class EstatisticasPrestadoresService {
 
             if (!(pessoa instanceof PessoaFisica)) {
                 // Garante que todos os prestadores estejam no mapa, mesmo que com R$ 0,00
-                // A função putIfAbsent altera o valor para zero se a chave não existir
                 valoresRecebidos.putIfAbsent(id, 0.0);
             }
         });
 
         // Converte o mapa para uma lista ordenada
-        // A função entrySet retorna um conjunto de pares chave-valor
         List<Map.Entry<String, Double>> listaOrdenada = new ArrayList<>(valoresRecebidos.entrySet());
-
         listaOrdenada.sort((e1, e2) -> {
             String tipo1 = tiposPrestadores.get(e1.getKey());
             String tipo2 = tiposPrestadores.get(e2.getKey());
-
-            // Ordena por tipo (PF primeiro, depois PJ, depois Loja)
-            int comparacaoTipo = tipo2.compareTo(tipo1);
+        
+            // Mapeia os tipos para valores numéricos
+            int peso1 = tipo1.equals("PF") ? 1 : tipo1.equals("PJ") ? 2 : 3;
+            int peso2 = tipo2.equals("PF") ? 1 : tipo2.equals("PJ") ? 2 : 3;
+        
+            // Ordena pelo peso (PF primeiro, depois PJ, depois Loja)
+            int comparacaoTipo = Integer.compare(peso1, peso2);
             if (comparacaoTipo != 0) return comparacaoTipo;
-
+        
             // Ordena por valor recebido (decrescente)
             int comparacaoValor = Double.compare(e2.getValue(), e1.getValue());
             if (comparacaoValor != 0) return comparacaoValor;
-
+        
             // Ordena por nome (alfabeticamente)
             String nome1 = pessoaRepository.buscarPorId(e1.getKey()).getNome();
             String nome2 = pessoaRepository.buscarPorId(e2.getKey()).getNome();
