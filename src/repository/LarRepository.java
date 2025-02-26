@@ -107,15 +107,15 @@ public class LarRepository {
             if (!pessoa1Existe && !pessoa2Existe) {
                 throw new IllegalArgumentException(
                         "ID(s) de Pessoa " + idPessoa1 + " " + idPessoa2 +
-                                " não cadastrado(s) no Lar de ID " + idLar + ".");
+                                " não cadastrado no Lar de ID " + idLar + ".");
             }
             if (!pessoa1Existe) {
                 throw new IllegalArgumentException(
-                        "ID de Pessoa " + idPessoa1 + " não cadastrado no Lar de ID " + idLar + ".");
+                        "ID(s) de Pessoa " + idPessoa1 + " não cadastrado no Lar de ID " + idLar + ".");
             }
             if (!pessoa2Existe) {
                 throw new IllegalArgumentException(
-                        "ID de Pessoa " + idPessoa2 + " não cadastrado no Lar de ID " + idLar + ".");
+                        "ID(s) de Pessoa " + idPessoa2 + " não cadastrado no Lar de ID " + idLar + ".");
             }
 
             // Endereço do lar

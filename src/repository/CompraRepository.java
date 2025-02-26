@@ -127,7 +127,7 @@ public class CompraRepository {
                 throw new IllegalArgumentException("ID(s) de Loja " + idLoja + " não cadastrado na Compra de ID " + idCompra + ".");
             }
             if (pessoa instanceof PessoaJuridica && !(pessoa instanceof Loja)) {
-                throw new IllegalArgumentException("ID " + idLoja + " da Compra de ID " + idCompra + " não se refere a uma Loja, mas a uma Pessoa Jurídica.");
+                throw new IllegalArgumentException("ID " + idLoja + " da Compra de ID " + idCompra + " não se refere a uma Loja, mas a uma PJ.");
             }
 
             // Cria uma nova compra e a adiciona ao repositório

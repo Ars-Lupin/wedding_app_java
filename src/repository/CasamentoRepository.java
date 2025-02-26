@@ -120,15 +120,15 @@ public class CasamentoRepository {
             if (!pessoa1Existe && !pessoa2Existe) {
                 throw new IllegalArgumentException(
                         "ID(s) de Pessoa " + idPessoa1 + " " + idPessoa2 +
-                                " não cadastrado(s) no Casamento de ID " + idCasamento + ".");
+                                " não cadastrado no Casamento de ID " + idCasamento + ".");
             }
             if (!pessoa1Existe) {
                 throw new IllegalArgumentException(
-                        "ID de Pessoa " + idPessoa1 + " não cadastrado no Casamento de ID " + idCasamento + ".");
+                        "ID(s) de Pessoa " + idPessoa1 + " não cadastrado no Casamento de ID " + idCasamento + ".");
             }
             if (!pessoa2Existe) {
                 throw new IllegalArgumentException(
-                        "ID de Pessoa " + idPessoa2 + " não cadastrado no Casamento de ID " + idCasamento + ".");
+                        "ID(s) de Pessoa " + idPessoa2 + " não cadastrado no Casamento de ID " + idCasamento + ".");
             }
 
             // 🔹 Busca a festa associada ao casamento (se houver)
