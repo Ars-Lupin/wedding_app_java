@@ -94,7 +94,6 @@ public class PlanejamentoFinanceiro {
             writer.append("\n");
 
         } catch (IOException e) {
-            System.out.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
         }
     }
 
@@ -143,9 +142,7 @@ public class PlanejamentoFinanceiro {
     private void escreverMensagem(String filePath, String mensagem) {
         try (FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8, true)) {
             writer.write(mensagem + "\n");
-            System.out.println(mensagem);
         } catch (IOException e) {
-            System.out.println("Erro ao escrever no arquivo CSV: " + e.getMessage());
         }
     }
 
@@ -171,15 +168,16 @@ public class PlanejamentoFinanceiro {
         double saldoMensalCasal = financeiro1.getDinheiroPoupanca() + financeiro2.getDinheiroPoupanca();
         double salarioTotalCasalFixo = financeiro1.getSalarioLiquido() + financeiro2.getSalarioLiquido();
         double gastosMensaisCasalFixo = financeiro1.getGastosMensais() + financeiro2.getGastosMensais();
-    
         while (true) {
             // Gastos mensais do casal (compras, tarefas festas) + gastos fixos de cada mensal
             double gastosTotais = gastosMensaisCasalFixo + calcularGastosPorMes(casamento.getIdCasamento(), 
                                                             dataAtual, pessoa1.getIdPessoa(), 
-                                                            pessoa2.getIdPessoa());                     
+                                                            pessoa2.getIdPessoa());     
+                                                            
+            double ganhosMes = calcularGanhosPorMes(dataAtual, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());    
 
             // Atualiza o saldo mensal do casal
-            saldoMensalCasal += (saldoMensalCasal * (0.5/100)) + salarioTotalCasalFixo - gastosTotais;
+            saldoMensalCasal += (saldoMensalCasal * (0.5/100)) + salarioTotalCasalFixo - gastosTotais + ganhosMes;
 
             // Se for dezembro, adicionar 13o salário
             if (dataAtual.getMonthValue() == 12) {
@@ -198,6 +196,25 @@ public class PlanejamentoFinanceiro {
     
         return saldoMensal;
     }
+
+    private double calcularGanhosPorMes(LocalDate data, String idPessoa1, String idPessoa2) {
+        double totalGanhos = 0.0;
+    
+        for (Tarefa tarefa : tarefaRepo.listar()) {
+            String idPrestador = tarefa.getIdPrestador();
+    
+            // Verifica se o prestador é um dos parceiros do casal
+            if (idPrestador.equals(idPessoa1) || idPrestador.equals(idPessoa2)) {
+                // Verifica se a parcela da tarefa está sendo paga neste mês
+                if (estaParcelaSendoPaga(tarefa.getDataInicio(), tarefa.getNumParcelas(), data)) {
+                    totalGanhos += tarefa.getValorParcela();
+                }
+            }
+        }
+    
+        return totalGanhos;
+    }
+    
 
         /**
      * Calcula os gastos do casal em um determinado mês.

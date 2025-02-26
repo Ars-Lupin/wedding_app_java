@@ -35,21 +35,7 @@ public class TratamentoExceptions {
         String caminhoArquivoRelatorio1 = diretorioBase + "/saida/1-planejamento.csv";
         String caminhoArquivoRelatorio2 = diretorioBase + "/saida/2-estatisticas-prestadores.csv";
         String caminhoArquivoRelatorio3 = diretorioBase + "/saida/3-estatisticas-casais.csv";
-        //String caminhoArquivoSaidaTxt = diretorioBase + "/saida/saida.txt";
-    
-        // Cria o diretório 'saida' caso não exista
-        /*
-        Path diretorioSaida = Paths.get(diretorioBase, "saida");
-        try {
-            if (!Files.exists(diretorioSaida)) {
-                Files.createDirectories(diretorioSaida); // Criação do diretório 'saida'
-            }
-        } catch (IOException ex) {
-            System.out.println("Erro ao criar diretório 'saida': " + ex.getMessage());
-            return; // Se não puder criar o diretório, termina a execução
-        }
-        */
-    
+
         // Gera os arquivos de planejamento, estatísticas de casais e prestadores vazios
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(caminhoArquivoRelatorio1), StandardCharsets.UTF_8)) {
             writer.close();
@@ -73,21 +59,7 @@ public class TratamentoExceptions {
             System.out.println(this.mensagemDadoInconsistente.getMessage());
         } else if (this.mensagemIO != null) {
             System.out.println(this.mensagemIO.getMessage());
-        } else {
-            System.out.println("Erro desconhecido");
         }
     
-        /*
-        // Exceção é printada no arquivo saida.txt
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(caminhoArquivoSaidaTxt), StandardCharsets.UTF_8)) {
-            writer.write(this.mensagemDadoInconsistente.getMessage());
-            if(this.mensagemDadoInconsistente.getMessage()!= null){
-            writer.append("\n");}
-            writer.close();
-        } catch (IOException ex) {
-            System.out.println("Erro ao escrever no arquivo saida.txt: " + ex.getMessage());
-        }
-
-        */
     }
 }

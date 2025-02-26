@@ -83,21 +83,20 @@ public class Main {
                     StandardCharsets.UTF_8)) {
             }
 
-            while (true) {
+            while (scanner.hasNextLine()) {
                 String linha = scanner.nextLine().trim();
                 
                 if (linha.isEmpty()) {
                     break;
                 }
-
+            
                 String[] cpfs = linha.split(",\\s*"); // Divide a linha nos CPFs separados por ", "
                 
                 if (cpfs.length == 2) {
-                    String cpf1 = cpfs[0].trim();
-                    String cpf2 = cpfs[1].trim();
+                    String cpf1 = cpfs[0];
+                    String cpf2 = cpfs[1];
+            
                     planejamento.gerarPlanejamento(caminhoArquivoRelatorio1, cpf1, cpf2);
-                } else {
-                    System.out.println("Formato inválido! Insira exatamente dois CPFs separados por vírgula.");
                 }
             }
 
@@ -108,7 +107,6 @@ public class Main {
             TratamentoExceptions dadosInconsistentes = new TratamentoExceptions(e);
             dadosInconsistentes.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
         } catch (ParseException e) {
-            System.out.println("Erro ao converter valores numéricos: " + e.getMessage());
         }
 
         scanner.close();
