@@ -53,7 +53,7 @@ public class Main {
             tarefaRepo.carregarDados(caminhoArquivoTarefa, larRepo, pessoaRepo);
             compraRepo.carregarDados(caminhoArquivoCompra, tarefaRepo, pessoaRepo);
             casamentoRepo.carregarDados(caminhoArquivoCasamento, pessoaRepo, festaRepo);
-            festaRepo.carregarDados(caminhoArquivoFesta, casamentoRepo);
+            festaRepo.carregarDados(caminhoArquivoFesta, casamentoRepo, pessoaRepo);
             casamentoRepo.recarregarFestas(festaRepo);
 
             String caminhoArquivoRelatorio1 = caminhoArquivoEntrada + "/saida/1-planejamento.csv";

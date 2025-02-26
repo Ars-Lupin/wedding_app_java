@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import model.Casamento;
 import model.Festa;
+import model.PessoaFisica;
 import util.CSVReader;
 
 /**
@@ -80,15 +81,18 @@ public class FestaRepository {
     }
 
     /**
-     * Carrega os dados do arquivo festas.CSV e adiciona as festas ao repositório
-     * Agora inclui validação para verificar se os IDs do casamento existem.
+     * Carrega os dados do arquivo festas.CSV e adiciona as festas ao repositório.
+     * Agora inclui validação para verificar se os IDs do casamento existem e remove
+     * os donos da festa da lista de convidados comparando seus **nomes**.
      *
      * @param caminhoArquivo Caminho do arquivo CSV.
-     * @param casamentoRepo Repositório de casamentos para validar os IDs.
-     * @throws IOException Se houver um erro de leitura do arquivo.
+     * @param casamentoRepo  Repositório de casamentos para validar os IDs.
+     * @param pessoaRepo     Repositório de pessoas para buscar os nomes dos donos da festa.
+     * @throws IOException    Se houver um erro de leitura do arquivo.
      * @throws ParseException Se houver um erro na conversão de valores numéricos.
      */
-    public void carregarDados(String caminhoArquivo, CasamentoRepository casamentoRepo) throws IOException, ParseException {
+    public void carregarDados(String caminhoArquivo, CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo)
+            throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -119,22 +123,34 @@ public class FestaRepository {
             // 🔹 Validação: Verifica se o ID do Casamento existe
             Casamento casamento = casamentoRepo.buscarPorId(idCasamento);
             if (casamento == null) {
-                throw new IllegalArgumentException("ID(s) de Casamento " + idCasamento + " não cadastrado na Festa de ID " + idFesta + ".");
+                throw new IllegalArgumentException(
+                        "ID(s) de Casamento " + idCasamento + " não cadastrado na Festa de ID " + idFesta + ".");
             }
 
-            // Lista de convidados
-            List<String> convidados = null;
-            if (numConvidados > 0) { // Verifica se há convidados
-                convidados = new ArrayList<>();
+            // Obtém os **nomes** dos donos da festa
+            PessoaFisica dono1 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getIdPessoa1());
+            PessoaFisica dono2 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getIdPessoa2());
+
+            if (dono1 == null || dono2 == null) {
+                throw new IllegalArgumentException("Os donos da festa com ID " + idFesta + " não foram encontrados.");
+            }
+
+            String nomeDono1 = dono1.getNome();
+            String nomeDono2 = dono2.getNome();
+
+            // Lista de convidados (removendo os donos da festa)
+            List<String> convidados = new ArrayList<>();
+            if (numConvidados > 0) {
                 for (int i = 8; i < campos.length; i++) {
-                    // Adiciona o nome do convidado à lista
-                    convidados.add(campos[i].trim());
+                    String convidado = campos[i].trim();
+                    // Remove os donos da festa da lista de convidados comparando os nomes
+                    if (!convidado.equalsIgnoreCase(nomeDono1) && !convidado.equalsIgnoreCase(nomeDono2)) {
+                        convidados.add(convidado);
+                    }
                 }
-            } else { // Não há convidados
-                System.out.println("A festa " + idFesta + " não possui convidados.");
             }
 
-            // Cria a festa e a adiciona ao repositório
+            // Criar a festa e adicioná-la ao repositório
             Festa festa = new Festa(idFesta, idCasamento, local, valorFesta, numParcelas, data, hora, convidados);
             this.adicionar(festa);
         }
