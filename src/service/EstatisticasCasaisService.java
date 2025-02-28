@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import model.Casamento;
+import model.Casal;
 import model.Lar;
 import model.PessoaFisica;
+import repository.CasalRepository;
 import repository.CasamentoRepository;
 import repository.CompraRepository;
 import repository.FestaRepository;
@@ -20,7 +22,7 @@ import repository.TarefaRepository;
 public class EstatisticasCasaisService {
 
     private static final String SEPARADOR = ";";
-
+    private final CasalRepository casalRepo;
     private final CasamentoRepository casamentoRepo;
     private final PessoaRepository pessoaRepo;
     private final TarefaRepository tarefaRepo;
@@ -28,9 +30,10 @@ public class EstatisticasCasaisService {
     private final CompraRepository compraRepo;
     private final LarRepository larRepo;
 
-    public EstatisticasCasaisService(CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo,
+    public EstatisticasCasaisService(CasalRepository casalRepo, CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo,
                               TarefaRepository tarefaRepo, FestaRepository festaRepo, CompraRepository compraRepo,
                               LarRepository larRepo) {
+        this.casalRepo = casalRepo;
         this.casamentoRepo = casamentoRepo;
         this.pessoaRepo = pessoaRepo;
         this.tarefaRepo = tarefaRepo;
@@ -48,14 +51,10 @@ public class EstatisticasCasaisService {
         List<EstatisticaCasal> estatisticasLista = new ArrayList<>();
         Set<String> casaisProcessados = new HashSet<>(); // Evita duplicatas
     
-        // 🔹 Busca casais em `LarRepository`
-        for (Lar lar : larRepo.listar()) {
-            adicionarEstatisticaCasal(lar.getIdPessoa1(), lar.getIdPessoa2(), estatisticasLista, casaisProcessados);
-        }
     
-        // 🔹 Busca casais em `CasamentoRepository`, garantindo que não estejam duplicados
-        for (Casamento casamento : casamentoRepo.listar()) {
-            adicionarEstatisticaCasal(casamento.getIdPessoa1(), casamento.getIdPessoa2(), estatisticasLista, casaisProcessados);
+        // 🔹 Busca casais em `CasalRepository`, garantindo que não estejam duplicados
+        for (Casal casal : casalRepo.listar()) {
+            adicionarEstatisticaCasal(casal.getIdPessoa1(), casal.getIdPessoa2(), estatisticasLista, casaisProcessados);
         }
     
         // 🔹 Ordenação: primeiro pelo total gasto (decrescente), depois pelo nome1 (alfabético)
@@ -116,8 +115,8 @@ public class EstatisticasCasaisService {
                 .filter(tarefa -> {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
-                    return lar != null && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
-                                        || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
+                    return lar != null && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) && lar.getCasal().getIdPessoa2().equals(idPessoa2))
+                                        || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
                 })
                 .mapToDouble(tarefa -> tarefa.getValorPrestador())
                 .sum();
@@ -129,7 +128,7 @@ public class EstatisticasCasaisService {
                 .filter(festa -> {
                     String idCasamento = festa.getIdCasamento();
                     Casamento casamento = casamentoRepo.buscarPorId(idCasamento);
-                    return casamento.getIdPessoa1().equals(idPessoa1) && casamento.getIdPessoa2().equals(idPessoa2);
+                    return casamento.getCasal().getIdPessoa1().equals(idPessoa1) && casamento.getCasal().getIdPessoa2().equals(idPessoa2);
                 })
                 .mapToDouble(festa -> festa.getValorFesta())
                 .sum();
@@ -141,8 +140,8 @@ public class EstatisticasCasaisService {
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();
                     return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null && 
-                        larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1().equals(idPessoa1) &&
-                        larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2().equals(idPessoa2);
+                        larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa1().equals(idPessoa1) &&
+                        larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa2().equals(idPessoa2);
                 })
                 .mapToDouble(compra -> compra.getQuantidade() * compra.getValorUnitario())
                 .sum();

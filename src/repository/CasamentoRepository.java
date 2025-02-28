@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import model.Casal;
 import model.Casamento;
 import model.Festa;
 import util.CSVReader;
+import model.Lar;
 
 /**
  * Classe que representa um repositório de casamentos
@@ -88,7 +91,7 @@ public class CasamentoRepository {
      * @param festaRepo     Repositório de festas para buscar a festa associada ao casamento.
      * @throws IOException Se houver um erro de leitura do arquivo.
      */
-    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, FestaRepository festaRepo) throws IOException {
+    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, FestaRepository festaRepo, LarRepository larRepo, CasalRepository casalRepo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -138,7 +141,16 @@ public class CasamentoRepository {
                     .orElse(null);
 
             // Cria e adiciona o novo casamento ao repositório
-            Casamento casamento = new Casamento(idCasamento, idPessoa1, idPessoa2, data, hora, local, festa);
+            Casal casal = casalRepo.buscarPorIdPessoa(idPessoa1); // ou idPessoa2, tanto faz
+
+            if (casal == null) {
+                casal = new Casal(idPessoa1, idPessoa2, idCasamento, null);
+                casalRepo.adicionar(casal);
+            } else if (casal.getIdCasamento() == null) {
+                casal.setIdCasamento(idCasamento);
+            }
+
+            Casamento casamento = new Casamento(idCasamento, casal, data, hora, local, festa);
             this.adicionar(casamento);
             this.IDs.add(idCasamento);
         }
@@ -153,7 +165,6 @@ public class CasamentoRepository {
             }
         }
     }
-    
 
     public Map<String, Casamento> getCasamentos() {
         return casamentos;

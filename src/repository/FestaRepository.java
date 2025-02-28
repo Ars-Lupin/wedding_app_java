@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import model.Casamento;
+import model.Casal;
 import model.Festa;
 import model.PessoaFisica;
 import util.CSVReader;
@@ -128,8 +129,8 @@ public class FestaRepository {
             }
 
             // Obtém os **nomes** dos donos da festa
-            PessoaFisica dono1 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getIdPessoa1());
-            PessoaFisica dono2 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getIdPessoa2());
+            PessoaFisica dono1 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getCasal().getIdPessoa1());
+            PessoaFisica dono2 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getCasal().getIdPessoa2());
 
             if (dono1 == null || dono2 == null) {
                 throw new IllegalArgumentException("Os donos da festa com ID " + idFesta + " não foram encontrados.");

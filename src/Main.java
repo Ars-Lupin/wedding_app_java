@@ -12,6 +12,7 @@ import repository.FestaRepository;
 import repository.LarRepository;
 import repository.PessoaRepository;
 import repository.TarefaRepository;
+import repository.CasalRepository;
 import service.EstatisticasCasaisService;
 import service.EstatisticasPrestadoresService;
 import service.PlanejamentoFinanceiro;
@@ -46,26 +47,28 @@ public class Main {
         LarRepository larRepo = new LarRepository();
         PessoaRepository pessoaRepo = new PessoaRepository();
         TarefaRepository tarefaRepo = new TarefaRepository();
+        CasalRepository casalRepo = new CasalRepository();
 
         try {
             // Carregar dados dos CSVs
             pessoaRepo.carregarDadosDoCSV(caminhoArquivoPessoas);
-            larRepo.carregarDados(caminhoArquivoLares, pessoaRepo);
+            larRepo.carregarDados(caminhoArquivoLares, pessoaRepo, casalRepo);
+
             tarefaRepo.carregarDados(caminhoArquivoTarefa, larRepo, pessoaRepo);
             compraRepo.carregarDados(caminhoArquivoCompra, tarefaRepo, pessoaRepo);
-            casamentoRepo.carregarDados(caminhoArquivoCasamento, pessoaRepo, festaRepo);
+   
+            
+            casamentoRepo.carregarDados(caminhoArquivoCasamento, pessoaRepo, festaRepo, larRepo, casalRepo);
+
             festaRepo.carregarDados(caminhoArquivoFesta, casamentoRepo, pessoaRepo);
             casamentoRepo.recarregarFestas(festaRepo);
-
+            
             String caminhoArquivoRelatorio1 = caminhoArquivoEntrada + "/saida/1-planejamento.csv";
             String caminhoArquivoRelatorio2 = caminhoArquivoEntrada + "/saida/2-estatisticas-prestadores.csv";
             String caminhoArquivoRelatorio3 = caminhoArquivoEntrada + "/saida/3-estatisticas-casais.csv";
 
-
-
-
             // Gerar estatísticas de casais
-            EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(casamentoRepo, pessoaRepo,
+            EstatisticasCasaisService estatisticasCasais = new EstatisticasCasaisService(casalRepo, casamentoRepo, pessoaRepo,
                     tarefaRepo, festaRepo, compraRepo, larRepo);
             estatisticasCasais.gerarEstatisticas(caminhoArquivoRelatorio3);
 
@@ -75,7 +78,7 @@ public class Main {
             estatisticasPrestadores.gerarRelatorioPrestadores(caminhoArquivoRelatorio2);
 
             // **Gerar Planejamento Financeiro com CPFs inseridos pelo usuário**
-            PlanejamentoFinanceiro planejamento = new PlanejamentoFinanceiro(casamentoRepo, pessoaRepo, tarefaRepo,
+            PlanejamentoFinanceiro planejamento = new PlanejamentoFinanceiro(casalRepo, casamentoRepo, pessoaRepo, tarefaRepo,
                     festaRepo, compraRepo, larRepo);
 
             // Criar ou limpar arquivo CSV

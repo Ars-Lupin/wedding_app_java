@@ -2,6 +2,8 @@ package repository;
 
 import java.io.IOException;
 import java.util.*;
+
+import model.Casal;
 import model.Endereco;
 import model.Lar;
 import util.CSVReader;
@@ -80,7 +82,7 @@ public class LarRepository {
      * @param pessoaRepo    Repositório de pessoas para validação dos IDs.
      * @throws IOException Se houver um erro de leitura do arquivo.
      */
-    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo) throws IOException {
+    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, CasalRepository casalRepo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         for (String[] campos : linhas) {
@@ -124,8 +126,13 @@ public class LarRepository {
             String complemento = campos[5].trim();
             Endereco endereco = new Endereco(rua, num, complemento);
 
-            // Cria e adiciona o novo lar ao repositório
-            Lar lar = new Lar(idLar, idPessoa1, idPessoa2, endereco);
+            Casal casal = casalRepo.buscarPorIdPessoa(idPessoa1);
+            if (casal == null) {
+                casal = new Casal(idPessoa1, idPessoa2, null, idLar);
+                casalRepo.adicionar(casal);
+            }
+
+            Lar lar = new Lar(idLar, casal, endereco);
             this.adicionar(lar); // Aqui a validação de IDs de pessoa será feita
         }
     }

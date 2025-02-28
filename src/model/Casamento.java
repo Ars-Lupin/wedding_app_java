@@ -8,8 +8,7 @@ import java.time.LocalDate;
 public class Casamento {
 
     private final String idCasamento;
-    private final String idPessoa1;
-    private final String idPessoa2;
+    private final Casal casal;
     private LocalDate dataCasamento;
     private String horaCasamento;
     private String localCerimonia;
@@ -19,41 +18,30 @@ public class Casamento {
      * Construtor para casamento sem festa.
      *
      * @param idCasamento    Identificador único do casamento (32 dígitos numéricos).
-     * @param idPessoa1      Identificador da primeira pessoa do casal.
-     * @param idPessoa2      Identificador da segunda pessoa do casal.
+     * @param casal          Casal que está se casando.    
      * @param dataCasamento  Data do casamento.
      * @param horaCasamento  Hora do casamento (hh:mm).
      * @param localCerimonia Local da cerimônia.
      */
-    public Casamento(String idCasamento, String idPessoa1, String idPessoa2, 
-                     LocalDate dataCasamento, String horaCasamento, String localCerimonia) {
-        this(idCasamento, idPessoa1, idPessoa2, dataCasamento, horaCasamento, localCerimonia, null);
+    public Casamento(String idCasamento, Casal casal, LocalDate dataCasamento, 
+                        String horaCasamento, String localCerimonia) {
+        this(idCasamento, casal, dataCasamento, horaCasamento, localCerimonia, null);
     }
 
     /**
      * Construtor para casamento com ou sem festa.
      *
      * @param idCasamento    Identificador único do casamento (32 dígitos numéricos).
-     * @param idPessoa1      Identificador da primeira pessoa do casal.
-     * @param idPessoa2      Identificador da segunda pessoa do casal.
+     * @param casal          Casal que está se casando.
      * @param dataCasamento  Data do casamento.
      * @param horaCasamento  Hora do casamento (hh:mm).
      * @param localCerimonia Local da cerimônia.
      * @param festa          Festa do casamento (pode ser null).
      */
-    public Casamento(String idCasamento, String idPessoa1, String idPessoa2, 
-                     LocalDate dataCasamento, String horaCasamento, String localCerimonia, Festa festa) {
+    public Casamento(String idCasamento, Casal casal, LocalDate dataCasamento, 
+                        String horaCasamento, String localCerimonia, Festa festa) {
         if (idCasamento == null || !idCasamento.matches("\\d{32}")) {
             throw new IllegalArgumentException("O ID do casamento deve conter exatamente 32 dígitos numéricos.");
-        }
-        if (idPessoa1 == null || !idPessoa1.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da primeira pessoa deve conter exatamente 32 dígitos numéricos.");
-        }
-        if (idPessoa2 == null || !idPessoa2.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da segunda pessoa deve conter exatamente 32 dígitos numéricos.");
-        }
-        if (idPessoa1.equals(idPessoa2)) {
-            throw new IllegalArgumentException("As duas pessoas devem ter IDs diferentes.");
         }
         if (dataCasamento == null) {
             throw new IllegalArgumentException("A data do casamento não pode ser nula.");
@@ -66,8 +54,7 @@ public class Casamento {
         }
 
         this.idCasamento = idCasamento;
-        this.idPessoa1 = idPessoa1;
-        this.idPessoa2 = idPessoa2;
+        this.casal = casal;
         this.dataCasamento = dataCasamento;
         this.horaCasamento = horaCasamento;
         this.localCerimonia = localCerimonia;
@@ -78,12 +65,8 @@ public class Casamento {
         return idCasamento;
     }
 
-    public String getIdPessoa1() {
-        return idPessoa1;
-    }
-
-    public String getIdPessoa2() {
-        return idPessoa2;
+    public Casal getCasal() {
+        return casal;
     }
 
     public LocalDate getDataCasamento() {
@@ -133,8 +116,8 @@ public class Casamento {
     @Override
     public String toString() {
         return String.format(
-                "Casamento{ID='%s', Pessoa1='%s', Pessoa2='%s', Data='%s', Hora='%s', Local='%s', Festa=%s}",
-                idCasamento, idPessoa1, idPessoa2, dataCasamento, horaCasamento, localCerimonia,
+                "Casamento{ID='%s', Data='%s', Hora='%s', Local='%s', Festa=%s}",
+                idCasamento, casal, dataCasamento, horaCasamento, localCerimonia,
                 (festa != null ? festa : "Sem festa"));
     }
 }

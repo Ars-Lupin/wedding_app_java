@@ -18,6 +18,7 @@ import model.Financeiro;
 import model.Lar;
 import model.PessoaFisica;
 import model.Tarefa;
+import repository.CasalRepository;
 import repository.CasamentoRepository;
 import repository.CompraRepository;
 import repository.FestaRepository;
@@ -31,7 +32,7 @@ import repository.TarefaRepository;
 public class PlanejamentoFinanceiro {
 
     private static final DateTimeFormatter FORMATADOR_DATA = DateTimeFormatter.ofPattern("MM/yyyy");
-
+    private final CasalRepository casalRepo;
     private final CasamentoRepository casamentoRepo;
     private final PessoaRepository pessoaRepo;
     private final TarefaRepository tarefaRepo;
@@ -39,9 +40,10 @@ public class PlanejamentoFinanceiro {
     private final CompraRepository compraRepo;
     private final LarRepository larRepo;
 
-    public PlanejamentoFinanceiro(CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo,
+    public PlanejamentoFinanceiro(CasalRepository casalRepo, CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo,
             TarefaRepository tarefaRepo, FestaRepository festaRepo, CompraRepository compraRepo,
             LarRepository larRepo) {
+        this.casalRepo = casalRepo;
         this.casamentoRepo = casamentoRepo;
         this.pessoaRepo = pessoaRepo;
         this.tarefaRepo = tarefaRepo;
@@ -111,16 +113,16 @@ public class PlanejamentoFinanceiro {
             return;
         }
 
-        Casamento casamento = buscarCasamentoDoCasal(pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
+        Casal casal = buscarCasal(pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
 
-        if (casamento == null) {
-            escreverMensagem(filePath, "Casal com CPFs " + cpf1 + " e " + cpf2 + " não possui gastos cadastrados.");
+        if (casal == null) {
+            escreverMensagem(filePath, "Casal com CPFs " + cpf1 + " e " + cpf2 + " não está cadastrado.");
             return;
         }
 
-        Map<String, Double> saldoMensal = calcularSaldoMensalCasal(casamento, pessoa1, pessoa2);
-        LocalDate dataInicial = encontrarPrimeiroGasto(casamento);
-        LocalDate dataFinal = calcularDataFinal(casamento, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
+        Map<String, Double> saldoMensal = calcularSaldoMensalCasal(casal, pessoa1, pessoa2);
+        LocalDate dataInicial = encontrarPrimeiroGasto(casal);
+        LocalDate dataFinal = calcularDataFinal(casal, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
 
         if (saldoMensal.isEmpty()) {
             escreverMensagem(filePath, "Casal com CPFs " + cpf1 + " e " + cpf2 + " não possui gastos cadastrados.");
@@ -138,8 +140,8 @@ public class PlanejamentoFinanceiro {
                 .findFirst().orElse(null);
     }
 
-    private Casamento buscarCasamentoDoCasal(String idPessoa1, String idPessoa2) {
-        return casamentoRepo.listar().stream()
+    private Casal buscarCasal(String idPessoa1, String idPessoa2) {
+        return casalRepo.listar().stream()
                 .filter(c -> (c.getIdPessoa1().equals(idPessoa1) && c.getIdPessoa2().equals(idPessoa2)) ||
                         (c.getIdPessoa1().equals(idPessoa2) && c.getIdPessoa2().equals(idPessoa1)))
                 .findFirst().orElse(null);
@@ -152,14 +154,14 @@ public class PlanejamentoFinanceiro {
         }
     }
 
-    private Map<String, Double> calcularSaldoMensalCasal(Casamento casamento, PessoaFisica pessoa1,
+    private Map<String, Double> calcularSaldoMensalCasal(Casal casal, PessoaFisica pessoa1,
             PessoaFisica pessoa2) {
         Map<String, Double> saldoMensal = new LinkedHashMap<>();
 
-        LocalDate primeiraData = encontrarPrimeiroGasto(casamento);
-        String idPessoa1 = casamento.getIdPessoa1();
-        String idPessoa2 = casamento.getIdPessoa2();
-        LocalDate ultimaData = calcularDataFinal(casamento, idPessoa1, idPessoa2);
+        LocalDate primeiraData = encontrarPrimeiroGasto(casal);
+        String idPessoa1 = pessoa1.getIdPessoa();
+        String idPessoa2 = pessoa2.getIdPessoa();
+        LocalDate ultimaData = calcularDataFinal(casal, idPessoa1, idPessoa2);
 
         if (primeiraData == null || ultimaData == null) {
             return Collections.emptyMap();
@@ -178,7 +180,7 @@ public class PlanejamentoFinanceiro {
         while (true) {
             // Gastos mensais do casal (compras, tarefas festas) + gastos fixos de cada
             // mensal
-            double gastosTotais = gastosMensaisCasalFixo + calcularGastosPorMes(casamento.getIdCasamento(),
+            double gastosTotais = gastosMensaisCasalFixo + calcularGastosPorMes(casal.getIdCasamento(),
                     dataAtual, pessoa1.getIdPessoa(),
                     pessoa2.getIdPessoa());
 
@@ -241,10 +243,10 @@ public class PlanejamentoFinanceiro {
             // Verifica se a tarefa pertence ao lar do casal
             Lar larAssociado = larRepo.buscarPorId(tarefa.getIdLar());
             if (larAssociado != null
-                    && (larAssociado.getIdPessoa1().equals(idPessoa1)
-                            && larAssociado.getIdPessoa2().equals(idPessoa2)
-                            || larAssociado.getIdPessoa1().equals(idPessoa2)
-                                    && larAssociado.getIdPessoa2().equals(idPessoa1))) {
+                    && (larAssociado.getCasal().getIdPessoa1().equals(idPessoa1)
+                            && larAssociado.getCasal().getIdPessoa2().equals(idPessoa2)
+                            || larAssociado.getCasal().getIdPessoa1().equals(idPessoa2)
+                                    && larAssociado.getCasal().getIdPessoa2().equals(idPessoa1))) {
                 if (estaParcelaSendoPaga(tarefa.getDataInicio(), tarefa.getNumParcelas(), data)) {
                     totalGastos += tarefa.getValorParcela();
                 }
@@ -257,10 +259,10 @@ public class PlanejamentoFinanceiro {
             Tarefa tarefaAssociada = tarefaRepo.buscarPorId(compra.getIdTarefa());
             Lar larAssociado = larRepo.buscarPorId(tarefaAssociada.getIdLar());
             if (larAssociado != null
-                    && (larAssociado.getIdPessoa1().equals(idPessoa1)
-                            && larAssociado.getIdPessoa2().equals(idPessoa2)
-                            || larAssociado.getIdPessoa1().equals(idPessoa2)
-                                    && larAssociado.getIdPessoa2().equals(idPessoa1))) {
+                    && (larAssociado.getCasal().getIdPessoa1().equals(idPessoa1)
+                            && larAssociado.getCasal().getIdPessoa2().equals(idPessoa2)
+                            || larAssociado.getCasal().getIdPessoa1().equals(idPessoa2)
+                                    && larAssociado.getCasal().getIdPessoa2().equals(idPessoa1))) {
                 LocalDate dataPrimeiroPagamento = tarefaAssociada.getDataInicio();
                 if (estaParcelaSendoPaga(dataPrimeiroPagamento, compra.getNumParcelas(), data)) {
                     totalGastos += compra.getValorParcela();
@@ -306,10 +308,10 @@ public class PlanejamentoFinanceiro {
         return false;
     }
 
-    private LocalDate encontrarPrimeiroGasto(Casamento casamento) {
+    private LocalDate encontrarPrimeiroGasto(Casal casal) {
         List<LocalDate> datas = new ArrayList<>();
-        String idPessoa1 = casamento.getIdPessoa1();
-        String idPessoa2 = casamento.getIdPessoa2();
+        String idPessoa1 = casal.getIdPessoa1();
+        String idPessoa2 = casal.getIdPessoa2();
 
         // Buscar tarefas associadas ao casal
         tarefaRepo.listar().stream()
@@ -317,15 +319,15 @@ public class PlanejamentoFinanceiro {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
                     return lar != null
-                            && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
-                                    || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
+                            && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) && lar.getCasal().getIdPessoa2().equals(idPessoa2))
+                                    || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
                 })
                 .map(Tarefa::getDataInicio)
                 .forEach(datas::add);
 
         // Buscar festas associadas ao casal
         festaRepo.listar().stream()
-                .filter(f -> f.getIdCasamento().equals(casamento.getIdCasamento()))
+                .filter(f -> f.getIdCasamento().equals(casal.getIdCasamento()))
                 .map(Festa::getData)
                 .forEach(datas::add);
 
@@ -334,10 +336,10 @@ public class PlanejamentoFinanceiro {
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();
                     return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null &&
-                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1()
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa1()
                                     .equals(idPessoa1)
                             &&
-                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2()
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa2()
                                     .equals(idPessoa2);
                 })
                 .map(c -> tarefaRepo.buscarPorId(c.getIdTarefa()).getDataInicio())
@@ -346,7 +348,7 @@ public class PlanejamentoFinanceiro {
         return datas.stream().min(LocalDate::compareTo).orElse(null); // Retorna a menor data encontrada
     }
 
-    private LocalDate calcularDataFinal(Casamento casamento, String idPessoa1, String idPessoa2) {
+    private LocalDate calcularDataFinal(Casal casal, String idPessoa1, String idPessoa2) {
         LocalDate dataFinal = LocalDate.MIN;
 
         // 🔹 Última data considerando parcelas das TAREFAS
@@ -355,8 +357,8 @@ public class PlanejamentoFinanceiro {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
                     return lar != null
-                            && ((lar.getIdPessoa1().equals(idPessoa1) && lar.getIdPessoa2().equals(idPessoa2))
-                                    || (lar.getIdPessoa1().equals(idPessoa2) && lar.getIdPessoa2().equals(idPessoa1)));
+                            && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) && lar.getCasal().getIdPessoa2().equals(idPessoa2))
+                                    || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
                 })
                 .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas() - 1)) // Considera parcelas
                 .max(Comparator.naturalOrder())
@@ -364,7 +366,7 @@ public class PlanejamentoFinanceiro {
 
         // 🔹 Última data considerando parcelas das FESTAS
         LocalDate ultimaDataFesta = festaRepo.listar().stream()
-                .filter(festa -> festa.getIdCasamento().equals(casamento.getIdCasamento()))
+                .filter(festa -> festa.getIdCasamento().equals(casal.getIdCasamento()))
                 .map(festa -> festa.getData().plusMonths(festa.getNumParcelas() - 1)) // Considera parcelas
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
@@ -374,10 +376,10 @@ public class PlanejamentoFinanceiro {
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();
                     return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null &&
-                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa1()
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa1()
                                     .equals(idPessoa1)
                             &&
-                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getIdPessoa2()
+                            larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa2()
                                     .equals(idPessoa2);
                 })
                 .map(compra -> {
