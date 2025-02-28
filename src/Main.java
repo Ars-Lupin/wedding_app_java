@@ -109,6 +109,9 @@ public class Main {
             TratamentoExceptions dadosInconsistentes = new TratamentoExceptions(e);
             dadosInconsistentes.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
         } catch (ParseException e) {
+            // Erros de parse são informados ao usuário
+            TratamentoExceptions erroDeParse = new TratamentoExceptions(e);
+            erroDeParse.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
         }
 
         scanner.close();

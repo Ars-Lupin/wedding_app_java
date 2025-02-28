@@ -2,6 +2,7 @@ package exception;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.text.ParseException;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ public class TratamentoExceptions {
 
     private final DataInconsistencyException mensagemDadoInconsistente;
     private final IOException mensagemIO;
+    private final ParseException mensagemParsing;
 
     /**
      * Construtor da exceção (mensagemIO).
@@ -23,6 +25,7 @@ public class TratamentoExceptions {
     public TratamentoExceptions(IOException mensagemIO) {
         this.mensagemIO = mensagemIO;
         this.mensagemDadoInconsistente = null;
+        this.mensagemParsing = null;
     }
 
     /**
@@ -32,6 +35,17 @@ public class TratamentoExceptions {
      */
     public TratamentoExceptions(DataInconsistencyException mensagemDadoInconsistente) {
         this.mensagemDadoInconsistente = mensagemDadoInconsistente;
+        this.mensagemIO = null;
+        this.mensagemParsing = null;
+    }
+
+    /**
+     * Construtor da exceçã (mensagemParsing)
+     * @param mensagemParising Mensagem de erro.
+     */
+    public TratamentoExceptions(ParseException mensagemParsing) {
+        this.mensagemParsing = mensagemParsing;
+        this.mensagemDadoInconsistente = null;
         this.mensagemIO = null;
     }
 
@@ -69,6 +83,8 @@ public class TratamentoExceptions {
             System.out.println(this.mensagemDadoInconsistente.getMessage());
         } else if (this.mensagemIO != null) {
             System.out.println(this.mensagemIO.getMessage());
+        } else if (this.mensagemParsing != null) {
+            System.out.println(this.mensagemParsing.getMessage());
         }
     }
 }
