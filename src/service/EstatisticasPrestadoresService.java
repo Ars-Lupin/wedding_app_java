@@ -4,10 +4,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+
 import java.util.*;
+
 import model.Loja;
 import model.PessoaFisica;
 import model.PessoaJuridica;
+
 import repository.CompraRepository;
 import repository.PessoaRepository;
 import repository.TarefaRepository;
@@ -96,7 +99,7 @@ public class EstatisticasPrestadoresService {
 
         // Escreve o relatório no arquivo
         try (FileWriter writer = new FileWriter(caminhoSaida, StandardCharsets.UTF_8);
-             PrintWriter printer = new PrintWriter(writer)) {
+                PrintWriter printer = new PrintWriter(writer)) {
             for (Map.Entry<String, Double> entry : listaOrdenada) {
                 String id = entry.getKey();
                 String tipo = tiposPrestadores.get(id);

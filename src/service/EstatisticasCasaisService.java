@@ -4,10 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 import model.Casamento;
 import model.Casal;
 import model.Lar;
 import model.PessoaFisica;
+
 import repository.CasalRepository;
 import repository.CasamentoRepository;
 import repository.CompraRepository;
@@ -17,7 +19,40 @@ import repository.PessoaRepository;
 import repository.TarefaRepository;
 
 /**
- * Classe para gerar estatísticas financeiras dos casais cadastrados.
+ * Classe auxiliar para armazenar estatísticas de um casal.
+ */
+class EstatisticaCasal {
+    private final String nome1;
+    private final String nome2;
+    private final double totalGasto;
+    private final int festasConvidados;
+
+    public EstatisticaCasal(String nome1, String nome2, double totalGasto, int festasConvidados) {
+        this.nome1 = nome1;
+        this.nome2 = nome2;
+        this.totalGasto = totalGasto;
+        this.festasConvidados = festasConvidados;
+    }
+
+    public String getNome1() {
+        return nome1;
+    }
+
+    public String getNome2() {
+        return nome2;
+    }
+
+    public double getTotalGasto() {
+        return totalGasto;
+    }
+
+    public int getFestasConvidados() {
+        return festasConvidados;
+    }
+}
+
+/**
+ * Classe principal para gerar estatísticas financeiras dos casais cadastrados.
  */
 public class EstatisticasCasaisService {
 
@@ -52,16 +87,16 @@ public class EstatisticasCasaisService {
         Set<String> casaisProcessados = new HashSet<>(); // Evita duplicatas
     
     
-        // 🔹 Busca casais em `CasalRepository`, garantindo que não estejam duplicados
+        // Busca casais em `CasalRepository`, garantindo que não estejam duplicados
         for (Casal casal : casalRepo.listar()) {
             adicionarEstatisticaCasal(casal.getIdPessoa1(), casal.getIdPessoa2(), estatisticasLista, casaisProcessados);
         }
     
-        // 🔹 Ordenação: primeiro pelo total gasto (decrescente), depois pelo nome1 (alfabético)
+        // Ordenação: primeiro pelo total gasto (decrescente), depois pelo nome1 (alfabético)
         estatisticasLista.sort(Comparator.comparingDouble(EstatisticaCasal::getTotalGasto).reversed()
                 .thenComparing(EstatisticaCasal::getNome1));
     
-        // 🔹 Escrevendo os dados no CSV
+        // Escrevendo os dados no CSV
         try (FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8)) {
             for (EstatisticaCasal estatistica : estatisticasLista) {
                 writer.append(estatistica.getNome1()).append(SEPARADOR)
@@ -78,8 +113,9 @@ public class EstatisticasCasaisService {
     /**
      * Adiciona um casal às estatísticas apenas se ele ainda não foi processado.
      */
-    private void adicionarEstatisticaCasal(String idPessoa1, String idPessoa2, List<EstatisticaCasal> estatisticasLista, Set<String> casaisProcessados) {
-        String chaveCasal = idPessoa1 + "-" + idPessoa2; // 🔹 Evita duplicatas
+    private void adicionarEstatisticaCasal(String idPessoa1, String idPessoa2, 
+                                            List<EstatisticaCasal> estatisticasLista, Set<String> casaisProcessados) {
+        String chaveCasal = idPessoa1 + "-" + idPessoa2; // Evita duplicatas
     
         if (casaisProcessados.contains(chaveCasal)) {
             return;
@@ -109,7 +145,7 @@ public class EstatisticasCasaisService {
     }
     
 
-    // 🔹 Função que soma os gastos com tarefas associadas ao casal, verificando os lares
+    // Função que soma os gastos com tarefas associadas ao casal, verificando os lares
     private double calcularGastosTarefas(String idPessoa1, String idPessoa2) {
         return tarefaRepo.listar().stream()
                 .filter(tarefa -> {
@@ -122,7 +158,7 @@ public class EstatisticasCasaisService {
                 .sum();
     }
 
-    // 🔹 Função que soma os gastos com festas associadas ao casal
+    // Função que soma os gastos com festas associadas ao casal
     private double calcularGastosFestas(String idPessoa1, String idPessoa2) {
         return festaRepo.listar().stream()
                 .filter(festa -> {
@@ -134,7 +170,7 @@ public class EstatisticasCasaisService {
                 .sum();
     }
 
-    // 🔹 Função que soma os gastos com compras associadas ao casal
+    // Função que soma os gastos com compras associadas ao casal
     private double calcularGastosCompras(String idPessoa1, String idPessoa2) {
         return compraRepo.listar().stream()
                 .filter(compra -> {
@@ -145,38 +181,5 @@ public class EstatisticasCasaisService {
                 })
                 .mapToDouble(compra -> compra.getQuantidade() * compra.getValorUnitario())
                 .sum();
-    }
-}
-
-/**
- * Classe auxiliar para armazenar estatísticas de um casal.
- */
-class EstatisticaCasal {
-    private final String nome1;
-    private final String nome2;
-    private final double totalGasto;
-    private final int festasConvidados;
-
-    public EstatisticaCasal(String nome1, String nome2, double totalGasto, int festasConvidados) {
-        this.nome1 = nome1;
-        this.nome2 = nome2;
-        this.totalGasto = totalGasto;
-        this.festasConvidados = festasConvidados;
-    }
-
-    public String getNome1() {
-        return nome1;
-    }
-
-    public String getNome2() {
-        return nome2;
-    }
-
-    public double getTotalGasto() {
-        return totalGasto;
-    }
-
-    public int getFestasConvidados() {
-        return festasConvidados;
     }
 }

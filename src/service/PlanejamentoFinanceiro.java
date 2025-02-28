@@ -1,14 +1,16 @@
 package service;
 
+import java.util.*;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 import model.Casal;
 import model.Casamento;
@@ -18,6 +20,7 @@ import model.Financeiro;
 import model.Lar;
 import model.PessoaFisica;
 import model.Tarefa;
+
 import repository.CasalRepository;
 import repository.CasamentoRepository;
 import repository.CompraRepository;
@@ -53,6 +56,15 @@ public class PlanejamentoFinanceiro {
 
     }
 
+    /**
+     * Gera um arquivo CSV com o planejamento financeiro do casal.
+     * @param filePath    Caminho do arquivo CSV
+     * @param pessoa1     Pessoa 1 do casal
+     * @param pessoa2     Pessoa 2 do casal
+     * @param saldoMensal Saldo mensal do casal
+     * @param dataInicio  Data de início do planejamento
+     * @param dataFim     Data de fim do planejamento
+     */
     private void escreverCSV(String filePath, PessoaFisica pessoa1, PessoaFisica pessoa2,
             Map<String, Double> saldoMensal, LocalDate dataInicio, LocalDate dataFim) {
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MM/yyyy");
@@ -105,6 +117,12 @@ public class PlanejamentoFinanceiro {
         }
     }
 
+    /**
+     * Gera o planejamento financeiro de um casal.
+     * @param filePath Caminho do arquivo CSV
+     * @param cpf1     CPF da pessoa 1
+     * @param cpf2     CPF da pessoa 2
+     */
     public void gerarPlanejamento(String filePath, String cpf1, String cpf2) {
         PessoaFisica pessoa1 = buscarPessoaPorCpf(cpf1);
         PessoaFisica pessoa2 = buscarPessoaPorCpf(cpf2);
@@ -147,6 +165,11 @@ public class PlanejamentoFinanceiro {
                 .findFirst().orElse(null);
     }
 
+    /**
+     * Escreve uma mensagem em um arquivo.
+     * @param filePath Caminho do arquivo
+     * @param mensagem Mensagem a ser escrita
+     */
     private void escreverMensagem(String filePath, String mensagem) {
         try (FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8, true)) {
             writer.write(mensagem + "\n");
@@ -154,8 +177,14 @@ public class PlanejamentoFinanceiro {
         }
     }
 
-    private Map<String, Double> calcularSaldoMensalCasal(Casal casal, PessoaFisica pessoa1,
-            PessoaFisica pessoa2) {
+    /**
+     * Calcula o saldo mensal do casal.
+     * @param casal   Casal
+     * @param pessoa1 Pessoa 1
+     * @param pessoa2 Pessoa 2
+     * @return Mapa com o saldo mensal do casal
+     */
+    private Map<String, Double> calcularSaldoMensalCasal(Casal casal, PessoaFisica pessoa1, PessoaFisica pessoa2) {
         Map<String, Double> saldoMensal = new LinkedHashMap<>();
 
         LocalDate primeiraData = encontrarPrimeiroGasto(casal);
@@ -177,9 +206,10 @@ public class PlanejamentoFinanceiro {
         double saldoMensalCasal = financeiro1.getDinheiroPoupanca() + financeiro2.getDinheiroPoupanca();
         double salarioTotalCasalFixo = financeiro1.getSalarioLiquido() + financeiro2.getSalarioLiquido();
         double gastosMensaisCasalFixo = financeiro1.getGastosMensais() + financeiro2.getGastosMensais();
+
+        // Calcula o saldo mensal do casal para cada mês
         while (true) {
-            // Gastos mensais do casal (compras, tarefas festas) + gastos fixos de cada
-            // mensal
+            // Gastos mensais do casal (compras, tarefas festas) + gastos fixos de cada mês
             double gastosTotais = gastosMensaisCasalFixo + calcularGastosPorMes(casal.getIdCasamento(),
                     dataAtual, pessoa1.getIdPessoa(),
                     pessoa2.getIdPessoa());
@@ -187,6 +217,8 @@ public class PlanejamentoFinanceiro {
             double ganhosMes = calcularGanhosPorMes(dataAtual, pessoa1.getIdPessoa(), pessoa2.getIdPessoa());
 
             // Atualiza o saldo mensal do casal
+            // Saldo = Saldo * 0.5% + Salário total do casal - Gastos totais + Ganhos do mês
+            // 0.5% é a taxa de rendimento da poupança
             saldoMensalCasal += (saldoMensalCasal * (0.5 / 100)) + salarioTotalCasalFixo - gastosTotais + ganhosMes;
 
             // Se for dezembro, adicionar 13o salário
@@ -197,7 +229,7 @@ public class PlanejamentoFinanceiro {
             saldoMensal.put(dataAtual.format(FORMATADOR_DATA), saldoMensalCasal);
 
             if (dataAtual.getYear() == ultimaData.getYear()
-                    && dataAtual.getMonthValue() == ultimaData.getMonthValue()) {
+                && dataAtual.getMonthValue() == ultimaData.getMonthValue()) {
                 // Sai do loop apenas após uma iteração extra
                 break;
             }
@@ -242,13 +274,18 @@ public class PlanejamentoFinanceiro {
         for (Tarefa tarefa : tarefas) {
             // Verifica se a tarefa pertence ao lar do casal
             Lar larAssociado = larRepo.buscarPorId(tarefa.getIdLar());
-            if (larAssociado != null
-                    && (larAssociado.getCasal().getIdPessoa1().equals(idPessoa1)
-                            && larAssociado.getCasal().getIdPessoa2().equals(idPessoa2)
-                            || larAssociado.getCasal().getIdPessoa1().equals(idPessoa2)
-                                    && larAssociado.getCasal().getIdPessoa2().equals(idPessoa1))) {
-                if (estaParcelaSendoPaga(tarefa.getDataInicio(), tarefa.getNumParcelas(), data)) {
-                    totalGastos += tarefa.getValorParcela();
+
+            // Pega informações do lar associado à tarefa
+            String idPessoa1Lar = larAssociado.getCasal().getIdPessoa1();
+            String idPessoa2Lar = larAssociado.getCasal().getIdPessoa2();
+
+            if (larAssociado != null) {
+                if (idPessoa1Lar.equals(idPessoa1) && idPessoa2Lar.equals(idPessoa2)
+                    || idPessoa1Lar.equals(idPessoa2) && idPessoa2Lar.equals(idPessoa1)) 
+                {
+                    if (estaParcelaSendoPaga(tarefa.getDataInicio(), tarefa.getNumParcelas(), data)) {
+                        totalGastos += tarefa.getValorParcela();
+                    }
                 }
             }
         }
@@ -256,16 +293,23 @@ public class PlanejamentoFinanceiro {
         // Filtrar compras associadas ao casal e ao casamento (se houver)
         List<Compra> compras = new ArrayList<>(compraRepo.listar());
         for (Compra compra : compras) {
+            // Verifica se a compra pertence ao lar do casal
             Tarefa tarefaAssociada = tarefaRepo.buscarPorId(compra.getIdTarefa());
             Lar larAssociado = larRepo.buscarPorId(tarefaAssociada.getIdLar());
-            if (larAssociado != null
-                    && (larAssociado.getCasal().getIdPessoa1().equals(idPessoa1)
-                            && larAssociado.getCasal().getIdPessoa2().equals(idPessoa2)
-                            || larAssociado.getCasal().getIdPessoa1().equals(idPessoa2)
-                                    && larAssociado.getCasal().getIdPessoa2().equals(idPessoa1))) {
-                LocalDate dataPrimeiroPagamento = tarefaAssociada.getDataInicio();
-                if (estaParcelaSendoPaga(dataPrimeiroPagamento, compra.getNumParcelas(), data)) {
-                    totalGastos += compra.getValorParcela();
+
+            // Pega informações do lar associado à tarefa
+            // Pega informações do lar associado à tarefa
+            String idPessoa1Lar = larAssociado.getCasal().getIdPessoa1();
+            String idPessoa2Lar = larAssociado.getCasal().getIdPessoa2();
+
+            if (larAssociado != null) {
+                if (idPessoa1Lar.equals(idPessoa1) && idPessoa2Lar.equals(idPessoa2)
+                    || idPessoa1Lar.equals(idPessoa2) && idPessoa2Lar.equals(idPessoa1)) 
+                {
+                        LocalDate dataPrimeiroPagamento = tarefaAssociada.getDataInicio();
+                    if (estaParcelaSendoPaga(dataPrimeiroPagamento, compra.getNumParcelas(), data)) {
+                        totalGastos += compra.getValorParcela();
+                    }
                 }
             }
         }
@@ -276,6 +320,7 @@ public class PlanejamentoFinanceiro {
             Casamento casamentoAssociado = casamentoRepo.buscarPorId(festa.getIdCasamento());
             if (idCasamento != null && casamentoAssociado.getIdCasamento().equals(idCasamento)) {
                 LocalDate dataPrimeiroPagamento = festa.getData();
+
                 if (estaParcelaSendoPaga(dataPrimeiroPagamento, festa.getNumParcelas(), data)) {
                     totalGastos += festa.getValorParcela();
                 }
@@ -318,9 +363,14 @@ public class PlanejamentoFinanceiro {
                 .filter(tarefa -> {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
+
+                    // Pega informações do lar associado à tarefa
+                    String idPessoa1Lar = lar.getCasal().getIdPessoa1();
+                    String idPessoa2Lar = lar.getCasal().getIdPessoa2();
+
                     return lar != null
-                            && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) && lar.getCasal().getIdPessoa2().equals(idPessoa2))
-                                    || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
+                            && ((idPessoa1Lar.equals(idPessoa1) && idPessoa2Lar.equals(idPessoa2))
+                                    || (idPessoa1Lar.equals(idPessoa2) && idPessoa2Lar.equals(idPessoa1)));
                 })
                 .map(Tarefa::getDataInicio)
                 .forEach(datas::add);
@@ -334,8 +384,11 @@ public class PlanejamentoFinanceiro {
         // Buscar compras associadas a tarefas do casal
         compraRepo.listar().stream()
                 .filter(compra -> {
+                    // Verifica se a compra pertence ao lar do casal
                     String idTarefa = compra.getIdTarefa();
-                    return tarefaRepo.buscarPorId(idTarefa).getIdLar() != null &&
+                    String idLarAssociadaTarefa = tarefaRepo.buscarPorId(idTarefa).getIdLar();
+
+                    return idLarAssociadaTarefa != null &&
                             larRepo.buscarPorId(tarefaRepo.buscarPorId(idTarefa).getIdLar()).getCasal().getIdPessoa1()
                                     .equals(idPessoa1)
                             &&
@@ -351,27 +404,29 @@ public class PlanejamentoFinanceiro {
     private LocalDate calcularDataFinal(Casal casal, String idPessoa1, String idPessoa2) {
         LocalDate dataFinal = LocalDate.MIN;
 
-        // 🔹 Última data considerando parcelas das TAREFAS
+        // Última data considerando parcelas das TAREFAS
         LocalDate ultimaDataTarefa = tarefaRepo.listar().stream()
                 .filter(tarefa -> {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
                     return lar != null
-                            && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) && lar.getCasal().getIdPessoa2().equals(idPessoa2))
-                                    || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
+                            && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) 
+                                 && lar.getCasal().getIdPessoa2().equals(idPessoa2))
+                                    || (lar.getCasal().getIdPessoa1().equals(idPessoa2) 
+                                        && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
                 })
                 .map(tarefa -> tarefa.getDataInicio().plusMonths(tarefa.getNumParcelas() - 1)) // Considera parcelas
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
 
-        // 🔹 Última data considerando parcelas das FESTAS
+        // Última data considerando parcelas das FESTAS
         LocalDate ultimaDataFesta = festaRepo.listar().stream()
                 .filter(festa -> festa.getIdCasamento().equals(casal.getIdCasamento()))
                 .map(festa -> festa.getData().plusMonths(festa.getNumParcelas() - 1)) // Considera parcelas
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
 
-        // 🔹 Última data considerando parcelas das COMPRAS
+        // Última data considerando parcelas das COMPRAS
         LocalDate ultimaDataCompra = compraRepo.listar().stream()
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();
@@ -389,7 +444,7 @@ public class PlanejamentoFinanceiro {
                 .max(Comparator.naturalOrder())
                 .orElse(LocalDate.MIN);
 
-        // 🔹 Determina a maior data entre todas as despesas do casal
+        // Determina a maior data entre todas as despesas do casal
         if (!ultimaDataTarefa.equals(LocalDate.MIN)) {
             dataFinal = ultimaDataTarefa;
         }
@@ -400,7 +455,7 @@ public class PlanejamentoFinanceiro {
             dataFinal = ultimaDataCompra;
         }
 
-        // 🔹 Se não houver despesas, retorna a data inicial + 1 mês como fallback
+        // Se não houver despesas, retorna a data inicial + 1 mês como fallback
         return (dataFinal.equals(LocalDate.MIN)) ? LocalDate.now().plusMonths(1) : dataFinal;
     }
 }
