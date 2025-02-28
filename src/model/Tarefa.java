@@ -119,14 +119,8 @@ public class Tarefa {
         return String.format(
                 "Tarefa{ID='%s', ID Lar='%s', ID Prestador='%s', Data Início='%s', Prazo='%d dias', " +
                 "Data Entrega='%s', Valor Prestador='R$ %.2f', Parcelas='%d', Valor Parcela='IMPLEMENTAR', Compra=%s}",
-                idTarefa,
-                (idLar != null ? idLar : "Nenhum"),
-                idPrestador,
-                dataInicio.format(FORMATTER),
-                prazoEntrega,
-                getDataEntrega().format(FORMATTER),
-                valorPrestador,
-                numParcelas,
+                idTarefa, (idLar != null ? idLar : "Nenhum"), idPrestador, dataInicio.format(FORMATTER),
+                prazoEntrega, getDataEntrega().format(FORMATTER), valorPrestador, numParcelas,
                 (compra != null ? compra.toString() : "Nenhuma")
         );
     }

@@ -17,7 +17,7 @@ public class PessoaJuridica extends Pessoa {
      * @param idPessoa  ID da pessoa jurídica.
      */
     public PessoaJuridica(String nome, String telefone, String endereco, String cnpj, String idPessoa) {
-        super(nome, telefone, endereco, idPessoa);
+        super(nome, telefone, endereco, idPessoa); // Chama o construtor da superclasse
 
         if (cnpj == null || !cnpj.matches("\\d{2}\\.\\d{3}\\.\\d{3}/\\d{4}-\\d{2}")) {
             throw new IllegalArgumentException("CNPJ inválido! Deve conter exatamente 14 dígitos numéricos.");

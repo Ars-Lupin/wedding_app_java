@@ -24,17 +24,17 @@ public class PessoaFisica extends Pessoa {
      */
     public PessoaFisica(String nome, String telefone, String endereco, String cpf, 
                         LocalDate dataNascimento, Financeiro financeiro, String idPessoa) {         
-        super(nome, telefone, endereco, idPessoa);
+        super(nome, telefone, endereco, idPessoa); // Chama o construtor da superclasse
 
         // CPF deve ser no formato 000.000.000-00
         if (cpf == null || !cpf.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
             throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
         }
         if (dataNascimento == null) {
-            throw new IllegalArgumentException("Data de nascimento não pode ser nula.");
+            throw new IllegalArgumentException("Data de nascimento da pessoa física não pode ser nula.");
         }
         if (financeiro == null) {
-            throw new IllegalArgumentException("Informações financeiras não podem ser nulas.");
+            throw new IllegalArgumentException("Informações financeiras da pessoa física não podem ser nulas.");
         }
 
         this.cpf = cpf;

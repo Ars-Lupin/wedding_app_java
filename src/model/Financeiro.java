@@ -24,6 +24,12 @@ public class Financeiro {
         this.gastosMensais = validarValor(gastosMensais, "Gastos mensais");
     }
 
+    /**
+     * Método privado que valida se um valor é positivo.
+     * @param valor
+     * @param campo
+     * @return
+     */
     private double validarValor(double valor, String campo) {
         if (valor < 0) {
             throw new IllegalArgumentException(campo + " não pode ser negativo.");
@@ -67,6 +73,11 @@ public class Financeiro {
                 formatarValor(gastosMensais), formatarValor(salarioLiquido - gastosMensais));
     }
 
+    /**
+     * Método privado que formata um valor em reais.
+     * @param valor
+     * @return
+     */
     private String formatarValor(double valor) {
         return String.format("R$ %.2f", valor);
     }

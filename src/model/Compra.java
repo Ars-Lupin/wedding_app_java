@@ -31,10 +31,10 @@ public class Compra {
                 throw new IllegalArgumentException("O ID da compra deve ter exatamente 32 dígitos numéricos.");
             }
             if (idLoja == null || !idLoja.matches("\\d{32}")) {
-                throw new IllegalArgumentException("O ID da loja deve ter exatamente 32 dígitos numéricos.");
+                throw new IllegalArgumentException("O ID da loja da compra deve ter exatamente 32 dígitos numéricos.");
             }
             if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
-                throw new IllegalArgumentException("O ID da tarefa deve ter exatamente 32 dígitos numéricos.");
+                throw new IllegalArgumentException("O ID da tarefa da compra deve ter exatamente 32 dígitos numéricos.");
             }
             if (nomeProduto == null || nomeProduto.trim().isEmpty()) {
                 throw new IllegalArgumentException("O nome do produto não pode ser vazio.");

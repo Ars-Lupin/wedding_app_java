@@ -16,7 +16,7 @@ public class Loja extends PessoaJuridica {
      * @param idPessoa  Identificador da loja (mesmo que PessoaJuridica).
      */
     public Loja(String nome, String telefone, String endereco, String cnpj, String idPessoa) {
-        super(nome, telefone, endereco, cnpj, idPessoa);
+        super(nome, telefone, endereco, cnpj, idPessoa); // Apenas chama o construtor da superclasse
     }
 
     /**

@@ -38,10 +38,10 @@ public class Festa {
             throw new IllegalArgumentException("O ID da festa deve conter exatamente 32 dígitos numéricos.");
         }
         if (idCasamento == null || !idCasamento.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do casamento deve conter exatamente 32 dígitos numéricos.");
+            throw new IllegalArgumentException("O ID do casamento da festa deve conter exatamente 32 dígitos numéricos.");
         }
         if (endereco == null || endereco.trim().isEmpty()) {
-            throw new IllegalArgumentException("O endereço não pode ser nulo.");
+            throw new IllegalArgumentException("O endereço da festa não pode ser nulo.");
         }
         if (data == null) {
             throw new IllegalArgumentException("A data da festa não pode ser nula.");
@@ -50,10 +50,10 @@ public class Festa {
             throw new IllegalArgumentException("A hora da festa deve estar no formato HH:mm (00:00 a 23:59).");
         }
         if (numParcelas <= 0) {
-            throw new IllegalArgumentException("O número de parcelas deve ser maior que zero.");
+            throw new IllegalArgumentException("O número de parcelas do pagamento da festa deve ser maior que zero.");
         }
         if (convidados == null) {
-            throw new IllegalArgumentException("A lista de convidados não pode ser nula.");
+            throw new IllegalArgumentException("A lista de convidados da festa não pode ser nula.");
         }
 
         this.idFesta = idFesta;
@@ -137,14 +137,14 @@ public class Festa {
 
     public void adicionarConvidado(String convidado) {
         if (convidado == null || convidado.trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome do convidado não pode ser vazio.");
+            throw new IllegalArgumentException("O nome do convidado da festa não pode ser vazio.");
         }
         convidados.add(convidado);
     }
 
     public void removerConvidado(String convidado) {
         if (convidado == null || convidado.trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome do convidado não pode ser vazio.");
+            throw new IllegalArgumentException("O nome do convidado da festa não pode ser vazio.");
         }
         convidados.remove(convidado);
     }

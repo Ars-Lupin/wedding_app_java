@@ -19,6 +19,22 @@ public class Casal {
      * @param idLar       ID do lar (pode ser null se não morarem juntos).
      */
     public Casal(String idPessoa1, String idPessoa2, String idCasamento, String idLar) {
+
+        if (idPessoa1 == null || !idPessoa1.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID da primeira pessoa do casal deve conter exatamente 32 dígitos numéricos.");
+        }
+        if (idPessoa2 == null || !idPessoa2.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID da segunda pessoa do casal deve conter exatamente 32 dígitos numéricos.");
+        }
+        // Se o casal é casado, o ID do casamento deve ser válido
+        if (idCasamento != null && !idCasamento.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID do casamento do casal deve conter exatamente 32 dígitos numéricos.");
+        }
+        // Se o casal mora junto, o ID do lar deve ser válido
+        if (idLar != null && !idLar.matches("\\d{32}")) {
+            throw new IllegalArgumentException("O ID do lar do casal deve conter exatamente 32 dígitos numéricos.");
+        }
+
         this.idPessoa1 = idPessoa1;
         this.idPessoa2 = idPessoa2;
         this.idCasamento = idCasamento;
@@ -74,11 +90,7 @@ public class Casal {
      */
     @Override
     public String toString() {
-        return "Casal {" +
-                "Pessoa 1 = '" + idPessoa1 + '\'' +
-                ", Pessoa 2 = '" + idPessoa2 + '\'' +
-                ", Casamento = " + (temCasamento() ? idCasamento : "Nenhum") +
-                ", Lar = " + (temLar() ? idLar : "Nenhum") +
-                '}';
+        return String.format("Casal{Pessoa1 = '%s', Pessoa2 = '%s', Casamento = %s, Lar = %s}",
+                idPessoa1, idPessoa2, temCasamento() ? idCasamento : "Nenhum", temLar() ? idLar : "Nenhum");
     }
 }
