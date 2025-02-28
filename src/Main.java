@@ -101,11 +101,11 @@ public class Main {
             }
 
         } catch (IOException e) {
-            // Qualquer erro de IO é informado ao usuário aqui
+            // Qualquer erro de IO é informado ao usuário
             TratamentoExceptions erroDeIO = new TratamentoExceptions(e);
             erroDeIO.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
         } catch (IllegalArgumentException e) {
-            // Erros de dados inconsistentes são informados ao usuário aqui
+            // Erros de dados inconsistentes são informados ao usuário
             TratamentoExceptions dadosInconsistentes = new TratamentoExceptions(e);
             dadosInconsistentes.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
         } catch (ParseException e) {

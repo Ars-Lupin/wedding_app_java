@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -26,7 +28,7 @@ public class CSVReader {
     public static List<String[]> lerCSV(String filePath) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
             System.out.println("O caminho do arquivo não pode ser nulo ou vazio.");
-            throw new IllegalArgumentException("Erro de I/O");
+            throw new IOException("Erro de I/O");
         }
 
         List<String[]> linhas = new ArrayList<>();
@@ -34,7 +36,7 @@ public class CSVReader {
             String linha;
             while ((linha = br.readLine()) != null) {
                 String[] campos = SEPARADOR.split(linha); // Usa um Pattern para dividir
-                linhas.add(campos);
+                linhas.add(campos); // Adiciona a linha à lista
             }
         }
         return linhas;

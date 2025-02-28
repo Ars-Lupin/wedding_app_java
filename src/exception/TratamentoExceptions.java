@@ -2,9 +2,9 @@ package exception;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -25,11 +25,21 @@ public class TratamentoExceptions {
         this.mensagemDadoInconsistente = null;
     }
 
-    public TratamentoExceptions(IllegalArgumentException mensagemDadoInconsistente)
-    {
+    /**
+     * Construtor da exceção (mensagemDadoInconsistente).
+     * 
+     * @param mensagemDadoInconsistente Mensagem de erro.
+     */
+    public TratamentoExceptions(IllegalArgumentException mensagemDadoInconsistente) {
         this.mensagemDadoInconsistente = mensagemDadoInconsistente;
         this.mensagemIO = null;
     }
+
+    /**
+     * Escreve os arquivos de saída com base no diretório recebido.
+     * 
+     * @param diretorioBase Diretório base.
+     */
     public void EscreveDadosInconsistentesException(String diretorioBase) {
         // Caminhos dos arquivos com base no diretório recebido
         String caminhoArquivoRelatorio1 = diretorioBase + "/saida/1-planejamento.csv";
@@ -60,6 +70,5 @@ public class TratamentoExceptions {
         } else if (this.mensagemIO != null) {
             System.out.println(this.mensagemIO.getMessage());
         }
-    
     }
 }
