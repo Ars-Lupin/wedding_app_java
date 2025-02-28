@@ -174,6 +174,7 @@ public class PlanejamentoFinanceiro {
         try (FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8, true)) {
             writer.write(mensagem + "\n");
         } catch (IOException e) {
+            System.out.println("Erro ao escrever no arquivo: " + e.getMessage());
         }
     }
 
