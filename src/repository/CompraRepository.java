@@ -1,14 +1,18 @@
 package repository;
 
 import java.io.IOException;
+
+import java.util.*;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.*;
+
 import model.Compra;
 import model.Loja;
 import model.Pessoa;
 import model.PessoaJuridica;
 import model.Tarefa;
+
 import util.CSVReader;
 
 /**
@@ -93,7 +97,8 @@ public class CompraRepository {
     public void carregarDados(String caminhoArquivo, TarefaRepository tarefaRepo, PessoaRepository pessoaRepo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
-        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
+        // Formatação de números para o padrão brasileiro
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.of("pt", "BR"));
 
         for (String[] campos : linhas) {
             if (campos.length < 7) { // Verifica se a linha contém todos os campos necessários
@@ -115,13 +120,13 @@ public class CompraRepository {
             double valorUnitario = numberFormat.parse(campos[5].trim()).doubleValue();
             int numParcelas = Integer.parseInt(campos[6].trim());
 
-            // 🔹 Validação: Verifica se o ID da Tarefa existe
+            // Validação: Verifica se o ID da Tarefa existe
             Tarefa tarefa = tarefaRepo.buscarPorId(idTarefa);
             if (tarefa == null) {
                 throw new IllegalArgumentException("ID(s) de Tarefa " + idTarefa + " não cadastrado na Compra de ID " + idCompra + ".");
             }
 
-            // 🔹 Validação: Verifica se a Loja existe e se é de fato uma Loja
+            // Validação: Verifica se a Loja existe e se é de fato uma Loja
             Pessoa pessoa = pessoaRepo.buscarPorId(idLoja);
             if (pessoa == null) {
                 throw new IllegalArgumentException("ID(s) de Loja " + idLoja + " não cadastrado na Compra de ID " + idCompra + ".");

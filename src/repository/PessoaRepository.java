@@ -1,12 +1,17 @@
 package repository;
 
 import java.io.IOException;
+
+import java.util.*;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+
 import model.*;
+
 import util.CSVReader;
 
 /**
@@ -41,7 +46,7 @@ public class PessoaRepository {
             throw new IllegalArgumentException("Já existe uma pessoa com este ID no repositório.");
         }
 
-        // 🔹 Validação para Pessoa Física (CPF)
+        // Validação para Pessoa Física (CPF)
         if (pessoa instanceof PessoaFisica) {
             PessoaFisica pf = (PessoaFisica) pessoa;
             if (cpfs.containsKey(pf.getCpf()) && !cpfs.get(pf.getCpf()).equals(pf.getIdPessoa())) {
@@ -50,7 +55,7 @@ public class PessoaRepository {
             cpfs.put(pf.getCpf(), pf.getIdPessoa()); // Adiciona ao mapa de CPFs
         }
 
-        // 🔹 Validação para Pessoa Jurídica e Loja (CNPJ)
+        // Validação para Pessoa Jurídica e Loja (CNPJ)
         if (pessoa instanceof PessoaJuridica) {
             PessoaJuridica pj = (PessoaJuridica) pessoa;
             if (cnpjs.containsKey(pj.getCnpj()) && !cnpjs.get(pj.getCnpj()).equals(pj.getIdPessoa())) {
@@ -66,6 +71,7 @@ public class PessoaRepository {
      * Remove uma pessoa do repositório.
      *
      * @param pessoa Pessoa a ser removida.
+     * @throws IllegalArgumentException Se a pessoa for nula ou não existir no repositório.
      */
     public void remover(Pessoa pessoa) {
         if (pessoa == null) {
@@ -98,6 +104,7 @@ public class PessoaRepository {
      * Busca uma pessoa pelo ID.
      *
      * @param id ID da pessoa.
+     * @throws IllegalArgumentException Se o ID for nulo ou vazio.
      * @return A pessoa correspondente ao ID, ou null se não for encontrada.
      */
     public Pessoa buscarPorId(String id) {
@@ -117,7 +124,7 @@ public class PessoaRepository {
     public void carregarDadosDoCSV(String caminhoArquivo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.of("pt", "BR"));
 
         for (String[] campos : linhas) {
             String id = campos[0].trim();
@@ -142,10 +149,11 @@ public class PessoaRepository {
 
                 PessoaFisica pessoaFisica = new PessoaFisica(nome, telefone, endereco, cpf, dataNasc, financeiro, id);
 
-                // 🔹 Verifica se o CPF já existe com outro ID
+                // Verifica se o CPF já existe com outro ID
                 if (cpfs.containsKey(cpf) && !cpfs.get(cpf).equals(id)) {
                     throw new IllegalArgumentException("O CPF " + cpf + " da Pessoa " + id + " é repetido.");
                 }
+
                 this.adicionar(pessoaFisica);
             } else if (tipo.equals("J") || tipo.equals("L")) { // Pessoa Jurídica ou Loja
                 if (campos.length < 6) continue;
@@ -154,10 +162,12 @@ public class PessoaRepository {
 
                 if (tipo.equals("J")) {
                     PessoaJuridica pessoaJuridica = new PessoaJuridica(nome, telefone, endereco, cnpj, id);
-                    // 🔹 Verifica se o CNPJ já existe com outro ID
+                    
+                    // Verifica se o CNPJ já existe com outro ID
                     if (cnpjs.containsKey(cnpj) && !cnpjs.get(cnpj).equals(id)) {
                         throw new IllegalArgumentException("O CNPJ " + cnpj + " da Pessoa " + id + " é repetido.");
                     }
+
                     this.adicionar(pessoaJuridica);
                 } else if (tipo.equals("L")) {
                     Loja loja = new Loja(nome, telefone, endereco, cnpj, id);

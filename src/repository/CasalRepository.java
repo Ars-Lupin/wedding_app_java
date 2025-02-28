@@ -21,6 +21,12 @@ public class CasalRepository {
         this.casais = new ArrayList<>();
     }
 
+    /**
+     * Adiciona um casal ao repositório.
+     * 
+     * @param casal
+     * @throws IllegalArgumentException Se o casal for nulo
+     */
     public void adicionar(Casal casal) {
 
         // Verifica se o casal é nulo
@@ -31,6 +37,13 @@ public class CasalRepository {
         casais.add(casal);
     }
 
+
+    /**
+     * Remove um casal do repositório.
+     * 
+     * @param casal
+     * @throws IllegalArgumentException Se o casal for nulo
+     */
     public void remover(Casal casal) {
 
         // Verifica se o casal é nulo
@@ -48,6 +61,11 @@ public class CasalRepository {
         return Collections.unmodifiableList(casais);
     }
 
+    /**
+     * Carrega os casais a partir dos casamentos e lares.
+     * @param casamentoRepo
+     * @param larRepo
+     */
     public void carregarCasais(CasamentoRepository casamentoRepo, LarRepository larRepo)
     {
         // Iteração sobre os casamentos, verificando quais casais existem e devem ser adicionados ao CasaisRepository
@@ -79,7 +97,7 @@ public class CasalRepository {
     }
 
     /**
-     * Busca um casal pelo ID de uma das pessoas envolvidas.
+     * Busca um casal pelo ID da pessoa.
      */
     public Casal buscarPorIdPessoa(String idPessoa) {
         for (Casal casal : casais) {
@@ -90,6 +108,9 @@ public class CasalRepository {
         return null;
     }
 
+    /**
+     * Busca um casal pelo ID do lar.
+     */
     public Casal buscarPorIdLar(String idLar) {
         for (Casal casal : casais) {
             if (casal.getIdLar().equals(idLar)) {
@@ -99,6 +120,9 @@ public class CasalRepository {
         return null;
     }
 
+    /**
+     * Busca um casal pelo ID do casamento.
+     */
     public Casal buscarPorIdCasamento(String idCasamento) {
         for (Casal casal : casais) {
             if (casal.getIdCasamento().equals(idCasamento)) {

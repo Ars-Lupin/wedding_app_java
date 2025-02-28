@@ -1,15 +1,17 @@
 package repository;
 
 import java.io.IOException;
+
+import java.util.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 import model.Casal;
 import model.Casamento;
 import model.Festa;
+
 import util.CSVReader;
-import model.Lar;
 
 /**
  * Classe que representa um repositório de casamentos
@@ -91,9 +93,11 @@ public class CasamentoRepository {
      * @param festaRepo     Repositório de festas para buscar a festa associada ao casamento.
      * @throws IOException Se houver um erro de leitura do arquivo.
      */
-    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, FestaRepository festaRepo, LarRepository larRepo, CasalRepository casalRepo) throws IOException {
+    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, FestaRepository festaRepo, 
+                                LarRepository larRepo, CasalRepository casalRepo) throws IOException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
+        // Formato da data: dd/MM/yyyy
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         for (String[] campos : linhas) {
@@ -134,7 +138,7 @@ public class CasamentoRepository {
                         "ID(s) de Pessoa " + idPessoa2 + " não cadastrado no Casamento de ID " + idCasamento + ".");
             }
 
-            // 🔹 Busca a festa associada ao casamento (se houver)
+            // Busca a festa associada ao casamento (se houver)
             Festa festa = festaRepo.listar().stream()
                     .filter(f -> f.getIdCasamento().equals(idCasamento))
                     .findFirst()
@@ -156,6 +160,11 @@ public class CasamentoRepository {
         }
     }
 
+    /**
+     * Recarrega as festas associadas aos casamentos, caso existam
+     * 
+     * @param festaRepo
+     */
     public void recarregarFestas(FestaRepository festaRepo) {
         for (Casamento casamento : casamentos.values()) {
             // Tenta encontrar uma festa para este casamento

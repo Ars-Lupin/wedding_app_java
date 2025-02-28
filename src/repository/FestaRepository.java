@@ -1,15 +1,19 @@
 package repository;
 
 import java.io.IOException;
+
+import java.util.*;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+
 import model.Casamento;
-import model.Casal;
 import model.Festa;
 import model.PessoaFisica;
+
 import util.CSVReader;
 
 /**
@@ -86,18 +90,19 @@ public class FestaRepository {
      * Agora inclui validação para verificar se os IDs do casamento existem e remove
      * os donos da festa da lista de convidados comparando seus **nomes**.
      *
-     * @param caminhoArquivo Caminho do arquivo CSV.
-     * @param casamentoRepo  Repositório de casamentos para validar os IDs.
-     * @param pessoaRepo     Repositório de pessoas para buscar os nomes dos donos da festa.
+     * @param caminhoArquivo  Caminho do arquivo CSV.
+     * @param casamentoRepo   Repositório de casamentos para validar os IDs.
+     * @param pessoaRepo      Repositório de pessoas para buscar os nomes dos donos da festa.
      * @throws IOException    Se houver um erro de leitura do arquivo.
      * @throws ParseException Se houver um erro na conversão de valores numéricos.
      */
     public void carregarDados(String caminhoArquivo, CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo)
-            throws IOException, ParseException {
+                                throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
+        // Formatters para conversão de datas e valores
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.of("pt", "BR"));
 
         for (String[] campos : linhas) {
             if (campos.length < 8) { // Verifica se há campos suficientes
@@ -121,7 +126,7 @@ public class FestaRepository {
             int numParcelas = Integer.parseInt(campos[6].trim());
             int numConvidados = Integer.parseInt(campos[7].trim());
 
-            // 🔹 Validação: Verifica se o ID do Casamento existe
+            // Validação: Verifica se o ID do Casamento existe
             Casamento casamento = casamentoRepo.buscarPorId(idCasamento);
             if (casamento == null) {
                 throw new IllegalArgumentException(

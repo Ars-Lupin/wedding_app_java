@@ -1,11 +1,13 @@
 package repository;
 
 import java.io.IOException;
+
 import java.util.*;
 
 import model.Casal;
 import model.Endereco;
 import model.Lar;
+
 import util.CSVReader;
 
 /**
@@ -42,6 +44,7 @@ public class LarRepository {
      * Remove um lar do repositório.
      *
      * @param lar Lar a ser removido.
+     * @throws IllegalArgumentException Se o lar for nulo ou não existir no repositório.
      */
     public void remover(Lar lar) {
         if (lar == null) {
@@ -66,6 +69,7 @@ public class LarRepository {
      * Busca um lar pelo ID.
      *
      * @param id ID do lar.
+     * @throws IllegalArgumentException Se o ID for nulo ou vazio.
      * @return O lar com o ID especificado.
      */
     public Lar buscarPorId(String id) {
@@ -102,7 +106,7 @@ public class LarRepository {
             String idPessoa1 = campos[1].trim();
             String idPessoa2 = campos[2].trim();
 
-            // 🔹 Validação: verificar se as pessoas existem no `PessoaRepository`
+            // Validação: verificar se as pessoas existem no `PessoaRepository`
             boolean pessoa1Existe = pessoaRepo.buscarPorId(idPessoa1) != null;
             boolean pessoa2Existe = pessoaRepo.buscarPorId(idPessoa2) != null;
 

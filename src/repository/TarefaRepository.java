@@ -1,16 +1,20 @@
 package repository;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
+
+import java.util.*;
+
+import java.io.IOException;
+
 import model.Tarefa;
 import model.Lar;
 import model.Pessoa;
-import util.CSVReader;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.*;
-import java.io.IOException;
+import util.CSVReader;
 
 /**
  * Classe que representa um repositório de Tarefas
@@ -94,8 +98,9 @@ public class TarefaRepository {
     public void carregarDados(String caminhoArquivo, LarRepository larRepo, PessoaRepository pessoaRepo) throws IOException, ParseException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
+        // Formatters para conversão de datas e números
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.of("pt", "BR"));
 
         for (String[] campos : linhas) {
             if (campos.length < 7) { // Verifica se há campos suficientes
@@ -117,13 +122,13 @@ public class TarefaRepository {
             double valorPrestador = numberFormat.parse(campos[5].trim()).doubleValue();
             int numParcelas = Integer.parseInt(campos[6].trim());
 
-            // 🔹 Validação: Verifica se o ID do Lar existe
+            // Validação: Verifica se o ID do Lar existe
             Lar lar = larRepo.buscarPorId(idLar);
             if (lar == null) {
                 throw new IllegalArgumentException("ID(s) de Lar " + idLar + " não cadastrado na Tarefa de ID " + idTarefa + ".");
             }
 
-            // 🔹 Validação: Verifica se o ID do Prestador de Serviço existe
+            // Validação: Verifica se o ID do Prestador de Serviço existe
             Pessoa prestador = pessoaRepo.buscarPorId(idPrestador);
             if (prestador == null) {
                 throw new IllegalArgumentException("ID(s) de Prestador de Serviço " + idPrestador + " não cadastrado na Tarefa de ID " + idTarefa + ".");
