@@ -1,4 +1,4 @@
-import exception.TratamentoExceptions;
+import exception.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -104,7 +104,7 @@ public class Main {
             // Qualquer erro de IO é informado ao usuário
             TratamentoExceptions erroDeIO = new TratamentoExceptions(e);
             erroDeIO.EscreveDadosInconsistentesException(caminhoArquivoEntrada);
-        } catch (IllegalArgumentException e) {
+        } catch (DataInconsistencyException e) {
             // Erros de dados inconsistentes são informados ao usuário
             TratamentoExceptions dadosInconsistentes = new TratamentoExceptions(e);
             dadosInconsistentes.EscreveDadosInconsistentesException(caminhoArquivoEntrada);

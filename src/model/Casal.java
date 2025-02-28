@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa um casal.
  * Um casal pode ter um casamento e/ou um lar associado.
@@ -18,21 +20,21 @@ public class Casal {
      * @param idCasamento ID do casamento (pode ser null se não forem casados).
      * @param idLar       ID do lar (pode ser null se não morarem juntos).
      */
-    public Casal(String idPessoa1, String idPessoa2, String idCasamento, String idLar) {
+    public Casal(String idPessoa1, String idPessoa2, String idCasamento, String idLar) throws DataInconsistencyException {
 
         if (idPessoa1 == null || !idPessoa1.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da primeira pessoa do casal deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID da primeira pessoa do casal deve conter exatamente 32 dígitos numéricos.");
         }
         if (idPessoa2 == null || !idPessoa2.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da segunda pessoa do casal deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID da segunda pessoa do casal deve conter exatamente 32 dígitos numéricos.");
         }
         // Se o casal é casado, o ID do casamento deve ser válido
         if (idCasamento != null && !idCasamento.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do casamento do casal deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID do casamento do casal deve conter exatamente 32 dígitos numéricos.");
         }
         // Se o casal mora junto, o ID do lar deve ser válido
         if (idLar != null && !idLar.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do lar do casal deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID do lar do casal deve conter exatamente 32 dígitos numéricos.");
         }
 
         this.idPessoa1 = idPessoa1;

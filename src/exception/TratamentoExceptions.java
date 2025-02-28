@@ -12,7 +12,7 @@ import java.nio.file.Paths;
  */
 public class TratamentoExceptions {
 
-    private final IllegalArgumentException mensagemDadoInconsistente;
+    private final DataInconsistencyException mensagemDadoInconsistente;
     private final IOException mensagemIO;
 
     /**
@@ -30,7 +30,7 @@ public class TratamentoExceptions {
      * 
      * @param mensagemDadoInconsistente Mensagem de erro.
      */
-    public TratamentoExceptions(IllegalArgumentException mensagemDadoInconsistente) {
+    public TratamentoExceptions(DataInconsistencyException mensagemDadoInconsistente) {
         this.mensagemDadoInconsistente = mensagemDadoInconsistente;
         this.mensagemIO = null;
     }

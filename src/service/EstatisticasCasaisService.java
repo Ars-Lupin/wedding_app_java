@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import exception.DataInconsistencyException;
 import model.Casamento;
 import model.Casal;
 import model.Lar;
@@ -82,7 +83,7 @@ public class EstatisticasCasaisService {
      *
      * @param filePath Caminho do arquivo CSV de saída.
      */
-    public void gerarEstatisticas(String filePath) {
+    public void gerarEstatisticas(String filePath) throws DataInconsistencyException {
         List<EstatisticaCasal> estatisticasLista = new ArrayList<>();
         Set<String> casaisProcessados = new HashSet<>(); // Evita duplicatas
     
@@ -114,7 +115,7 @@ public class EstatisticasCasaisService {
      * Adiciona um casal às estatísticas apenas se ele ainda não foi processado.
      */
     private void adicionarEstatisticaCasal(String idPessoa1, String idPessoa2, 
-                                            List<EstatisticaCasal> estatisticasLista, Set<String> casaisProcessados) {
+                                            List<EstatisticaCasal> estatisticasLista, Set<String> casaisProcessados) throws DataInconsistencyException {
         String chaveCasal = idPessoa1 + "-" + idPessoa2; // Evita duplicatas
     
         if (casaisProcessados.contains(chaveCasal)) {
@@ -146,20 +147,20 @@ public class EstatisticasCasaisService {
     
 
     // Função que soma os gastos com tarefas associadas ao casal, verificando os lares
-    private double calcularGastosTarefas(String idPessoa1, String idPessoa2) {
+    private double calcularGastosTarefas(String idPessoa1, String idPessoa2) throws DataInconsistencyException {
         return tarefaRepo.listar().stream()
                 .filter(tarefa -> {
                     // Busca o lar da tarefa e verifica se pertence ao casal
                     Lar lar = larRepo.buscarPorId(tarefa.getIdLar());
                     return lar != null && ((lar.getCasal().getIdPessoa1().equals(idPessoa1) && lar.getCasal().getIdPessoa2().equals(idPessoa2))
-                                        || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
+                                            || (lar.getCasal().getIdPessoa1().equals(idPessoa2) && lar.getCasal().getIdPessoa2().equals(idPessoa1)));
                 })
                 .mapToDouble(tarefa -> tarefa.getValorPrestador())
                 .sum();
     }
 
     // Função que soma os gastos com festas associadas ao casal
-    private double calcularGastosFestas(String idPessoa1, String idPessoa2) {
+    private double calcularGastosFestas(String idPessoa1, String idPessoa2) throws DataInconsistencyException {
         return festaRepo.listar().stream()
                 .filter(festa -> {
                     String idCasamento = festa.getIdCasamento();
@@ -171,7 +172,7 @@ public class EstatisticasCasaisService {
     }
 
     // Função que soma os gastos com compras associadas ao casal
-    private double calcularGastosCompras(String idPessoa1, String idPessoa2) {
+    private double calcularGastosCompras(String idPessoa1, String idPessoa2) throws DataInconsistencyException {
         return compraRepo.listar().stream()
                 .filter(compra -> {
                     String idTarefa = compra.getIdTarefa();

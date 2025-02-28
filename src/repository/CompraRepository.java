@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import java.util.*;
 
+import exception.DataInconsistencyException;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
 
@@ -33,14 +35,14 @@ public class CompraRepository {
      * Adiciona uma Compra ao repositório
      * 
      * @param compra Compra a ser adicionada.
-     * @throws IllegalArgumentException Se a compra for nula ou já existir.
+     * @throws DataInconsistencyException Se a compra for nula ou já existir.
      */
-    public void adicionar(Compra compra) {
+    public void adicionar(Compra compra) throws DataInconsistencyException {
         if (compra == null) {
-            throw new IllegalArgumentException("A compra não pode ser nula.");
+            throw new DataInconsistencyException("A compra não pode ser nula.");
         }
         if (compras.containsKey(compra.getIdCompra())) {
-            throw new IllegalArgumentException("Já existe uma compra com este ID no repositório.");
+            throw new DataInconsistencyException("Já existe uma compra com este ID no repositório.");
         }
         this.compras.put(compra.getIdCompra(), compra);
     }
@@ -49,14 +51,14 @@ public class CompraRepository {
      * Remove uma Compra do repositório
      * 
      * @param compra Compra a ser removida.
-     * @throws IllegalArgumentException Se a compra for nula ou não existir.
+     * @throws DataInconsistencyException Se a compra for nula ou não existir.
      */
-    public void remover(Compra compra) {
+    public void remover(Compra compra) throws DataInconsistencyException {
         if (compra == null) {
-            throw new IllegalArgumentException("A compra não pode ser nula.");
+            throw new DataInconsistencyException("A compra não pode ser nula.");
         }
         if (!compras.containsKey(compra.getIdCompra())) {
-            throw new IllegalArgumentException("A compra não existe no repositório.");
+            throw new DataInconsistencyException("A compra não existe no repositório.");
         }
         this.compras.remove(compra.getIdCompra());
     }
@@ -75,11 +77,11 @@ public class CompraRepository {
      * 
      * @param id ID da compra.
      * @return A compra correspondente ao ID.
-     * @throws IllegalArgumentException Se o ID for inválido.
+     * @throws DataInconsistencyException Se o ID for inválido.
      */
-    public Compra buscarPorId(String id) {
+    public Compra buscarPorId(String id) throws DataInconsistencyException {
         if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
+            throw new DataInconsistencyException("O ID não pode ser nulo ou vazio.");
         }
         return this.compras.get(id);
     }
@@ -94,7 +96,7 @@ public class CompraRepository {
      * @throws IOException Se houver erro na leitura do arquivo.
      * @throws ParseException Se houver erro na conversão de valores numéricos.
      */
-    public void carregarDados(String caminhoArquivo, TarefaRepository tarefaRepo, PessoaRepository pessoaRepo) throws IOException, ParseException {
+    public void carregarDados(String caminhoArquivo, TarefaRepository tarefaRepo, PessoaRepository pessoaRepo) throws IOException, ParseException, DataInconsistencyException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         // Formatação de números para o padrão brasileiro
@@ -110,7 +112,7 @@ public class CompraRepository {
 
             // Verifica se o ID já existe no repositório
             if (this.compras.containsKey(idCompra)) {
-                throw new IllegalArgumentException("ID repetido " + idCompra + " na classe Compra.");
+                throw new DataInconsistencyException("ID repetido " + idCompra + " na classe Compra.");
             }
 
             String idTarefa = campos[1].trim();
@@ -123,16 +125,16 @@ public class CompraRepository {
             // Validação: Verifica se o ID da Tarefa existe
             Tarefa tarefa = tarefaRepo.buscarPorId(idTarefa);
             if (tarefa == null) {
-                throw new IllegalArgumentException("ID(s) de Tarefa " + idTarefa + " não cadastrado na Compra de ID " + idCompra + ".");
+                throw new DataInconsistencyException("ID(s) de Tarefa " + idTarefa + " não cadastrado na Compra de ID " + idCompra + ".");
             }
 
             // Validação: Verifica se a Loja existe e se é de fato uma Loja
             Pessoa pessoa = pessoaRepo.buscarPorId(idLoja);
             if (pessoa == null) {
-                throw new IllegalArgumentException("ID(s) de Loja " + idLoja + " não cadastrado na Compra de ID " + idCompra + ".");
+                throw new DataInconsistencyException("ID(s) de Loja " + idLoja + " não cadastrado na Compra de ID " + idCompra + ".");
             }
             if (pessoa instanceof PessoaJuridica && !(pessoa instanceof Loja)) {
-                throw new IllegalArgumentException("ID " + idLoja + " da Compra de ID " + idCompra + " não se refere a uma Loja, mas a uma PJ.");
+                throw new DataInconsistencyException("ID " + idLoja + " da Compra de ID " + idCompra + " não se refere a uma Loja, mas a uma PJ.");
             }
 
             // Cria uma nova compra e a adiciona ao repositório

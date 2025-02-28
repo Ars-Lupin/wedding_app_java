@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa um endereco
  */
@@ -16,13 +18,13 @@ public class Endereco {
      * @param numero        Número da casa (não pode ser vazio).
      * @param complemento   complemento do endereço (opcional).
      */
-    public Endereco (String rua, int numero, String complemento) {
+    public Endereco (String rua, int numero, String complemento) throws DataInconsistencyException {
         if (rua == null || rua.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome da rua não pode ser vazio.");
+            throw new DataInconsistencyException("Nome da rua não pode ser vazio.");
         }
 
         if (numero <= 0) {
-            throw new IllegalArgumentException("Número da casa não pode ser menor ou igual a zero");
+            throw new DataInconsistencyException("Número da casa não pode ser menor ou igual a zero");
         }
 
         this.rua = rua;
@@ -34,9 +36,9 @@ public class Endereco {
         return rua;
     }
 
-    public void setRua(String rua) {
+    public void setRua(String rua) throws DataInconsistencyException {
         if (rua == null || rua.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome da rua não pode ser vazio.");
+            throw new DataInconsistencyException("Nome da rua não pode ser vazio.");
         }
         this.rua = rua;
     }
@@ -45,9 +47,9 @@ public class Endereco {
         return numero;
     }
 
-    public void setNumero(int numero) {
+    public void setNumero(int numero) throws DataInconsistencyException {
         if (numero <= 0) {
-            throw new IllegalArgumentException("Número da casa não pode ser menor ou igual a zero");
+            throw new DataInconsistencyException("Número da casa não pode ser menor ou igual a zero");
         }
         this.numero = numero;
     }
@@ -56,9 +58,9 @@ public class Endereco {
         return complemento;
     }
 
-    public void setComplemento(String complemento) {
+    public void setComplemento(String complemento) throws DataInconsistencyException {
         if (complemento == null || complemento.trim().isEmpty()) {
-            throw new IllegalArgumentException("Complemento não pode ser vazio.");
+            throw new DataInconsistencyException("Complemento não pode ser vazio.");
         }
         this.complemento = complemento;
     }

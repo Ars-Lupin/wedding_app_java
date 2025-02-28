@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa uma festa no sistema.
  */
@@ -32,28 +34,28 @@ public class Festa {
      * @param convidados  Lista de nomes dos convidados.
      */
     public Festa(String idFesta, String idCasamento, String endereco, double valorFesta, 
-                int numParcelas, LocalDate data, String hora, List<String> convidados) {
+                int numParcelas, LocalDate data, String hora, List<String> convidados) throws DataInconsistencyException {
         
         if (idFesta == null || !idFesta.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID da festa deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID da festa deve conter exatamente 32 dígitos numéricos.");
         }
         if (idCasamento == null || !idCasamento.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do casamento da festa deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID do casamento da festa deve conter exatamente 32 dígitos numéricos.");
         }
         if (endereco == null || endereco.trim().isEmpty()) {
-            throw new IllegalArgumentException("O endereço da festa não pode ser nulo.");
+            throw new DataInconsistencyException("O endereço da festa não pode ser nulo.");
         }
         if (data == null) {
-            throw new IllegalArgumentException("A data da festa não pode ser nula.");
+            throw new DataInconsistencyException("A data da festa não pode ser nula.");
         }
         if (hora == null || !hora.matches("([01]\\d|2[0-3]):[0-5]\\d")) {
-            throw new IllegalArgumentException("A hora da festa deve estar no formato HH:mm (00:00 a 23:59).");
+            throw new DataInconsistencyException("A hora da festa deve estar no formato HH:mm (00:00 a 23:59).");
         }
         if (numParcelas <= 0) {
-            throw new IllegalArgumentException("O número de parcelas do pagamento da festa deve ser maior que zero.");
+            throw new DataInconsistencyException("O número de parcelas do pagamento da festa deve ser maior que zero.");
         }
         if (convidados == null) {
-            throw new IllegalArgumentException("A lista de convidados da festa não pode ser nula.");
+            throw new DataInconsistencyException("A lista de convidados da festa não pode ser nula.");
         }
 
         this.idFesta = idFesta;
@@ -66,9 +68,9 @@ public class Festa {
         this.convidados = new ArrayList<>(convidados); // Cria uma cópia da lista
     }
 
-    private double validarValor(double valor, String campo) {
+    private double validarValor(double valor, String campo) throws DataInconsistencyException {
         if (valor < 0) {
-            throw new IllegalArgumentException(campo + " não pode ser negativo.");
+            throw new DataInconsistencyException(campo + " não pode ser negativo.");
         }
 
         return valor;
@@ -86,15 +88,15 @@ public class Festa {
         return endereco;
     }
 
-    public void setEndereco(String endereco) {
+    public void setEndereco(String endereco) throws DataInconsistencyException {
         if (endereco == null) {
-            throw new IllegalArgumentException("O endereço não pode ser nulo.");
+            throw new DataInconsistencyException("O endereço não pode ser nulo.");
         }
         this.endereco = endereco;
     }
 
     public double getValorFesta() {
-        return validarValor(valorFesta, "valor da festa");
+        return this.valorFesta;
     }
 
     public int getNumParcelas() {
@@ -105,7 +107,7 @@ public class Festa {
         return valorFesta / numParcelas;
     }
 
-    public void setValorFesta(double valorFesta) {
+    public void setValorFesta(double valorFesta) throws DataInconsistencyException {
         this.valorFesta = validarValor(valorFesta, "Valor da festa"); 
     }
 
@@ -113,9 +115,9 @@ public class Festa {
         return data;
     }
 
-    public void setData(LocalDate data) {
+    public void setData(LocalDate data) throws DataInconsistencyException {
         if (data == null) {
-            throw new IllegalArgumentException("A data da festa não pode ser nula.");
+            throw new DataInconsistencyException("A data da festa não pode ser nula.");
         }
         this.data = data;
     }
@@ -124,9 +126,9 @@ public class Festa {
         return hora;
     }
 
-    public void setHora(String hora) {
+    public void setHora(String hora) throws DataInconsistencyException {
         if (hora == null || !hora.matches("([01]\\d|2[0-3]):[0-5]\\d")) {
-            throw new IllegalArgumentException("A hora da festa deve estar no formato HH:mm (00:00 a 23:59).");
+            throw new DataInconsistencyException("A hora da festa deve estar no formato HH:mm (00:00 a 23:59).");
         }
         this.hora = hora;
     }
@@ -135,16 +137,16 @@ public class Festa {
         return Collections.unmodifiableList(convidados); // Retorna uma cópia imutável
     }
 
-    public void adicionarConvidado(String convidado) {
+    public void adicionarConvidado(String convidado) throws DataInconsistencyException {
         if (convidado == null || convidado.trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome do convidado da festa não pode ser vazio.");
+            throw new DataInconsistencyException("O nome do convidado da festa não pode ser vazio.");
         }
         convidados.add(convidado);
     }
 
-    public void removerConvidado(String convidado) {
+    public void removerConvidado(String convidado) throws DataInconsistencyException {
         if (convidado == null || convidado.trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome do convidado da festa não pode ser vazio.");
+            throw new DataInconsistencyException("O nome do convidado da festa não pode ser vazio.");
         }
         convidados.remove(convidado);
     }

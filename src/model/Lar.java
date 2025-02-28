@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa um lar no sistema.
  */
@@ -16,12 +18,12 @@ public class Lar {
      * @param casal      Casal que mora no lar.
      * @param endereco   Endereço do lar.
      */
-    public Lar(String idLar, Casal casal, Endereco endereco) {
+    public Lar(String idLar, Casal casal, Endereco endereco) throws DataInconsistencyException {
         if (idLar == null || !idLar.matches("\\d{32}")) {
-            throw new IllegalArgumentException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("O ID do lar deve conter exatamente 32 dígitos numéricos.");
         }
         if (endereco == null) {
-            throw new IllegalArgumentException("O endereço do lar não pode ser nulo.");
+            throw new DataInconsistencyException("O endereço do lar não pode ser nulo.");
         }
 
         this.idLar = idLar;
@@ -41,9 +43,9 @@ public class Lar {
         return endereco;
     }
 
-    public void setEndereco(Endereco endereco) {
+    public void setEndereco(Endereco endereco) throws DataInconsistencyException {
         if (endereco == null) {
-            throw new IllegalArgumentException("O endereço do lar não pode ser nulo.");
+            throw new DataInconsistencyException("O endereço do lar não pode ser nulo.");
         }
         this.endereco = endereco;
     }

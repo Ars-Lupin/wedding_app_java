@@ -14,6 +14,8 @@ import model.Tarefa;
 import model.Lar;
 import model.Pessoa;
 
+import exception.DataInconsistencyException;
+
 import util.CSVReader;
 
 /**
@@ -34,14 +36,14 @@ public class TarefaRepository {
      * Adiciona uma tarefa ao repositório
      * 
      * @param tarefa Tarefa a ser adicionada.
-     * @throws IllegalArgumentException Se a tarefa for nula ou já existir.
+     * @throws DataInconsistencyException Se a tarefa for nula ou já existir.
      */
-    public void adicionar(Tarefa tarefa) {
+    public void adicionar(Tarefa tarefa) throws DataInconsistencyException {
         if (tarefa == null) {
-            throw new IllegalArgumentException("A tarefa não pode ser nula.");
+            throw new DataInconsistencyException("A tarefa não pode ser nula.");
         }
         if (tarefas.containsKey(tarefa.getIdTarefa())) {
-            throw new IllegalArgumentException("Já existe uma tarefa com este ID no repositório.");
+            throw new DataInconsistencyException("Já existe uma tarefa com este ID no repositório.");
         }
         this.tarefas.put(tarefa.getIdTarefa(), tarefa);
     }
@@ -50,14 +52,14 @@ public class TarefaRepository {
      * Remove uma tarefa do repositório
      * 
      * @param tarefa Tarefa a ser removida.
-     * @throws IllegalArgumentException Se a tarefa for nula ou não existir.
+     * @throws DataInconsistencyException Se a tarefa for nula ou não existir.
      */
-    public void remover(Tarefa tarefa) {
+    public void remover(Tarefa tarefa) throws DataInconsistencyException {
         if (tarefa == null) {
-            throw new IllegalArgumentException("A tarefa não pode ser nula.");
+            throw new DataInconsistencyException("A tarefa não pode ser nula.");
         }
         if (!tarefas.containsKey(tarefa.getIdTarefa())) {
-            throw new IllegalArgumentException("A tarefa não existe no repositório.");
+            throw new DataInconsistencyException("A tarefa não existe no repositório.");
         }
         this.tarefas.remove(tarefa.getIdTarefa());
     }
@@ -76,12 +78,10 @@ public class TarefaRepository {
      * 
      * @param id ID da tarefa.
      * @return A tarefa correspondente ao ID, ou null se não encontrada.
-     * @throws IllegalArgumentException Se o ID for nulo ou inválido.
+     * @throws DataInconsistencyException Se o ID for nulo ou inválido.
      */
     public Tarefa buscarPorId(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
-        }
+
         return this.tarefas.get(id);
     }
 
@@ -95,7 +95,7 @@ public class TarefaRepository {
      * @throws IOException Se houver um erro de leitura do arquivo.
      * @throws ParseException Se houver um erro na conversão de valores numéricos.
      */
-    public void carregarDados(String caminhoArquivo, LarRepository larRepo, PessoaRepository pessoaRepo) throws IOException, ParseException {
+    public void carregarDados(String caminhoArquivo, LarRepository larRepo, PessoaRepository pessoaRepo) throws IOException, ParseException, DataInconsistencyException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         // Formatters para conversão de datas e números
@@ -112,7 +112,7 @@ public class TarefaRepository {
 
             // Verifica se o ID já existe no repositório
             if (this.tarefas.containsKey(idTarefa)) {
-                throw new IllegalArgumentException("ID repetido " + idTarefa + " na classe Tarefa.");
+                throw new DataInconsistencyException("ID repetido " + idTarefa + " na classe Tarefa.");
             }
 
             String idLar = campos[1].trim();
@@ -125,13 +125,13 @@ public class TarefaRepository {
             // Validação: Verifica se o ID do Lar existe
             Lar lar = larRepo.buscarPorId(idLar);
             if (lar == null) {
-                throw new IllegalArgumentException("ID(s) de Lar " + idLar + " não cadastrado na Tarefa de ID " + idTarefa + ".");
+                throw new DataInconsistencyException("ID(s) de Lar " + idLar + " não cadastrado na Tarefa de ID " + idTarefa + ".");
             }
 
             // Validação: Verifica se o ID do Prestador de Serviço existe
             Pessoa prestador = pessoaRepo.buscarPorId(idPrestador);
             if (prestador == null) {
-                throw new IllegalArgumentException("ID(s) de Prestador de Serviço " + idPrestador + " não cadastrado na Tarefa de ID " + idTarefa + ".");
+                throw new DataInconsistencyException("ID(s) de Prestador de Serviço " + idPrestador + " não cadastrado na Tarefa de ID " + idTarefa + ".");
             }
 
             // Cria e adiciona a nova tarefa ao repositório

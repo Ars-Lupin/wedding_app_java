@@ -6,6 +6,8 @@ import model.Lar;
 
 import java.util.*;
 
+import exception.DataInconsistencyException;
+
 /**
  * Repositório responsável por armazenar e gerenciar os casais.
  */
@@ -25,13 +27,13 @@ public class CasalRepository {
      * Adiciona um casal ao repositório.
      * 
      * @param casal
-     * @throws IllegalArgumentException Se o casal for nulo
+     * @throws DataInconsistencyException Se o casal for nulo
      */
-    public void adicionar(Casal casal) {
+    public void adicionar(Casal casal) throws DataInconsistencyException {
 
         // Verifica se o casal é nulo
         if (casal == null) {
-            throw new IllegalArgumentException("O casal não pode ser nulo (para o repositório).");
+            throw new DataInconsistencyException("O casal não pode ser nulo (para o repositório).");
         }
 
         casais.add(casal);
@@ -42,13 +44,13 @@ public class CasalRepository {
      * Remove um casal do repositório.
      * 
      * @param casal
-     * @throws IllegalArgumentException Se o casal for nulo
+     * @throws DataInconsistencyException Se o casal for nulo
      */
-    public void remover(Casal casal) {
+    public void remover(Casal casal) throws DataInconsistencyException{
 
         // Verifica se o casal é nulo
         if (casal == null) {
-            throw new IllegalArgumentException("O casal não pode ser nulo (para o repositório).");
+            throw new DataInconsistencyException("O casal não pode ser nulo (para o repositório).");
         }
 
         casais.remove(casal);
@@ -66,8 +68,7 @@ public class CasalRepository {
      * @param casamentoRepo
      * @param larRepo
      */
-    public void carregarCasais(CasamentoRepository casamentoRepo, LarRepository larRepo)
-    {
+    public void carregarCasais(CasamentoRepository casamentoRepo, LarRepository larRepo) throws DataInconsistencyException {
         // Iteração sobre os casamentos, verificando quais casais existem e devem ser adicionados ao CasaisRepository
         for (Casamento casamento : casamentoRepo.listar()) {
             Casal casal = casamento.getCasal();
@@ -75,7 +76,7 @@ public class CasalRepository {
             if (casal != null) {
                 adicionar(casal);
             } else {
-                throw new IllegalArgumentException("Casal não encontrado para o casamento de ID " + casamento.getIdCasamento());
+                throw new DataInconsistencyException("Casal não encontrado para o casamento de ID " + casamento.getIdCasamento());
             }
         }
 
@@ -88,10 +89,10 @@ public class CasalRepository {
                 if (!casais.contains(casal)) {
                     adicionar(casal);
                 } else {
-                    throw new IllegalArgumentException("Casal já adicionado ao repositório.");
+                    throw new DataInconsistencyException("Casal já adicionado ao repositório.");
                 }
             } else {
-                throw new IllegalArgumentException("Casal não encontrado para o lar de ID " + lar.getIdLar());
+                throw new DataInconsistencyException("Casal não encontrado para o lar de ID " + lar.getIdLar());
             }
         }
     }

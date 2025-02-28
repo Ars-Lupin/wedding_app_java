@@ -2,6 +2,8 @@ package model;
 
 import java.time.LocalDate;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa uma pessoa física, herdando características de Pessoa.
  */
@@ -23,18 +25,18 @@ public class PessoaFisica extends Pessoa {
      * @param idPessoa       Identificador único da pessoa.
      */
     public PessoaFisica(String nome, String telefone, String endereco, String cpf, 
-                        LocalDate dataNascimento, Financeiro financeiro, String idPessoa) {         
+                        LocalDate dataNascimento, Financeiro financeiro, String idPessoa) throws DataInconsistencyException {         
         super(nome, telefone, endereco, idPessoa); // Chama o construtor da superclasse
 
         // CPF deve ser no formato 000.000.000-00
         if (cpf == null || !cpf.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
-            throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
+            throw new DataInconsistencyException("CPF inválido! Deve conter 11 dígitos numéricos.");
         }
         if (dataNascimento == null) {
-            throw new IllegalArgumentException("Data de nascimento da pessoa física não pode ser nula.");
+            throw new DataInconsistencyException("Data de nascimento da pessoa física não pode ser nula.");
         }
         if (financeiro == null) {
-            throw new IllegalArgumentException("Informações financeiras da pessoa física não podem ser nulas.");
+            throw new DataInconsistencyException("Informações financeiras da pessoa física não podem ser nulas.");
         }
 
         this.cpf = cpf;
@@ -54,9 +56,9 @@ public class PessoaFisica extends Pessoa {
         return financeiro;
     }
 
-    public void setFinanceiro(Financeiro financeiro) {
+    public void setFinanceiro(Financeiro financeiro) throws DataInconsistencyException {
         if (financeiro == null) {
-            throw new IllegalArgumentException("Informações financeiras não podem ser nulas.");
+            throw new DataInconsistencyException("Informações financeiras não podem ser nulas.");
         }
         this.financeiro = financeiro;
     }

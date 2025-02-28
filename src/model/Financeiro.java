@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa um objeto financeiro genérico no sistema.
  * Possui informações como dinheiro guardado na poupança,
@@ -18,7 +20,7 @@ public class Financeiro {
      * @param salarioLiquido   Salário líquido mensal (não pode ser negativo).
      * @param gastosMensais    Gastos mensais da pessoa (não pode ser negativo).
      */
-    public Financeiro(double dinheiroPoupanca, double salarioLiquido, double gastosMensais) {
+    public Financeiro(double dinheiroPoupanca, double salarioLiquido, double gastosMensais) throws DataInconsistencyException {
         this.dinheiroPoupanca = validarValor(dinheiroPoupanca, "Dinheiro na poupança");
         this.salarioLiquido = validarValor(salarioLiquido, "Salário líquido");
         this.gastosMensais = validarValor(gastosMensais, "Gastos mensais");
@@ -30,9 +32,9 @@ public class Financeiro {
      * @param campo
      * @return
      */
-    private double validarValor(double valor, String campo) {
+    private double validarValor(double valor, String campo) throws DataInconsistencyException {
         if (valor < 0) {
-            throw new IllegalArgumentException(campo + " não pode ser negativo.");
+            throw new DataInconsistencyException(campo + " não pode ser negativo.");
         }
         return valor;
     }
@@ -41,7 +43,7 @@ public class Financeiro {
         return dinheiroPoupanca;
     }
 
-    public void setDinheiroPoupanca(double dinheiroPoupanca) {
+    public void setDinheiroPoupanca(double dinheiroPoupanca) throws DataInconsistencyException {
         this.dinheiroPoupanca = validarValor(dinheiroPoupanca, "Dinheiro na poupança");
     }
 
@@ -49,7 +51,7 @@ public class Financeiro {
         return salarioLiquido;
     }
 
-    public void setSalarioLiquido(double salarioLiquido) {
+    public void setSalarioLiquido(double salarioLiquido) throws DataInconsistencyException {
         this.salarioLiquido = validarValor(salarioLiquido, "Salário líquido");
     }
 
@@ -57,7 +59,7 @@ public class Financeiro {
         return gastosMensais;
     }
 
-    public void setGastosMensais(double gastosMensais) {
+    public void setGastosMensais(double gastosMensais) throws DataInconsistencyException {
         this.gastosMensais = validarValor(gastosMensais, "Gastos mensais");
     }
 

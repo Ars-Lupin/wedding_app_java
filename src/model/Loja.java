@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa uma loja no sistema.
  * A loja é sempre uma pessoa jurídica.
@@ -15,7 +17,7 @@ public class Loja extends PessoaJuridica {
      * @param cnpj      CNPJ da loja (14 dígitos numéricos).
      * @param idPessoa  Identificador da loja (mesmo que PessoaJuridica).
      */
-    public Loja(String nome, String telefone, String endereco, String cnpj, String idPessoa) {
+    public Loja(String nome, String telefone, String endereco, String cnpj, String idPessoa) throws DataInconsistencyException{
         super(nome, telefone, endereco, cnpj, idPessoa); // Apenas chama o construtor da superclasse
     }
 

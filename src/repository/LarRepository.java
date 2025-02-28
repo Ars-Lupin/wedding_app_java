@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.*;
 
+import exception.DataInconsistencyException;
 import model.Casal;
 import model.Endereco;
 import model.Lar;
@@ -28,14 +29,14 @@ public class LarRepository {
      * Adiciona um lar ao repositório.
      *
      * @param lar Lar a ser adicionado.
-     * @throws IllegalArgumentException Se o lar for nulo ou já existir no repositório.
+     * @throws DataInconsistencyException Se o lar for nulo ou já existir no repositório.
      */
-    public void adicionar(Lar lar) {
+    public void adicionar(Lar lar) throws DataInconsistencyException {
         if (lar == null) {
-            throw new IllegalArgumentException("O lar não pode ser nulo.");
+            throw new DataInconsistencyException("O lar não pode ser nulo.");
         }
         if (lares.containsKey(lar.getIdLar())) {
-            throw new IllegalArgumentException("Já existe um lar com este ID no repositório.");
+            throw new DataInconsistencyException("Já existe um lar com este ID no repositório.");
         }
         this.lares.put(lar.getIdLar(), lar);
     }
@@ -44,14 +45,14 @@ public class LarRepository {
      * Remove um lar do repositório.
      *
      * @param lar Lar a ser removido.
-     * @throws IllegalArgumentException Se o lar for nulo ou não existir no repositório.
+     * @throws DataInconsistencyException Se o lar for nulo ou não existir no repositório.
      */
-    public void remover(Lar lar) {
+    public void remover(Lar lar) throws DataInconsistencyException {
         if (lar == null) {
-            throw new IllegalArgumentException("O lar não pode ser nulo.");
+            throw new DataInconsistencyException("O lar não pode ser nulo.");
         }
         if (!lares.containsKey(lar.getIdLar())) {
-            throw new IllegalArgumentException("O lar não existe no repositório.");
+            throw new DataInconsistencyException("O lar não existe no repositório.");
         }
         this.lares.remove(lar.getIdLar());
     }
@@ -69,13 +70,11 @@ public class LarRepository {
      * Busca um lar pelo ID.
      *
      * @param id ID do lar.
-     * @throws IllegalArgumentException Se o ID for nulo ou vazio.
+     * @throws DataInconsistencyException Se o ID for nulo ou vazio.
      * @return O lar com o ID especificado.
      */
     public Lar buscarPorId(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
-        }
+        
         return this.lares.get(id);
     }
 
@@ -86,7 +85,7 @@ public class LarRepository {
      * @param pessoaRepo    Repositório de pessoas para validação dos IDs.
      * @throws IOException Se houver um erro de leitura do arquivo.
      */
-    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, CasalRepository casalRepo) throws IOException {
+    public void carregarDados(String caminhoArquivo, PessoaRepository pessoaRepo, CasalRepository casalRepo) throws IOException, DataInconsistencyException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         for (String[] campos : linhas) {
@@ -100,7 +99,7 @@ public class LarRepository {
 
             // Verifica se o ID já existe no repositório
             if (this.lares.containsKey(idLar)) {
-                throw new IllegalArgumentException("ID repetido " + idLar + " na classe Lar.");
+                throw new DataInconsistencyException("ID repetido " + idLar + " na classe Lar.");
             }
 
             String idPessoa1 = campos[1].trim();
@@ -111,16 +110,16 @@ public class LarRepository {
             boolean pessoa2Existe = pessoaRepo.buscarPorId(idPessoa2) != null;
 
             if (!pessoa1Existe && !pessoa2Existe) {
-                throw new IllegalArgumentException(
+                throw new DataInconsistencyException(
                         "ID(s) de Pessoa " + idPessoa1 + " " + idPessoa2 +
                                 " não cadastrado no Lar de ID " + idLar + ".");
             }
             if (!pessoa1Existe) {
-                throw new IllegalArgumentException(
+                throw new DataInconsistencyException(
                         "ID(s) de Pessoa " + idPessoa1 + " não cadastrado no Lar de ID " + idLar + ".");
             }
             if (!pessoa2Existe) {
-                throw new IllegalArgumentException(
+                throw new DataInconsistencyException(
                         "ID(s) de Pessoa " + idPessoa2 + " não cadastrado no Lar de ID " + idLar + ".");
             }
 

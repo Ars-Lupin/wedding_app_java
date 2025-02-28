@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa uma compra de materiais associada à organização de uma tarefa.
  */
@@ -25,28 +27,28 @@ public class Compra {
         * @param numParcelas   Número de parcelas do pagamento.
         */
         public Compra(String idCompra, String idLoja, String idTarefa, String nomeProduto, 
-                        int quantidade, double valorUnitario, int numParcelas) {
+                        int quantidade, double valorUnitario, int numParcelas) throws DataInconsistencyException {
             
             if (idCompra == null || !idCompra.matches("\\d{32}")) {
-                throw new IllegalArgumentException("O ID da compra deve ter exatamente 32 dígitos numéricos.");
+                throw new DataInconsistencyException("O ID da compra deve ter exatamente 32 dígitos numéricos.");
             }
             if (idLoja == null || !idLoja.matches("\\d{32}")) {
-                throw new IllegalArgumentException("O ID da loja da compra deve ter exatamente 32 dígitos numéricos.");
+                throw new DataInconsistencyException("O ID da loja da compra deve ter exatamente 32 dígitos numéricos.");
             }
             if (idTarefa == null || !idTarefa.matches("\\d{32}")) {
-                throw new IllegalArgumentException("O ID da tarefa da compra deve ter exatamente 32 dígitos numéricos.");
+                throw new DataInconsistencyException("O ID da tarefa da compra deve ter exatamente 32 dígitos numéricos.");
             }
             if (nomeProduto == null || nomeProduto.trim().isEmpty()) {
-                throw new IllegalArgumentException("O nome do produto não pode ser vazio.");
+                throw new DataInconsistencyException("O nome do produto não pode ser vazio.");
             }
             if (quantidade <= 0) {
-                throw new IllegalArgumentException("A quantidade de itens comprados deve ser maior que zero.");
+                throw new DataInconsistencyException("A quantidade de itens comprados deve ser maior que zero.");
             }
             if (valorUnitario <= 0) {
-                throw new IllegalArgumentException("O valor unitário dos itens comprados deve ser maior que zero.");
+                throw new DataInconsistencyException("O valor unitário dos itens comprados deve ser maior que zero.");
             }  
             if (numParcelas <= 0) {
-                throw new IllegalArgumentException("O número de parcelas deve ser maior que zero.");
+                throw new DataInconsistencyException("O número de parcelas deve ser maior que zero.");
             }
     
             this.idCompra = idCompra;

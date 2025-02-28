@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import java.util.*;
 
+import exception.DataInconsistencyException;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
 
@@ -34,14 +36,14 @@ public class FestaRepository {
      * Adiciona uma festa ao repositório
      * 
      * @param festa Festa a ser adicionada.
-     * @throws IllegalArgumentException Se a festa for nula ou já existir.
+     * @throws DataInconsistencyException Se a festa for nula ou já existir.
      */
-    public void adicionar(Festa festa) {
+    public void adicionar(Festa festa) throws DataInconsistencyException {
         if (festa == null) {
-            throw new IllegalArgumentException("A festa não pode ser nula.");
+            throw new DataInconsistencyException("A festa não pode ser nula.");
         }
         if (festas.containsKey(festa.getIdFesta())) {
-            throw new IllegalArgumentException("Já existe uma festa com este ID no repositório.");
+            throw new DataInconsistencyException("Já existe uma festa com este ID no repositório.");
         }
         this.festas.put(festa.getIdFesta(), festa);
     }
@@ -50,14 +52,14 @@ public class FestaRepository {
      * Remove uma festa do repositório
      * 
      * @param festa Festa a ser removida.
-     * @throws IllegalArgumentException Se a festa for nula ou não existir.
+     * @throws DataInconsistencyException Se a festa for nula ou não existir.
      */
-    public void remover(Festa festa) {
+    public void remover(Festa festa) throws DataInconsistencyException {
         if (festa == null) {
-            throw new IllegalArgumentException("A festa não pode ser nula.");
+            throw new DataInconsistencyException("A festa não pode ser nula.");
         }
         if (!festas.containsKey(festa.getIdFesta())) {
-            throw new IllegalArgumentException("A festa não existe no repositório.");
+            throw new DataInconsistencyException("A festa não existe no repositório.");
         }
         this.festas.remove(festa.getIdFesta());
     }
@@ -76,11 +78,11 @@ public class FestaRepository {
      * 
      * @param id ID da festa.
      * @return A festa com o ID especificado.
-     * @throws IllegalArgumentException Se o ID for nulo ou vazio.
+     * @throws DataInconsistencyException Se o ID for nulo ou vazio.
      */
-    public Festa buscarPorId(String id) {
+    public Festa buscarPorId(String id) throws DataInconsistencyException {
         if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("O ID não pode ser nulo ou vazio.");
+            throw new DataInconsistencyException("O ID não pode ser nulo ou vazio.");
         }
         return this.festas.get(id);
     }
@@ -97,7 +99,7 @@ public class FestaRepository {
      * @throws ParseException Se houver um erro na conversão de valores numéricos.
      */
     public void carregarDados(String caminhoArquivo, CasamentoRepository casamentoRepo, PessoaRepository pessoaRepo)
-                                throws IOException, ParseException {
+                                throws IOException, ParseException, DataInconsistencyException {
         List<String[]> linhas = CSVReader.lerCSV(caminhoArquivo);
 
         // Formatters para conversão de datas e valores
@@ -115,7 +117,7 @@ public class FestaRepository {
 
             // Verifica se o ID já existe no repositório
             if (this.festas.containsKey(idFesta)) {
-                throw new IllegalArgumentException("ID repetido " + idFesta + " na classe Festa.");
+                throw new DataInconsistencyException("ID repetido " + idFesta + " na classe Festa.");
             }
 
             String idCasamento = campos[1].trim();
@@ -129,7 +131,7 @@ public class FestaRepository {
             // Validação: Verifica se o ID do Casamento existe
             Casamento casamento = casamentoRepo.buscarPorId(idCasamento);
             if (casamento == null) {
-                throw new IllegalArgumentException(
+                throw new DataInconsistencyException(
                         "ID(s) de Casamento " + idCasamento + " não cadastrado na Festa de ID " + idFesta + ".");
             }
 
@@ -138,7 +140,7 @@ public class FestaRepository {
             PessoaFisica dono2 = (PessoaFisica) pessoaRepo.buscarPorId(casamento.getCasal().getIdPessoa2());
 
             if (dono1 == null || dono2 == null) {
-                throw new IllegalArgumentException("Os donos da festa com ID " + idFesta + " não foram encontrados.");
+                throw new DataInconsistencyException("Os donos da festa com ID " + idFesta + " não foram encontrados.");
             }
 
             String nomeDono1 = dono1.getNome();

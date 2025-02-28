@@ -1,5 +1,7 @@
 package model;
 
+import exception.DataInconsistencyException;
+
 /**
  * Classe que representa uma pessoa genérica no sistema.
  */
@@ -18,18 +20,18 @@ public class Pessoa {
      * @param endereco Endereço da pessoa (não pode ser nulo).
      * @param idPessoa Identificador único da pessoa (32 dígitos).
      */
-    public Pessoa(String nome, String telefone, String endereco, String idPessoa) {
+    public Pessoa(String nome, String telefone, String endereco, String idPessoa) throws DataInconsistencyException {
         if (idPessoa == null || !idPessoa.matches("\\d{32}")) {
-            throw new IllegalArgumentException("ID da Pessoa inválido! Deve conter exatamente 32 dígitos numéricos.");
+            throw new DataInconsistencyException("ID da Pessoa inválido! Deve conter exatamente 32 dígitos numéricos.");
         }
         if (nome == null || nome.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome da pessoa não pode ser vazio.");
+            throw new DataInconsistencyException("Nome da pessoa não pode ser vazio.");
         }
         if (telefone == null || telefone.trim().isEmpty()) {
-            throw new IllegalArgumentException("Telefone da pessoa não pode ser vazio.");
+            throw new DataInconsistencyException("Telefone da pessoa não pode ser vazio.");
         }
         if (endereco == null || endereco.trim().isEmpty()) {
-            throw new IllegalArgumentException("Endereço da pessoa não pode ser nulo.");
+            throw new DataInconsistencyException("Endereço da pessoa não pode ser nulo.");
         }
 
         this.idPessoa = idPessoa;
@@ -46,9 +48,9 @@ public class Pessoa {
         return nome;
     }
 
-    public void setNome(String nome) {
+    public void setNome(String nome) throws DataInconsistencyException {
         if (nome == null || nome.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome não pode ser vazio.");
+            throw new DataInconsistencyException("Nome não pode ser vazio.");
         }
         this.nome = nome;
     }
@@ -57,9 +59,9 @@ public class Pessoa {
         return telefone;
     }
 
-    public void setTelefone(String telefone) {
+    public void setTelefone(String telefone) throws DataInconsistencyException {
         if (telefone == null || telefone.trim().isEmpty()) {
-            throw new IllegalArgumentException("Telefone não pode ser vazio.");
+            throw new DataInconsistencyException("Telefone não pode ser vazio.");
         }
         this.telefone = telefone;
     }
@@ -68,9 +70,9 @@ public class Pessoa {
         return endereco;
     }
 
-    public void setEndereco(String endereco) {
+    public void setEndereco(String endereco) throws DataInconsistencyException {
         if (endereco == null) {
-            throw new IllegalArgumentException("Endereço não pode ser nulo.");
+            throw new DataInconsistencyException("Endereço não pode ser nulo.");
         }
         this.endereco = endereco;
     }
